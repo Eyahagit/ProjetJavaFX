@@ -1,17 +1,37 @@
 package Esprit.tn;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-public class Main {
-    static void main() {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        IO.println(String.format("Hello and welcome!"));
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+import java.sql.Connection;
+import utiles.mydb;              // ← AJOUTEZ CETTE LIGNE
+import services.EvenementControlleur; // ← AJOUTEZ CETTE LIGNE
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            IO.println("i = " + i);
+public class Main extends Application {
+
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Login.fxml"));
+        Scene scene = new Scene(loader.load());
+        primaryStage.setTitle("Connexion - GrowMind");
+        primaryStage.setScene(scene);
+        primaryStage.setResizable(false);
+        primaryStage.show();
+    }
+
+    public static void main(String[] args) {
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            System.out.println("Driver MySQL chargé !");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
         }
+
+        Connection cnx = mydb.getInstance().getConnection();
+        EvenementControlleur ec = new EvenementControlleur(cnx); // ← Utilisé plus bas
+
+        launch(args);
     }
 }

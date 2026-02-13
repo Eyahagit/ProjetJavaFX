@@ -1,73 +1,87 @@
 package Modele;
 
-public class Personne
+import java.time.LocalDate;
+
+public class Evenement
 {
+    private int idEvenement;
+    private String titre;
+    private String description;
+    private LocalDate date;
+    private String localisation;
 
-    private int id;
-    private String nom;
-    private String prenom;
-    private String classe;
-
-    public Personne()
+    public Evenement()
     {
     }
 
-    public Personne(int id, String nom, String prenom, String classe)
+    public Evenement(int idEvenement, String titre, String description, LocalDate date, String localisation)
     {
-        this.id = id;
-        this.nom = nom;
-        this.prenom = prenom;
-        this.classe = classe;
+        this.idEvenement = idEvenement;
+        this.titre = titre;
+        this.description = description;
+        this.date = date;
+        this.localisation = localisation;
     }
 
-    public int getId()
+    public int getIdEvenement()
     {
-        return id;
+        return idEvenement;
     }
 
-    public void setId(int id)
+    public void setIdEvenement(int idEvenement)
     {
-        this.id = id;
+        this.idEvenement = idEvenement;
     }
 
-    public String getNom()
+    public String getTitre()
     {
-        return nom;
+        return titre;
     }
 
-    public void setNom(String nom)
+    public void setTitre(String titre)
     {
-        this.nom = nom;
+        this.titre = titre;
     }
 
-    public String getPrenom()
+    public String getDescription()
     {
-        return prenom;
+        return description;
     }
 
-    public void setPrenom(String prenom)
+    public void setDescription(String description)
     {
-        this.prenom = prenom;
+        this.description = description;
     }
 
-    public String getClasse()
+    public LocalDate getDate()
     {
-        return classe;
+        return date;
     }
 
-    public void setClasse(String classe)
+    public void setDate(LocalDate date)
     {
-        this.classe = classe;
+        this.date = date;
+    }
+
+    public String getLocalisation()
+    {
+        return localisation;
+    }
+
+    public void setLocalisation(String localisation)
+    {
+        this.localisation = localisation;
     }
 
     @Override
     public String toString()
     {
-        return "Personne{" +
-                "id=" + id +
-                ", nom='" + nom + '\'' +
-                ", prenom='" + prenom + '\'' +
-                ", classe='" + classe + '\'' +
+        return "Evenement{" +
+                "idEvenement=" + idEvenement +
+                ", titre='" + titre + '\'' +
+                ", description='" + description + '\'' +
+                ", date=" + date +
+                ", localisation='" + localisation + '\'' +
                 '}';
     }
 }

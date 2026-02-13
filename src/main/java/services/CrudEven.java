@@ -2,7 +2,7 @@ package services;
 
 import java.util.List;
 
-public interface CrudPerso<T> {
+public interface CrudEven<T> {
 
     void ajouter(T t);
 
