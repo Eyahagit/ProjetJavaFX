@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="750.0" prefWidth="1200.0" style="-fx-background-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.Controller.UserRessourceController">
+    
+    <!-- Background decorative elements -->
+    <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#9B59B6" height="120.0" layoutX="-50.0" layoutY="0.0" opacity="0.15" rotate="45.0" width="300.0" />
+    <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#E667AF" height="150.0" layoutX="1100.0" layoutY="650.0" opacity="0.15" rotate="-30.0" width="200.0" />
+    <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#F1C40F" height="100.0" layoutX="900.0" layoutY="-30.0" opacity="0.1" rotate="15.0" width="250.0" />
+
+    <!-- HEADER SECTION -->
+    <VBox alignment="CENTER" layoutX="0.0" layoutY="0.0" prefHeight="140.0" prefWidth="1200.0" style="-fx-background-color: linear-gradient(to right, #4A6FA5, #5FB49C); -fx-background-radius: 0 0 25 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0.5, 0, 3);">
+        <HBox alignment="CENTER" spacing="20">
+            <VBox spacing="3">
+                <Label style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 6, 0.4, 2, 2);" text="GrowMind">
+                    <font>
+                        <Font name="System Bold" size="32.0" />
+                    </font>
+                </Label>
+                <Label style="-fx-font-size: 16px; -fx-text-fill: rgba(255,255,255,0.95); -fx-font-weight: 500;" text="Cultivez votre bien-être mental" />
+            </VBox>
+        </HBox>
+
+        <Label style="-fx-font-size: 15px; -fx-text-fill: rgba(255,255,255,0.85); -fx-font-style: italic; -fx-padding: 8 0 0 0;" text="Plateforme complète de santé mentale et développement personnel" />
+
+        <!-- Navigation tabs -->
+        <HBox alignment="CENTER" spacing="25" style="-fx-padding: 12 0 0 0;">
+            <Label style="-fx-font-size: 13px; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-color: rgba(255,255,255,0.2); -fx-background-radius: 15; -fx-padding: 6 15;" text="🎯 Événements" />
+            <Label style="-fx-font-size: 13px; -fx-text-fill: rgba(255,255,255,0.7);" text="👥 Utilisateurs" />
+            <Label style="-fx-font-size: 13px; -fx-text-fill: rgba(255,255,255,0.7);" text="🏥 Cabinets" />
+            <Label style="-fx-font-size: 13px; -fx-text-fill: rgba(255,255,255,0.7);" text="💬 Forums" />
+            <Label style="-fx-font-size: 13px; -fx-text-fill: rgba(255,255,255,0.7);" text="🧘 Bien-Être" />
+            <Label style="-fx-font-size: 13px; -fx-text-fill: rgba(255,255,255,0.7);" text="📚 Formation" />
+        </HBox>
+    </VBox>
+    
+    <!-- SUB-HEADER / FILTERS -->
+    <HBox alignment="CENTER_LEFT" layoutY="160.0" prefHeight="60.0" prefWidth="1200.0" spacing="20" style="-fx-padding: 0 50;">
+        <Label style="-fx-font-weight: bold; -fx-text-fill: white; -fx-font-size: 24px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 3, 0.5, 0, 1);" text="Catalogue Ressources">
+         <font>
+            <Font size="24.0" />
+         </font></Label>
+        
+        <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS" />
+        
+        <TextField fx:id="searchField" onKeyReleased="#handleSearch" prefWidth="250" promptText="🔍 Rechercher..." style="-fx-background-radius: 20; -fx-padding: 10; -fx-background-color: rgba(255,255,255,0.9);" />
+        
+        <ComboBox fx:id="filterType" prefWidth="150" promptText="Type" style="-fx-background-radius: 20; -fx-background-color: rgba(255,255,255,0.9);" />
+        <ComboBox fx:id="filterCategory" prefWidth="150" promptText="Catégorie" style="-fx-background-radius: 20; -fx-background-color: rgba(255,255,255,0.9);" />
+    </HBox>
+
+    <!-- Scrollable Content -->
+    <ScrollPane fitToWidth="true" layoutY="220.0" prefHeight="500.0" prefWidth="1200.0" style="-fx-background-color: transparent; -fx-background: transparent; -fx-padding: 20;" vbarPolicy="AS_NEEDED">
+        <content>
+            <FlowPane fx:id="cardsContainer" hgap="30" vgap="30" style="-fx-background-color: transparent;">
+                <!-- Cards will be injected here -->
+            </FlowPane>
+        </content>
+    </ScrollPane>
+    
+    <!-- FOOTER -->
+    <HBox alignment="CENTER" layoutX="0.0" layoutY="720.0" prefHeight="30.0" prefWidth="1200.0" style="-fx-background-color: #2c3e50;">
+        <Label style="-fx-font-size: 12px; -fx-text-fill: #bdc3c7;" text="©️ 2024 GrowMind - Plateforme de Santé Mentale  et Développement Personnel | Version 2.0 | Tous droits réservés" />
+    </HBox>
+
+</AnchorPane>

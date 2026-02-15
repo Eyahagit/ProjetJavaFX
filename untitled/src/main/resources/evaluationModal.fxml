@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane prefHeight="400.0" prefWidth="500.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.Controller.EvaluationModalController">
+    <VBox alignment="CENTER" spacing="15" layoutX="30.0" layoutY="30.0" prefWidth="440.0">
+        <Label text="Évaluer la Ressource" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+        
+        <Label fx:id="lblResourceTitle" text="Titre Ressource" style="-fx-font-size: 16px; -fx-text-fill: #7f8c8d;"/>
+
+        <VBox alignment="CENTER" spacing="5">
+            <Label text="Note" style="-fx-font-weight: bold;"/>
+            <!-- Since controlsfx might not be added, I'll use a custom HBox for stars or just simple buttons for now if lib missing. 
+                 But user asked for stars. I'll implement a simple star system using 5 buttons or labels if external lib is an issue.
+                 Let's assume standard implementation first, but better to implement custom simple star system to avoid dependency issues for now.
+             -->
+            <HBox fx:id="ratingBox" alignment="CENTER" spacing="5">
+                <!-- Stars added dynamically -->
+            </HBox>
+            <Label fx:id="lblRatingError" text="Veuillez donner une note" textFill="RED" visible="false"/>
+        </VBox>
+
+        <VBox spacing="5" alignment="CENTER_LEFT">
+            <Label text="Commentaire" style="-fx-font-weight: bold;"/>
+            <TextArea fx:id="txtCommentaire" prefHeight="100.0" wrapText="true" promptText="Votre avis..." style="-fx-border-color: #dcdcdc; -fx-border-radius: 5;"/>
+            <Label fx:id="lblCommentError" text="Le commentaire ne peut pas être vide" textFill="RED" visible="false"/>
+        </VBox>
+
+        <HBox spacing="10" alignment="CENTER" style="-fx-padding: 10 0 0 0;">
+            <Button text="Soumettre" onAction="#handleSubmit" style="-fx-background-color: #5FB49C; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 5;"/>
+            <Button text="Annuler" onAction="#handleCancel" style="-fx-background-color: #bdc3c7; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 5;"/>
+        </HBox>
+    </VBox>
+</AnchorPane>
