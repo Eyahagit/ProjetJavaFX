@@ -115,42 +115,55 @@
                 <Label style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" text="📋 Liste des Événements" />
                 <Label fx:id="lblCount" style="-fx-font-size: 14px; -fx-text-fill: #5FB49C; -fx-font-weight: bold; -fx-background-color: #f0f9f6; -fx-background-radius: 12; -fx-padding: 6 15; -fx-border-color: #5FB49C; -fx-border-radius: 12; -fx-border-width: 2;" text="0 événement(s)" />
 
+                <!-- ✅ NOUVEAU BOUTON MES RÉSERVATIONS (CORRIGÉ) -->
+                <Button fx:id="btnMesReservations" onAction="#handleMesReservations"
+                        style="-fx-background-color: #9B59B6; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px; -fx-background-radius: 20; -fx-padding: 6 20; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(155,89,182,0.3), 8, 0.3, 0, 2);"
+                        text="📋 Mes Réservations" />
+
                 <!-- Search Box -->
-                <TextField promptText="🔍 Rechercher un événement..." style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #d1e7f3; -fx-background-color: white; -fx-font-size: 13px; -fx-padding: 8 12; -fx-pref-width: 200;" />
+                <TextField fx:id="txtSearch" promptText="🔍 Rechercher un événement..." style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #d1e7f3; -fx-background-color: white; -fx-font-size: 13px; -fx-padding: 8 12; -fx-pref-width: 200;" />
             </HBox>
 
             <!-- LISTVIEW -->
             <ListView fx:id="listEvenements" onMouseClicked="#handleListClick" prefHeight="380.0" prefWidth="710.0" style="-fx-background-color: white; -fx-border-color: #e0f7fa; -fx-border-radius: 15; -fx-background-radius: 15;" />
 
-            <!-- STATS BAR -->
+            <!-- STATS BAR DYNAMIQUE -->
             <HBox alignment="CENTER" spacing="40" style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 20; -fx-border-color: #4A6FA5; -fx-border-radius: 15; -fx-border-width: 2;">
+
+                <!-- Total Événements -->
                 <VBox alignment="CENTER" spacing="5">
                     <HBox alignment="CENTER" spacing="8">
-                        <Label style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #4A6FA5;" text="12" />
-                        <Label style="-fx-font-size: 18px; -fx-text-fill: #4A6FA5;" text="🎯" />
+                        <Label fx:id="lblTotalEvents" style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #4A6FA5;" text="0" />
+                        <Label style="-fx-font-size: 18px; -fx-text-fill: #4A6FA5;" text="📅" />
                     </HBox>
-                    <Label style="-fx-font-size: 12px; -fx-text-fill: #7f8c8d; -fx-font-weight: bold;" text="Événements/Mois" />
+                    <Label style="-fx-font-size: 12px; -fx-text-fill: #7f8c8d; -fx-font-weight: bold;" text="Total Événements" />
                 </VBox>
+
+                <!-- Total Réservations -->
                 <VBox alignment="CENTER" spacing="5">
                     <HBox alignment="CENTER" spacing="8">
-                        <Label style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #5FB49C;" text="85%" />
-                        <Label style="-fx-font-size: 18px; -fx-text-fill: #5FB49C;" text="📈" />
+                        <Label fx:id="lblTotalReservations" style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #5FB49C;" text="0" />
+                        <Label style="-fx-font-size: 18px; -fx-text-fill: #5FB49C;" text="👥" />
                     </HBox>
-                    <Label style="-fx-font-size: 12px; -fx-text-fill: #7f8c8d; -fx-font-weight: bold;" text="Participation" />
+                    <Label style="-fx-font-size: 12px; -fx-text-fill: #7f8c8d; -fx-font-weight: bold;" text="Réservations" />
                 </VBox>
+
+                <!-- Événements ce mois-ci -->
                 <VBox alignment="CENTER" spacing="5">
                     <HBox alignment="CENTER" spacing="8">
-                        <Label style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #9B59B6;" text="4.8" />
+                        <Label fx:id="lblEventsMois" style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #9B59B6;" text="0" />
                         <Label style="-fx-font-size: 18px; -fx-text-fill: #9B59B6;" text="⭐" />
                     </HBox>
-                    <Label style="-fx-font-size: 12px; -fx-text-fill: #7f8c8d; -fx-font-weight: bold;" text="Satisfaction" />
+                    <Label style="-fx-font-size: 12px; -fx-text-fill: #7f8c8d; -fx-font-weight: bold;" text="Ce mois-ci" />
                 </VBox>
+
+                <!-- Note moyenne -->
                 <VBox alignment="CENTER" spacing="5">
                     <HBox alignment="CENTER" spacing="8">
-                        <Label style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #F1C40F;" text="98%" />
-                        <Label style="-fx-font-size: 18px; -fx-text-fill: #F1C40F;" text="🚀" />
+                        <Label fx:id="lblMoyenneAvis" style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #F1C40F;" text="0.0" />
+                        <Label style="-fx-font-size: 18px; -fx-text-fill: #F1C40F;" text="⭐" />
                     </HBox>
-                    <Label style="-fx-font-size: 12px; -fx-text-fill: #7f8c8d; -fx-font-weight: bold;" text="Taux de Réussite" />
+                    <Label style="-fx-font-size: 12px; -fx-text-fill: #7f8c8d; -fx-font-weight: bold;" text="Note moyenne" />
                 </VBox>
             </HBox>
         </VBox>

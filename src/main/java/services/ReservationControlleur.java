@@ -13,14 +13,14 @@ public class ReservationControlleur {
         this.cnx = cnx;
     }
 
-    // MODIFIEZ LA MÉTHODE ajouter()
+    // Ajouter une réservation
     public void ajouter(Reservation r) throws SQLException {
         String sql = "INSERT INTO reservation (idEvenement, utilisateur_id, nom, email, telephone, nombre_personnes) " +
-                "VALUES (?, ?, ?, ?, ?, ?)";  // ✅ AJOUTEZ ? POUR utilisateur_id
+                "VALUES (?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setInt(1, r.getIdEvenement());
-            ps.setInt(2, r.getUtilisateurId());  // ✅ AJOUTEZ CETTE LIGNE
+            ps.setInt(2, r.getUtilisateurId());
             ps.setString(3, r.getNom());
             ps.setString(4, r.getEmail());
             ps.setString(5, r.getTelephone());
@@ -28,6 +28,37 @@ public class ReservationControlleur {
             ps.executeUpdate();
         }
     }
+
+    // ✅ NOUVELLE MÉTHODE À AJOUTER
+    public List<Reservation> getByUtilisateur(int utilisateurId) throws SQLException {
+        List<Reservation> reservations = new ArrayList<>();
+        String sql = "SELECT * FROM reservation WHERE utilisateur_id = ? ORDER BY date_reservation DESC";
+
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            ps.setInt(1, utilisateurId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Reservation r = new Reservation();
+                r.setIdReservation(rs.getInt("idReservation"));
+                r.setIdEvenement(rs.getInt("idEvenement"));
+                r.setUtilisateurId(rs.getInt("utilisateur_id"));
+                r.setNom(rs.getString("nom"));
+                r.setEmail(rs.getString("email"));
+                r.setTelephone(rs.getString("telephone"));
+                r.setNombrePersonnes(rs.getInt("nombre_personnes"));
+
+                Timestamp timestamp = rs.getTimestamp("date_reservation");
+                if (timestamp != null) {
+                    r.setDateReservation(timestamp.toLocalDateTime());
+                }
+
+                reservations.add(r);
+            }
+        }
+        return reservations;
+    }
+
     // Récupérer les réservations d'un événement
     public List<Reservation> getByEvenement(int idEvenement) throws SQLException {
         List<Reservation> reservations = new ArrayList<>();
