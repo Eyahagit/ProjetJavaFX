@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane style="-fx-background-color: linear-gradient(135deg, #667eea, #764ba2);" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.usersController">
+
+    <!-- ================= TOP BAR ================= -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-background-color: linear-gradient(to right, #4A6FA5, #5FB49C); -fx-padding: 20 40 20 40;">
+
+            <!-- LOGO + APP NAME -->
+            <VBox spacing="2">
+                <Label style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: white;" text="GrowMind" />
+                <Label style="-fx-font-size: 14px; -fx-text-fill: rgba(255,255,255,0.8);" text="Mental Health Platform" />
+            </VBox>
+
+            <Region HBox.hgrow="ALWAYS" />
+
+            <!-- USER AREA + LOGIN LINK -->
+            <HBox spacing="20" alignment="CENTER_RIGHT">
+                <Label style="-fx-font-size: 16px; -fx-text-fill: white;" text="👤 User" />
+                <Hyperlink fx:id="loginLink" onAction="#goToLogin" style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-border-color: transparent; -fx-underline: false;" text="🔑 Login" />
+            </HBox>
+        </HBox>
+    </top>
+
+    <!-- ================= MAIN CONTENT WITH SCROLLPANE ================= -->
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;">
+            <VBox alignment="TOP_CENTER" spacing="20">
+
+                <VBox maxWidth="1100" spacing="25" style="-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 40; -fx-border-radius: 20; -fx-border-color: #4A6FA5; -fx-border-width: 2;">
+
+                    <!-- TITLE -->
+                    <Label style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" text="👤 User Management" />
+
+                    <!-- ================= USER COMMON FIELDS ================= -->
+                    <VBox spacing="15">
+                        <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #4A6FA5;" text="User Information"/>
+
+                        <HBox spacing="20">
+                            <TextField fx:id="nameField" prefWidth="300" prefHeight="40" promptText="Name" style="-fx-font-size: 14px;" />
+                            <TextField fx:id="secondNameField" prefWidth="300" prefHeight="40" promptText="Second Name" style="-fx-font-size: 14px;" />
+                        </HBox>
+
+                        <HBox spacing="20">
+                            <TextField fx:id="ageField" prefWidth="300" prefHeight="40" promptText="Age" style="-fx-font-size: 14px;" />
+                            <TextField fx:id="genderField" prefWidth="300" prefHeight="40" promptText="Gender" style="-fx-font-size: 14px;" />
+                        </HBox>
+
+                        <HBox spacing="20">
+                            <TextField fx:id="phoneField" prefWidth="300" prefHeight="40" promptText="Phone Number" style="-fx-font-size: 14px;" />
+                            <DatePicker fx:id="dateBirth" prefWidth="300" prefHeight="40" promptText="Birth Date" style="-fx-font-size: 14px;" />
+                        </HBox>
+
+                        <HBox spacing="20">
+                            <TextField fx:id="emailField" prefWidth="300" prefHeight="40" promptText="Email" style="-fx-font-size: 14px;" />
+                            <PasswordField fx:id="passwordField" prefWidth="300" prefHeight="40" promptText="Password" style="-fx-font-size: 14px;" />
+                        </HBox>
+
+                        <!-- ROLE COMBOBOX -->
+                        <ComboBox fx:id="roleBox" prefWidth="320" prefHeight="40" promptText="Select Role" style="-fx-font-size: 14px;">
+                            <!--<items>
+                                <FXCollections fx:factory="observableArrayList">
+                                    <String fx:value="patient" />
+                                    <String fx:value="doctor" />
+                                    <String fx:value="admin" />
+                                </FXCollections>
+                            </items>-->
+                        </ComboBox>
+                    </VBox>
+
+                    <!-- ================= PATIENT SECTION ================= -->
+                    <VBox fx:id="panePatient" managed="false" spacing="15" style="-fx-border-color: #5FB49C; -fx-border-radius: 10; -fx-padding: 20; -fx-background-color: #f8f9fa;" visible="false">
+                        <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #5FB49C;" text="🩺 Patient Information" />
+                        <HBox spacing="20">
+                            <TextField fx:id="txtBloodType" prefWidth="220" prefHeight="40" promptText="Blood Type" style="-fx-font-size: 14px;" />
+                            <TextField fx:id="txtWeight" prefWidth="220" prefHeight="40" promptText="Weight (kg)" style="-fx-font-size: 14px;" />
+                            <TextField fx:id="txtHeight" prefWidth="220" prefHeight="40" promptText="Height (cm)" style="-fx-font-size: 14px;" />
+                        </HBox>
+                    </VBox>
+
+                    <!-- ================= DOCTOR SECTION ================= -->
+                    <VBox fx:id="paneDoctor" managed="false" spacing="15" style="-fx-border-color: #4A6FA5; -fx-border-radius: 10; -fx-padding: 20; -fx-background-color: #f8f9fa;" visible="false">
+                        <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #4A6FA5;" text="👨‍⚕️ Doctor Information" />
+                        <HBox spacing="20">
+                            <TextField fx:id="txtSpecialty" prefWidth="220" prefHeight="40" promptText="Specialty" style="-fx-font-size: 14px;" />
+                            <TextField fx:id="txtExperience" prefWidth="220" prefHeight="40" promptText="Experience (years)" style="-fx-font-size: 14px;" />
+                            <TextField fx:id="txtDiplome" prefWidth="220" prefHeight="40" promptText="Diploma" style="-fx-font-size: 14px;" />
+                        </HBox>
+                        <HBox spacing="20" alignment="CENTER_LEFT">
+                            <CheckBox fx:id="chkDisponible" text="Disponible" style="-fx-font-size: 14px; -fx-font-weight: bold;" />
+                            <TextField fx:id="txtTarif" prefWidth="220" prefHeight="40" promptText="Consultation Price" style="-fx-font-size: 14px;" />
+                            <CheckBox fx:id="chkActif" text="Actif" style="-fx-font-size: 14px; -fx-font-weight: bold;" />
+                        </HBox>
+                    </VBox>
+
+                    <!-- ================= ADMIN SECTION ================= -->
+                    <VBox fx:id="paneAdmin" managed="false" spacing="15" style="-fx-border-color: #9B59B6; -fx-border-radius: 10; -fx-padding: 20; -fx-background-color: #f8f9fa;" visible="false">
+                        <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #9B59B6;" text="👑 Admin Information" />
+                        <HBox spacing="20" alignment="CENTER_LEFT">
+                            <CheckBox fx:id="chkActifA" text="Actif" style="-fx-font-size: 14px; -fx-font-weight: bold;" />
+                        </HBox>
+                    </VBox>
+
+                    <!-- ================= BUTTON ================= -->
+                    <HBox alignment="CENTER" spacing="15">
+                        <Button fx:id="btnAdd" onAction="#addUser"
+                                style="-fx-background-color: #5FB49C; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 18px; -fx-padding: 15 50 15 50; -fx-background-radius: 10;"
+                                text="Sign In"
+                                prefWidth="300"
+                                prefHeight="50"/>
+                    </HBox>
+
+                    <!-- SEPARATOR -->
+                    <Region style="-fx-padding: 10 0 0 0;" />
+
+                </VBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

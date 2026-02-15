@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
+
+<BorderPane style="-fx-background-color: linear-gradient(135deg, #667eea, #764ba2);" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.AdminAddUserController">
+
+    <!-- ================= TOP BAR ================= -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-background-color: linear-gradient(to right, #4A6FA5, #5FB49C); -fx-padding: 20 40;">
+            <VBox spacing="2">
+                <Label style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;" text="GrowMind" />
+                <Label style="-fx-font-size: 12px; -fx-text-fill: rgba(255,255,255,0.8);" text="Mental Health Platform" />
+            </VBox>
+            <Region HBox.hgrow="ALWAYS" />
+            <HBox spacing="15" alignment="CENTER_RIGHT">
+                <Label style="-fx-font-size: 14px; -fx-text-fill: white;" text="👑 Admin" />
+                <Label fx:id="adminNameLabel" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: white;" text="Admin" />
+            </HBox>
+        </HBox>
+    </top>
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background: transparent;">
+            <VBox alignment="CENTER" spacing="30" style="-fx-padding: 20;">
+
+                <!-- Main Card -->
+                <VBox maxWidth="800" spacing="25" style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 30; -fx-border-radius: 15; -fx-border-color: #4A6FA5; -fx-border-width: 2;">
+
+                    <!-- Title -->
+                    <VBox spacing="5">
+                        <Label style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" text="➕ Add New User" />
+                        <Label style="-fx-font-size: 14px; -fx-text-fill: #666;" text="Fill in the information below to create a new user" />
+                    </VBox>
+
+                    <Separator />
+
+                    <!-- ============ ROLE SELECTION ============ -->
+                    <VBox spacing="10">
+                        <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #4A6FA5;" text="1. Select User Role" />
+                        <ComboBox fx:id="roleBox" prefWidth="300" promptText="Choose a role..." style="-fx-padding: 8;">
+                            <items>
+                                <FXCollections fx:factory="observableArrayList">
+                                    <String fx:value="patient" />
+                                    <String fx:value="doctor" />
+                                    <String fx:value="admin" />
+                                </FXCollections>
+                            </items>
+                        </ComboBox>
+                    </VBox>
+
+                    <Separator />
+
+                    <!-- ============ COMMON FIELDS ============ -->
+                    <VBox spacing="15">
+                        <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #4A6FA5;" text="2. Basic Information" />
+
+                        <HBox spacing="15">
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label style="-fx-font-weight: bold;" text="First Name" />
+                                <TextField fx:id="nameField" promptText="Enter first name" style="-fx-padding: 10;" />
+                            </VBox>
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label style="-fx-font-weight: bold;" text="Last Name" />
+                                <TextField fx:id="secondNameField" promptText="Enter last name" style="-fx-padding: 10;" />
+                            </VBox>
+                        </HBox>
+
+                        <HBox spacing="15">
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label style="-fx-font-weight: bold;" text="Email" />
+                                <TextField fx:id="emailField" promptText="Enter email" style="-fx-padding: 10;" />
+                            </VBox>
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label style="-fx-font-weight: bold;" text="Password" />
+                                <PasswordField fx:id="passwordField" promptText="Enter password" style="-fx-padding: 10;" />
+                            </VBox>
+                        </HBox>
+
+                        <HBox spacing="15">
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label style="-fx-font-weight: bold;" text="Age" />
+                                <TextField fx:id="ageField" promptText="Enter age" style="-fx-padding: 10;" />
+                            </VBox>
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label style="-fx-font-weight: bold;" text="Gender" />
+                                <ComboBox fx:id="genderCombo" prefWidth="200" style="-fx-padding: 8;">
+                                    <items>
+                                        <FXCollections fx:factory="observableArrayList">
+                                            <String fx:value="Male" />
+                                            <String fx:value="Female" />
+                                            <String fx:value="Other" />
+                                        </FXCollections>
+                                    </items>
+                                </ComboBox>
+                            </VBox>
+                        </HBox>
+
+                        <HBox spacing="15">
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label style="-fx-font-weight: bold;" text="Phone Number" />
+                                <TextField fx:id="phoneField" promptText="Enter phone number" style="-fx-padding: 10;" />
+                            </VBox>
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label style="-fx-font-weight: bold;" text="Birth Date" />
+                                <DatePicker fx:id="dateBirth" prefWidth="200" promptText="Select date" />
+                            </VBox>
+                        </HBox>
+                    </VBox>
+
+                    <Separator />
+
+                    <!-- ============ PATIENT SPECIFIC FIELDS ============ -->
+                    <VBox fx:id="patientFields" spacing="15" managed="false" visible="false" style="-fx-background-color: #f0f9ff; -fx-padding: 20; -fx-background-radius: 10; -fx-border-color: #5FB49C; -fx-border-width: 1;">
+                        <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #5FB49C;" text="3. Patient Information" />
+
+                        <HBox spacing="15">
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label style="-fx-font-weight: bold;" text="Blood Type" />
+                                <TextField fx:id="bloodTypeField" promptText="e.g., A+, O-" style="-fx-padding: 10;" />
+                            </VBox>
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label style="-fx-font-weight: bold;" text="Weight (kg)" />
+                                <TextField fx:id="weightField" promptText="Enter weight" style="-fx-padding: 10;" />
+                            </VBox>
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label style="-fx-font-weight: bold;" text="Height (cm)" />
+                                <TextField fx:id="heightField" promptText="Enter height" style="-fx-padding: 10;" />
+                            </VBox>
+                        </HBox>
+                    </VBox>
+
+                    <!-- ============ DOCTOR SPECIFIC FIELDS ============ -->
+                    <VBox fx:id="doctorFields" spacing="15" managed="false" visible="false" style="-fx-background-color: #fff0f5; -fx-padding: 20; -fx-background-radius: 10; -fx-border-color: #E667AF; -fx-border-width: 1;">
+                        <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #E667AF;" text="3. Doctor Information" />
+
+                        <HBox spacing="15">
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label style="-fx-font-weight: bold;" text="Specialty" />
+                                <TextField fx:id="specialtyField" promptText="e.g., Cardiology" style="-fx-padding: 10;" />
+                            </VBox>
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label style="-fx-font-weight: bold;" text="Experience (years)" />
+                                <TextField fx:id="experienceField" promptText="Enter years" style="-fx-padding: 10;" />
+                            </VBox>
+                        </HBox>
+
+                        <HBox spacing="15">
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label style="-fx-font-weight: bold;" text="Diploma" />
+                                <TextField fx:id="diplomaField" promptText="Enter diploma" style="-fx-padding: 10;" />
+                            </VBox>
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label style="-fx-font-weight: bold;" text="Consultation Price" />
+                                <TextField fx:id="priceField" promptText="Enter price" style="-fx-padding: 10;" />
+                            </VBox>
+                        </HBox>
+
+                        <HBox spacing="30" alignment="CENTER_LEFT">
+                            <CheckBox fx:id="availableCheckBox" text="Available" />
+                            <CheckBox fx:id="activeCheckBox" text="Active" />
+                        </HBox>
+                    </VBox>
+
+                    <!-- ============ ADMIN SPECIFIC FIELDS ============ -->
+                    <VBox fx:id="adminFields" spacing="15" managed="false" visible="false" style="-fx-background-color: #f3e8ff; -fx-padding: 20; -fx-background-radius: 10; -fx-border-color: #9B59B6; -fx-border-width: 1;">
+                        <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #9B59B6;" text="3. Admin Information" />
+                        <CheckBox fx:id="adminActiveCheckBox" text="Active" />
+                    </VBox>
+
+                    <Separator />
+
+                    <!-- ============ BUTTONS ============ -->
+                    <HBox spacing="20" alignment="CENTER">
+                        <Button fx:id="addBtn" onAction="#handleAddUser"
+                                style="-fx-background-color: #5FB49C; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 16px; -fx-padding: 12 30; -fx-background-radius: 8; -fx-cursor: hand;"
+                                text="➕ Add User"
+                                prefWidth="200"/>
+                        <Button fx:id="cancelBtn" onAction="#handleCancel"
+                                style="-fx-background-color: #666; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 16px; -fx-padding: 12 30; -fx-background-radius: 8; -fx-cursor: hand;"
+                                text="❌ Cancel"
+                                prefWidth="200"/>
+                    </HBox>
+
+                </VBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

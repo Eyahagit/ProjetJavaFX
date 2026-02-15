@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
+
+<BorderPane style="-fx-background-color: linear-gradient(135deg, #667eea, #764ba2);" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.EditUserController">
+
+    <!-- TOP BAR -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-background-color: linear-gradient(to right, #4A6FA5, #5FB49C); -fx-padding: 20 40 20 40;">
+            <VBox spacing="2">
+                <Label style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: white;" text="GrowMind" />
+                <Label style="-fx-font-size: 14px; -fx-text-fill: rgba(255,255,255,0.8);" text="Mental Health Platform" />
+            </VBox>
+        </HBox>
+    </top>
+
+    <!-- CENTER CONTENT -->
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;">
+            <VBox alignment="CENTER" spacing="30" style="-fx-padding: 20;">
+                <VBox maxWidth="700" spacing="25" style="-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 40; -fx-border-radius: 20; -fx-border-width: 2; -fx-border-color: #4A6FA5;">
+
+                    <!-- TITLE DYNAMIQUE -->
+                    <Label fx:id="titleLabel" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #4A6FA5;" text="✏️ Edit User" />
+
+                    <!-- ROLE LABEL (CACHÉ) -->
+                    <Label fx:id="roleLabel" visible="false" managed="false" />
+
+                    <Separator />
+
+                    <VBox spacing="15">
+                        <!-- ID (caché) -->
+                        <TextField fx:id="idField" visible="false" managed="false" />
+
+                        <!-- ============ CHAMPS COMMUNS À TOUS ============ -->
+                        <VBox spacing="5">
+                            <Label style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;" text="First Name" />
+                            <TextField fx:id="nameField" promptText="Enter first name" style="-fx-padding: 10; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #ddd;" />
+                        </VBox>
+
+                        <VBox spacing="5">
+                            <Label style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;" text="Last Name" />
+                            <TextField fx:id="secondNameField" promptText="Enter last name" style="-fx-padding: 10; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #ddd;" />
+                        </VBox>
+
+                        <VBox spacing="5">
+                            <Label style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;" text="Email" />
+                            <TextField fx:id="emailField" promptText="Enter email" style="-fx-padding: 10; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #ddd;" />
+                        </VBox>
+
+                        <HBox spacing="15">
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;" text="Age" />
+                                <TextField fx:id="ageField" promptText="Age" style="-fx-padding: 10; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #ddd;" />
+                            </VBox>
+
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;" text="Gender" />
+                                <ComboBox fx:id="genderCombo" prefWidth="200" style="-fx-padding: 5; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #ddd;">
+                                    <items>
+                                        <FXCollections fx:factory="observableArrayList">
+                                            <String fx:value="Male" />
+                                            <String fx:value="Female" />
+                                            <String fx:value="Other" />
+                                        </FXCollections>
+                                    </items>
+                                </ComboBox>
+                            </VBox>
+                        </HBox>
+
+                        <VBox spacing="5">
+                            <Label style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;" text="Phone Number" />
+                            <TextField fx:id="phoneField" promptText="Enter phone number" style="-fx-padding: 10; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #ddd;" />
+                        </VBox>
+
+                        <!-- ============ CHAMPS PATIENT ============ -->
+                        <VBox fx:id="patientFields" spacing="10" style="-fx-background-color: #f0f9ff; -fx-padding: 15; -fx-background-radius: 10; -fx-border-color: #5FB49C; -fx-border-width: 1;" managed="false" visible="false">
+                            <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #5FB49C;" text="🩺 Patient Information" />
+
+                            <VBox spacing="5">
+                                <Label style="-fx-font-weight: bold;" text="Blood Type" />
+                                <TextField fx:id="bloodTypeField" promptText="Enter blood type" style="-fx-padding: 10; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #ddd;" />
+                            </VBox>
+
+                            <HBox spacing="15">
+                                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                    <Label style="-fx-font-weight: bold;" text="Weight (kg)" />
+                                    <TextField fx:id="weightField" promptText="Weight" style="-fx-padding: 10; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #ddd;" />
+                                </VBox>
+                                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                    <Label style="-fx-font-weight: bold;" text="Height (cm)" />
+                                    <TextField fx:id="heightField" promptText="Height" style="-fx-padding: 10; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #ddd;" />
+                                </VBox>
+                            </HBox>
+                        </VBox>
+
+                        <!-- ============ CHAMPS DOCTOR ============ -->
+                        <VBox fx:id="doctorFields" spacing="10" style="-fx-background-color: #fff0f5; -fx-padding: 15; -fx-background-radius: 10; -fx-border-color: #E667AF; -fx-border-width: 1;" managed="false" visible="false">
+                            <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #E667AF;" text="👨‍⚕️ Doctor Information" />
+
+                            <VBox spacing="5">
+                                <Label style="-fx-font-weight: bold;" text="Specialty" />
+                                <TextField fx:id="specialtyField" promptText="Enter specialty" style="-fx-padding: 10; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #ddd;" />
+                            </VBox>
+
+                            <HBox spacing="15">
+                                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                    <Label style="-fx-font-weight: bold;" text="Experience (years)" />
+                                    <TextField fx:id="experienceField" promptText="Years" style="-fx-padding: 10; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #ddd;" />
+                                </VBox>
+                                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                    <Label style="-fx-font-weight: bold;" text="Price (DT)" />
+                                    <TextField fx:id="priceField" promptText="Price" style="-fx-padding: 10; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #ddd;" />
+                                </VBox>
+                            </HBox>
+
+                            <VBox spacing="5">
+                                <Label style="-fx-font-weight: bold;" text="Diploma" />
+                                <TextField fx:id="diplomaField" promptText="Enter diploma" style="-fx-padding: 10; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #ddd;" />
+                            </VBox>
+
+                            <HBox spacing="20" alignment="CENTER_LEFT">
+                                <CheckBox fx:id="availableCheckBox" text="Available" style="-fx-font-size: 14px;" />
+                                <CheckBox fx:id="activeCheckBox" text="Active" style="-fx-font-size: 14px;" />
+                            </HBox>
+                        </VBox>
+
+                        <!-- ============ CHAMPS ADMIN ============ -->
+                        <VBox fx:id="adminFields" spacing="10" style="-fx-background-color: #f3e8ff; -fx-padding: 15; -fx-background-radius: 10; -fx-border-color: #9B59B6; -fx-border-width: 1;" managed="false" visible="false">
+                            <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #9B59B6;" text="👑 Admin Information" />
+                            <CheckBox fx:id="adminActiveCheckBox" text="Active" style="-fx-font-size: 14px;" />
+                        </VBox>
+
+                        <Separator />
+
+                        <!-- BUTTONS -->
+                        <HBox spacing="20" alignment="CENTER">
+                            <Button fx:id="saveBtn" onAction="#handleSave"
+                                    style="-fx-background-color: #5FB49C; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 16px; -fx-padding: 12 30; -fx-background-radius: 8; -fx-cursor: hand;"
+                                    text="💾 Save Changes"
+                                    prefWidth="200" prefHeight="45"/>
+                            <Button fx:id="cancelBtn" onAction="#handleCancel"
+                                    style="-fx-background-color: #666; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 16px; -fx-padding: 12 30; -fx-background-radius: 8; -fx-cursor: hand;"
+                                    text="❌ Cancel"
+                                    prefWidth="200" prefHeight="45"/>
+                        </HBox>
+                    </VBox>
+                </VBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>
