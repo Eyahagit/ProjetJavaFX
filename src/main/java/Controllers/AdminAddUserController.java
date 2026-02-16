@@ -63,7 +63,7 @@ public class AdminAddUserController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // Initialize role combo box
         if (roleBox != null) {
-            roleBox.getItems().addAll("patient", "doctor", "admin");
+            //roleBox.getItems().addAll("patient", "doctor", "admin");
 
             // Listener for role selection
             roleBox.valueProperty().addListener((obs, oldVal, newVal) -> {
