@@ -1,5 +1,3 @@
-// ✅ PAS DE PACKAGE ! PAS DE PACKAGE ! PAS DE PACKAGE !
-
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;

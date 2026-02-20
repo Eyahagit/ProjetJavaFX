@@ -10,10 +10,10 @@
             xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="controllers.MainForumController"
-            style="-fx-background-color: radial-gradient(center 50% 50%, radius 70%, #667eea, #5a67d8);"
+            style="-fx-background-color: radial-gradient(center 50% 50%, radius 70%, #4A6FA5, #5FB49C);"
             prefWidth="1300" prefHeight="750">
 
-    <!-- ÉLÉMENTS DÉCORATIFS SANS GAUSSIANBLUR -->
+    <!-- ÉLÉMENTS DÉCORATIFS -->
     <Circle radius="300" fill="#9F7AEA" opacity="0.15" layoutX="-100" layoutY="-50"/>
     <Circle radius="400" fill="#ED64A6" opacity="0.1" layoutX="1100" layoutY="600"/>
 
@@ -24,7 +24,7 @@
         <padding><Insets top="25" right="30" bottom="25" left="30"/></padding>
 
         <!-- HEADER -->
-        <VBox spacing="20" style="-fx-background-color: linear-gradient(to right, #667eea, #764ba2);
+        <VBox spacing="20" style="-fx-background-color: linear-gradient(to right, #4A6FA5, #5FB49C);
                -fx-background-radius: 30; -fx-padding: 25;
                -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 15, 0.2, 0, 5);">
 
@@ -36,7 +36,7 @@
                         <Label text="GROWMIND"
                                style="-fx-font-size: 32px; -fx-font-weight: 900; -fx-text-fill: white;
                                       -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 5, 0, 0, 2);"/>
-                        <Label text="Forum Santé Mentale &amp; Bien-être"
+                        <Label text="Forum Santé Mentale et Bien-être"
                                style="-fx-font-size: 14px; -fx-text-fill: rgba(255,255,255,0.95); -fx-font-weight: 600;"/>
                     </VBox>
                 </HBox>
@@ -96,12 +96,12 @@
                     <VBox spacing="10" alignment="CENTER" HBox.hgrow="ALWAYS"
                           style="-fx-background-color: linear-gradient(to bottom, white, #F7FAFC);
                                  -fx-padding: 25; -fx-background-radius: 30;
-                                 -fx-effect: dropshadow(gaussian, rgba(102,126,234,0.2), 15, 0, 0, 5);
-                                 -fx-border-color: #667eea; -fx-border-width: 2; -fx-border-radius: 30;">
-                        <Circle radius="35" fill="#667eea" opacity="0.2"/>
+                                 -fx-effect: dropshadow(gaussian, rgba(74,111,165,0.2), 15, 0, 0, 5);
+                                 -fx-border-color: #4A6FA5; -fx-border-width: 2; -fx-border-radius: 30;">
+                        <Circle radius="35" fill="#4A6FA5" opacity="0.2"/>
                         <Label text="👥" style="-fx-font-size: 40px;"/>
                         <Label fx:id="lblPatientsCount" text="1,254"
-                               style="-fx-font-size: 28px; -fx-font-weight: 900; -fx-text-fill: #667eea;"/>
+                               style="-fx-font-size: 28px; -fx-font-weight: 900; -fx-text-fill: #4A6FA5;"/>
                         <Label text="Patients" style="-fx-font-size: 14px; -fx-text-fill: #4A5568; -fx-font-weight: 600;"/>
                     </VBox>
 
@@ -144,7 +144,7 @@
 
                 <!-- SECTION BIENVENUE -->
                 <VBox alignment="CENTER" spacing="20" style="-fx-padding: 20 0 30 0;">
-                    <Label text="🌱" style="-fx-font-size: 64px; -fx-effect: dropshadow(gaussian, #667eea, 20, 0.4, 0, 2);"/>
+                    <Label text="🌱" style="-fx-font-size: 64px; -fx-effect: dropshadow(gaussian, #4A6FA5, 20, 0.4, 0, 2);"/>
                     <Label text="Bienvenue sur GrowMind"
                            style="-fx-font-size: 36px; -fx-font-weight: 900;
                                   -fx-text-fill: linear-gradient(to right, #2C3E50, #1A202C);
@@ -154,14 +154,14 @@
 
                     <HBox spacing="20" style="-fx-padding: 20 0 0 0;">
                         <Button text="✨ Commencer une discussion" onAction="#handleNouvelleDiscussion"
-                                style="-fx-background-color: linear-gradient(to right, #667eea, #764ba2);
+                                style="-fx-background-color: linear-gradient(to right, #4A6FA5, #5FB49C);
                                        -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: 800;
                                        -fx-padding: 15 40; -fx-background-radius: 40; -fx-cursor: hand;
-                                       -fx-effect: dropshadow(gaussian, rgba(102,126,234,0.4), 15, 0, 0, 3);"/>
+                                       -fx-effect: dropshadow(gaussian, rgba(74,111,165,0.4), 15, 0, 0, 3);"/>
                         <Button text="💬 Voir le forum" onAction="#handleForum"
-                                style="-fx-background-color: white; -fx-text-fill: #667eea; -fx-font-size: 16px;
+                                style="-fx-background-color: white; -fx-text-fill: #4A6FA5; -fx-font-size: 16px;
                                        -fx-font-weight: 700; -fx-padding: 15 40; -fx-background-radius: 40;
-                                       -fx-cursor: hand; -fx-border-color: #667eea; -fx-border-width: 2;
+                                       -fx-cursor: hand; -fx-border-color: #4A6FA5; -fx-border-width: 2;
                                        -fx-border-radius: 40; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 2);"/>
                     </HBox>
                 </VBox>
@@ -275,9 +275,9 @@
                                    -fx-border-color: transparent; -fx-font-size: 14px;"/>
                     </HBox>
                     <Button text="Rechercher" onAction="#handleSearch"
-                            style="-fx-background-color: #667eea; -fx-text-fill: white; -fx-font-weight: 700;
+                            style="-fx-background-color: #4A6FA5; -fx-text-fill: white; -fx-font-weight: 700;
                                    -fx-background-radius: 40; -fx-padding: 12 35; -fx-cursor: hand;
-                                   -fx-effect: dropshadow(gaussian, rgba(102,126,234,0.3), 8, 0, 0, 2);"/>
+                                   -fx-effect: dropshadow(gaussian, rgba(74,111,165,0.3), 8, 0, 0, 2);"/>
                 </HBox>
             </VBox>
         </ScrollPane>
