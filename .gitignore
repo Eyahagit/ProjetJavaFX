@@ -3,7 +3,8 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 .kotlin
-
+# Fichiers de configuration
+src/main/resources/config.properties
 ### IntelliJ IDEA ###
 .idea/modules.xml
 .idea/jarRepositories.xml
