@@ -183,7 +183,20 @@ public class LoginController {
             e.printStackTrace();
         }
     }
-
+    @FXML
+    private void goToForgetPassword() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ForgotPassword.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) signUpLink.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Forgot password Management - GrowMind");
+            stage.show();
+        } catch (IOException e) {
+            showAlert("Erreur", "Impossible de charger la page de mot de passe oublier: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
     @FXML
     private void handleForgotPassword() {
         showAlert("Mot de passe oublié", "Veuillez contacter l'administrateur pour réinitialiser votre mot de passe.\nEmail: admin@growmind.com");

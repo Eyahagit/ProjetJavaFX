@@ -59,7 +59,7 @@
                         <HBox alignment="CENTER_LEFT" spacing="10">
                             <CheckBox fx:id="rememberCheckBox" text="Remember me"  style="-fx-text-fill: #4A6FA5; -fx-font-size: 14px; -fx-font-weight: bold; -fx-border-color: transparent;"/>
                             <Region HBox.hgrow="ALWAYS" />
-                            <Hyperlink fx:id="forgotPasswordLink" text="Forgot Password?" style="-fx-text-fill: #5FB49C; -fx-font-size: 14px; -fx-font-weight: bold; -fx-border-color: transparent;" />
+                            <Hyperlink fx:id="forgotPasswordLink" onAction="#goToForgetPassword" text="Forgot Password?" style="-fx-text-fill: #5FB49C; -fx-font-size: 14px; -fx-font-weight: bold; -fx-border-color: transparent;" />
                         </HBox>
 
                         <!-- SEPARATOR -->
