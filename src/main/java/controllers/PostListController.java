@@ -2,11 +2,13 @@ package controllers;
 
 import entities.ForumPost;
 import services.ServiceForumPost;
+import utils.BadWordsFilter;
+import utils.Translator;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -14,7 +16,6 @@ import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
-import java.time.LocalDateTime;
 
 public class PostListController {
 
@@ -24,32 +25,45 @@ public class PostListController {
     @FXML private ComboBox<String> filterCategory;
     @FXML private ComboBox<String> filterRole;
     @FXML private TextField searchField;
+    @FXML private Button btnTriPopularite;
+    @FXML private Button btnTriRecents;
+    @FXML private Button btnTraduire;
+    @FXML private Button btnNouveauPost;
 
     private ServiceForumPost service;
     private MainForumController mainController;
     private ObservableList<ForumPost> allPosts;
     private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+    private boolean isFrench = true;
 
     @FXML
     public void initialize() {
         service = new ServiceForumPost();
-        loadPosts();
         setupFilters();
+        loadPosts();
     }
 
     public void setMainController(MainForumController controller) {
         this.mainController = controller;
     }
 
+    public boolean isFrench() {
+        return isFrench;
+    }
+
     private void loadPosts() {
         allPosts = service.recuperer();
         afficherCartes(allPosts);
-        lblTotalPosts.setText("📊 " + allPosts.size() + " discussion" + (allPosts.size() > 1 ? "s" : ""));
+        updateTotalLabel();
+    }
+
+    private void updateTotalLabel() {
+        String text = "📊 " + allPosts.size() + " discussion" + (allPosts.size() > 1 ? "s" : "");
+        lblTotalPosts.setText(text);
     }
 
     private void afficherCartes(ObservableList<ForumPost> posts) {
         discussionsContainer.getChildren().clear();
-
         for (ForumPost post : posts) {
             VBox carte = createCarte(post);
             discussionsContainer.getChildren().add(carte);
@@ -57,13 +71,11 @@ public class PostListController {
     }
 
     private VBox createCarte(ForumPost post) {
-        // Carte principale
         VBox carte = new VBox(15);
         carte.setStyle("-fx-background-color: white; -fx-background-radius: 25; " +
                 "-fx-padding: 20; -fx-border-color: #E2E8F0; -fx-border-width: 1; " +
                 "-fx-border-radius: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 3);");
 
-        // Effet au survol
         carte.setOnMouseEntered(e ->
                 carte.setStyle("-fx-background-color: white; -fx-background-radius: 25; " +
                         "-fx-padding: 20; -fx-border-color: #667eea; -fx-border-width: 2; " +
@@ -75,11 +87,9 @@ public class PostListController {
                         "-fx-border-radius: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 3);")
         );
 
-        // En-tête avec avatar et auteur
         HBox header = new HBox(15);
-        header.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        header.setAlignment(Pos.CENTER_LEFT);
 
-        // Avatar circulaire
         Circle avatar = new Circle(25);
         if (post.getRole().contains("Médecin")) {
             avatar.setFill(javafx.scene.paint.Color.web("#27AE60"));
@@ -95,13 +105,12 @@ public class PostListController {
         avatarIcon.setStyle("-fx-font-size: 24px;");
         avatarContainer.getChildren().add(avatarIcon);
 
-        // Infos auteur
         VBox authorInfo = new VBox(3);
         Label nomLabel = new Label(post.getNom());
         nomLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: 900; -fx-text-fill: #1A202C;");
 
         HBox roleBox = new HBox(10);
-        roleBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        roleBox.setAlignment(Pos.CENTER_LEFT);
 
         Label roleLabel = new Label(post.getRole());
         roleLabel.setStyle(getRoleStyle(post.getRole()));
@@ -116,15 +125,13 @@ public class PostListController {
 
         header.getChildren().addAll(avatarContainer, authorInfo);
 
-        // Date
         Label dateLabel = new Label(post.getDateCreation().format(formatter));
         dateLabel.setStyle("-fx-text-fill: #718096; -fx-font-size: 13px; -fx-font-style: italic;");
 
         HBox dateBox = new HBox();
-        dateBox.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
+        dateBox.setAlignment(Pos.CENTER_RIGHT);
         dateBox.getChildren().add(dateLabel);
 
-        // Contenu
         VBox contentBox = new VBox(10);
         contentBox.setStyle("-fx-padding: 10 0 10 50;");
 
@@ -132,64 +139,80 @@ public class PostListController {
         contenuLabel.setWrapText(true);
         contenuLabel.setStyle("-fx-font-size: 15px; -fx-text-fill: #2D3748;");
 
-        // Catégorie
+        String categorieText = post.getCategorie();
+        if (!isFrench) {
+            categorieText = Translator.translate(categorieText, "en");
+        }
+
         Label categorieLabel = new Label(getCategorieIcon(post.getCategorie()) + " " +
-                post.getCategorie().replaceAll("[😟🧠😢🧘💤💪👨‍👩‍👧💼🍎🏃]", "").trim());
+                categorieText.replaceAll("[😟🧠😢🧘💤💪👨‍👩‍👧💼🍎🏃]", "").trim());
         categorieLabel.setStyle("-fx-background-color: " + getCategorieCouleur(post.getCategorie()) + "; " +
                 "-fx-padding: 6 18; -fx-background-radius: 25; -fx-text-fill: white; " +
                 "-fx-font-size: 13px; -fx-font-weight: 700;");
 
         contentBox.getChildren().addAll(contenuLabel, categorieLabel);
 
-        // Statistiques
         HBox statsBox = new HBox(25);
-        statsBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        statsBox.setAlignment(Pos.CENTER_LEFT);
         statsBox.setStyle("-fx-padding: 10 0 0 50;");
 
-        Label likesLabel = new Label("❤️ " + post.getLikes());
-        likesLabel.setStyle("-fx-text-fill: #E74C3C; -fx-font-weight: 700;");
+        Label likesLabel = new Label("👍 " + post.getLikes());
+        likesLabel.setStyle("-fx-text-fill: #27AE60; -fx-font-weight: 700;");
+
+        Label dislikesLabel = new Label("👎 " + post.getDislikes());
+        dislikesLabel.setStyle("-fx-text-fill: #E74C3C; -fx-font-weight: 700;");
 
         Label vuesLabel = new Label("👁️ " + post.getVues());
         vuesLabel.setStyle("-fx-text-fill: #718096;");
 
-        Label reponsesLabel = new Label("💬 0"); // À connecter avec ServiceReponse
-        reponsesLabel.setStyle("-fx-text-fill: #667eea; -fx-font-weight: 700;");
+        statsBox.getChildren().addAll(likesLabel, dislikesLabel, vuesLabel);
 
-        statsBox.getChildren().addAll(likesLabel, vuesLabel, reponsesLabel);
-
-        // Actions
         HBox actionsBox = new HBox(10);
-        actionsBox.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
+        actionsBox.setAlignment(Pos.CENTER_RIGHT);
         actionsBox.setStyle("-fx-padding: 15 0 0 0;");
 
-        Button btnView = new Button("👁️ Voir");
+        String voirText = isFrench ? "👁️ Voir" : "👁️ View";
+        Button btnView = new Button(voirText);
         btnView.setStyle("-fx-background-color: #3498DB; -fx-text-fill: white; -fx-font-weight: 700; " +
                 "-fx-background-radius: 30; -fx-padding: 8 25; -fx-cursor: hand;");
         btnView.setOnAction(e -> handleVoirDetails(post));
 
-        Button btnEdit = new Button("✏️ Modifier");
+        String modifierText = isFrench ? "✏️ Modifier" : "✏️ Edit";
+        Button btnEdit = new Button(modifierText);
         btnEdit.setStyle("-fx-background-color: #F39C12; -fx-text-fill: white; -fx-font-weight: 700; " +
                 "-fx-background-radius: 30; -fx-padding: 8 25; -fx-cursor: hand;");
         btnEdit.setOnAction(e -> handleModifier(post));
 
-        Button btnDelete = new Button("🗑️ Supprimer");
+        String supprimerText = isFrench ? "🗑️ Supprimer" : "🗑️ Delete";
+        Button btnDelete = new Button(supprimerText);
         btnDelete.setStyle("-fx-background-color: #E74C3C; -fx-text-fill: white; -fx-font-weight: 700; " +
                 "-fx-background-radius: 30; -fx-padding: 8 25; -fx-cursor: hand;");
         btnDelete.setOnAction(e -> handleSupprimer(post));
 
-        Button btnLike = new Button("❤️ " + post.getLikes());
-        btnLike.setStyle("-fx-background-color: #FFF0F0; -fx-text-fill: #E74C3C; -fx-font-weight: 700; " +
+        Button btnLike = new Button("👍 " + post.getLikes());
+        btnLike.setStyle("-fx-background-color: #E8F5E9; -fx-text-fill: #27AE60; -fx-font-weight: 700; " +
                 "-fx-background-radius: 30; -fx-padding: 8 20; -fx-cursor: hand; " +
-                "-fx-border-color: #FFB8B8; -fx-border-width: 1; -fx-border-radius: 30;");
+                "-fx-border-color: #A5D6A5; -fx-border-width: 1; -fx-border-radius: 30;");
         btnLike.setOnAction(e -> {
             service.incrementerLike(post.getIdPost());
             post.setLikes(post.getLikes() + 1);
-            btnLike.setText("❤️ " + post.getLikes());
+            btnLike.setText("👍 " + post.getLikes());
+            likesLabel.setText("👍 " + post.getLikes());
         });
 
-        actionsBox.getChildren().addAll(btnView, btnEdit, btnDelete, btnLike);
+        Button btnDislike = new Button("👎 " + post.getDislikes());
+        btnDislike.setStyle("-fx-background-color: #FFEBEE; -fx-text-fill: #E74C3C; -fx-font-weight: 700; " +
+                "-fx-background-radius: 30; -fx-padding: 8 20; -fx-cursor: hand; " +
+                "-fx-border-color: #FFCDD2; -fx-border-width: 1; -fx-border-radius: 30;");
+        btnDislike.setOnAction(e -> {
+            service.incrementerDislike(post.getIdPost());
+            post.setDislikes(post.getDislikes() + 1);
+            btnDislike.setText("👎 " + post.getDislikes());
+            dislikesLabel.setText("👎 " + post.getDislikes());
+        });
 
-        // Assemblage de la carte
+        actionsBox.getChildren().addAll(btnView, btnEdit, btnDelete, btnLike, btnDislike);
+
         HBox headerRow = new HBox();
         headerRow.getChildren().addAll(header, dateBox);
         HBox.setHgrow(header, Priority.ALWAYS);
@@ -247,35 +270,58 @@ public class PostListController {
     }
 
     private void setupFilters() {
-        filterCategory.setItems(FXCollections.observableArrayList(
-                "Toutes", "😟 Anxiété", "🧠 Stress", "😢 Dépression", "🧘 Méditation",
-                "💤 Sommeil", "💪 Estime de soi", "👨‍👩‍👧 Famille", "💼 Travail",
-                "🍎 Alimentation", "🏃 Sport", "💬 Général"
-        ));
-        filterCategory.setValue("Toutes");
-        filterCategory.setOnAction(e -> applyFilters());
+        if (filterCategory != null) {
+            filterCategory.setItems(FXCollections.observableArrayList(
+                    "Toutes", "😟 Anxiété", "🧠 Stress", "😢 Dépression", "🧘 Méditation",
+                    "💤 Sommeil", "💪 Estime de soi", "💬 Général"
+            ));
+            filterCategory.setValue("Toutes");
+            filterCategory.setOnAction(e -> applyFilters());
+        }
 
-        filterRole.setItems(FXCollections.observableArrayList(
-                "Tous", "🧑 Patient", "👨‍⚕️ Médecin", "🧘 Thérapeute"
-        ));
-        filterRole.setValue("Tous");
-        filterRole.setOnAction(e -> applyFilters());
+        if (filterRole != null) {
+            filterRole.setItems(FXCollections.observableArrayList(
+                    "Tous", "🧑 Patient", "👨‍⚕️ Médecin", "🧘 Thérapeute"
+            ));
+            filterRole.setValue("Tous");
+            filterRole.setOnAction(e -> applyFilters());
+        }
 
-        searchField.textProperty().addListener((obs, old, nv) -> applyFilters());
+        if (searchField != null) {
+            searchField.textProperty().addListener((obs, old, nv) -> applyFilters());
+        }
     }
 
+    // ✅ MÉTHODE APPLY FILTERS CORRIGÉE
     private void applyFilters() {
-        if (allPosts == null) return;
+        if (allPosts == null || allPosts.isEmpty()) {
+            return;
+        }
+
+        String cat = "Toutes";
+        String role = "Tous";
+
+        if (filterCategory != null && filterCategory.getValue() != null) {
+            cat = filterCategory.getValue();
+        }
+        if (filterRole != null && filterRole.getValue() != null) {
+            role = filterRole.getValue();
+        }
+
+        String search = (searchField != null && searchField.getText() != null)
+                ? searchField.getText().toLowerCase() : "";
 
         ObservableList<ForumPost> filtered = FXCollections.observableArrayList();
 
-        String cat = filterCategory.getValue();
-        String role = filterRole.getValue();
-        String search = searchField.getText().toLowerCase();
-
         for (ForumPost post : allPosts) {
-            boolean matchCat = cat.equals("Toutes") || post.getCategorie().contains(cat.replaceAll("[😟🧠😢🧘💤💪👨‍👩‍👧💼🍎🏃]", "").trim());
-            boolean matchRole = role.equals("Tous") || post.getRole().contains(role.replaceAll("[🧑👨‍⚕️🧘]", "").trim());
+            String postCat = post.getCategorie().replaceAll("[😟🧠😢🧘💤💪👨‍👩‍👧💼🍎🏃]", "").trim();
+            String filterCat = cat.replaceAll("[😟🧠😢🧘💤💪👨‍👩‍👧💼🍎🏃]", "").trim();
+
+            String postRole = post.getRole().replaceAll("[🧑👨‍⚕️🧘]", "").trim();
+            String filterRole = role.replaceAll("[🧑👨‍⚕️🧘]", "").trim();
+
+            boolean matchCat = cat.equals("Toutes") || cat.equals("All") || postCat.equalsIgnoreCase(filterCat);
+            boolean matchRole = role.equals("Tous") || role.equals("All") || postRole.equalsIgnoreCase(filterRole);
             boolean matchSearch = search.isEmpty() ||
                     post.getNom().toLowerCase().contains(search) ||
                     post.getContenu().toLowerCase().contains(search);
@@ -285,8 +331,13 @@ public class PostListController {
             }
         }
 
-        afficherCartes(filtered);
-        lblTotalPosts.setText("📊 " + filtered.size() + " discussion" + (filtered.size() > 1 ? "s" : ""));
+        if (filtered.isEmpty()) {
+            afficherCartes(allPosts);
+            lblTotalPosts.setText("📊 " + allPosts.size() + " discussion(s) - Aucun résultat pour ce filtre");
+        } else {
+            afficherCartes(filtered);
+            lblTotalPosts.setText("📊 " + filtered.size() + " discussion" + (filtered.size() > 1 ? "s" : ""));
+        }
     }
 
     @FXML
@@ -301,7 +352,7 @@ public class PostListController {
             controller.setMode(PostFormController.Mode.AJOUT);
 
             Stage stage = new Stage();
-            stage.setTitle("Nouvelle discussion - GrowMind");
+            stage.setTitle(isFrench ? "Nouvelle discussion - GrowMind" : "New discussion - GrowMind");
             stage.setScene(new Scene(page));
             stage.showAndWait();
         } catch (IOException e) {
@@ -309,8 +360,119 @@ public class PostListController {
         }
     }
 
+    @FXML
+    private void handleTriPopularite() {
+        ObservableList<ForumPost> trie = service.recupererTrieParPopularite();
+        afficherCartes(trie);
+        String text = "📊 " + trie.size() + " discussion(s) - " + (isFrench ? "Triés par popularité" : "Sorted by popularity");
+        lblTotalPosts.setText(text);
+    }
+
+    @FXML
+    private void handleTriRecents() {
+        ObservableList<ForumPost> recents = service.recuperer();
+        afficherCartes(recents);
+        String text = "📊 " + recents.size() + " discussion(s) - " + (isFrench ? "Triés par date" : "Sorted by date");
+        lblTotalPosts.setText(text);
+    }
+
+    // ✅ MÉTHODE HANDLE TOGGLE LANGUE CORRIGÉE
+    @FXML
+    private void handleToggleLangue() {
+        isFrench = !isFrench;
+        if (btnTraduire != null) {
+            btnTraduire.setText((isFrench ? "🇫🇷 Français" : "🇬🇧 English"));
+        }
+
+        translateInterface();
+        refreshTable();
+    }
+
+    // ✅ MÉTHODE TRANSLATE INTERFACE CORRIGÉE
+    private void translateInterface() {
+        String targetLang = isFrench ? "fr" : "en";
+
+        if (btnTriPopularite != null) {
+            btnTriPopularite.setText(Translator.translate("populaires", targetLang));
+        }
+        if (btnTriRecents != null) {
+            btnTriRecents.setText(Translator.translate("récents", targetLang));
+        }
+        if (btnRetour != null) {
+            btnRetour.setText(Translator.translate("retour", targetLang));
+        }
+        if (btnNouveauPost != null) {
+            btnNouveauPost.setText(isFrench ? "➕ Nouvelle discussion" : "➕ New discussion");
+        }
+
+        if (filterCategory != null) {
+            filterCategory.setPromptText(Translator.translate("filtrer", targetLang));
+        }
+        if (filterRole != null) {
+            filterRole.setPromptText(Translator.translate("filtrer", targetLang));
+        }
+
+        if (searchField != null) {
+            searchField.setPromptText(Translator.translate("rechercher une discussion", targetLang));
+        }
+
+        translateComboBoxItems();
+    }
+
+    // ✅ MÉTHODE TRANSLATE COMBOBOX ITEMS CORRIGÉE
+    private void translateComboBoxItems() {
+        if (filterCategory != null) {
+            ObservableList<String> items = FXCollections.observableArrayList();
+
+            if (isFrench) {
+                items.addAll("Toutes", "😟 Anxiété", "🧠 Stress", "😢 Dépression",
+                        "🧘 Méditation", "💤 Sommeil", "💪 Estime de soi", "💬 Général");
+            } else {
+                items.addAll("All", "😟 Anxiety", "🧠 Stress", "😢 Depression",
+                        "🧘 Meditation", "💤 Sleep", "💪 Self-esteem", "💬 General");
+            }
+
+            filterCategory.setItems(items);
+            filterCategory.setValue(items.get(0));
+        }
+
+        if (filterRole != null) {
+            ObservableList<String> items = FXCollections.observableArrayList();
+
+            if (isFrench) {
+                items.addAll("Tous", "🧑 Patient", "👨‍⚕️ Médecin", "🧘 Thérapeute");
+            } else {
+                items.addAll("All", "🧑 Patient", "👨‍⚕️ Doctor", "🧘 Therapist");
+            }
+
+            filterRole.setItems(items);
+            filterRole.setValue(items.get(0));
+        }
+    }
+
     private void handleVoirDetails(ForumPost post) {
-        // À implémenter
+        try {
+            service.incrementerVue(post.getIdPost());
+            post.setVues(post.getVues() + 1);
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/post_details.fxml"));
+            VBox page = loader.load();
+
+            PostDetailsController controller = loader.getController();
+            controller.setService(service);
+            controller.setPost(post);
+
+            Stage stage = new Stage();
+            stage.setTitle(isFrench ? "Détails - " + post.getNom() : "Details - " + post.getNom());
+            stage.setScene(new Scene(page, 700, 800));
+            stage.showAndWait();
+
+            refreshTable();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Erreur", "Impossible d'ouvrir les détails");
+        }
     }
 
     private void handleModifier(ForumPost post) {
@@ -325,7 +487,7 @@ public class PostListController {
             controller.setPost(post);
 
             Stage stage = new Stage();
-            stage.setTitle("Modifier - GrowMind");
+            stage.setTitle(isFrench ? "Modifier - GrowMind" : "Edit - GrowMind");
             stage.setScene(new Scene(page));
             stage.showAndWait();
         } catch (IOException e) {
@@ -335,9 +497,9 @@ public class PostListController {
 
     private void handleSupprimer(ForumPost post) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirmation");
-        alert.setHeaderText("Supprimer cette discussion ?");
-        alert.setContentText("Cette action est irréversible.");
+        alert.setTitle(isFrench ? "Confirmation" : "Confirmation");
+        alert.setHeaderText(isFrench ? "Supprimer cette discussion ?" : "Delete this discussion?");
+        alert.setContentText(isFrench ? "Cette action est irréversible." : "This action cannot be undone.");
 
         alert.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
@@ -363,5 +525,13 @@ public class PostListController {
     public void refreshTable() {
         loadPosts();
         applyFilters();
+    }
+
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

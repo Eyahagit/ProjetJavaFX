@@ -3,63 +3,50 @@ package utils;
 import com.twilio.Twilio;
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.type.PhoneNumber;
-import java.io.InputStream;
-import java.util.Properties;
+import com.twilio.exception.ApiException;
 
 public class TwilioUtil {
 
-    public static String ACCOUNT_SID;
-    public static String AUTH_TOKEN;
-    public static String NUMERO_TWILIO;
-    public static String NUMERO_ALERTE;
+    // ✅ COORDONNÉES CORRECTES
+    public static final String ACCOUNT_SID = "ACdef405787678a6091868d4011b0c76cc";
+    public static final String AUTH_TOKEN = "7b88991aa906ff577fe23d1a55cf006d";
+    public static final String NUMERO_TWILIO = "+15026102896";
+    public static final String NUMERO_ALERTE = "+21652551135";
 
     static {
-        loadConfig();
-        Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
-        System.out.println("✅ Twilio initialisé");
-    }
-
-    private static void loadConfig() {
-        try (InputStream input = TwilioUtil.class.getClassLoader().getResourceAsStream("config.properties")) {
-            Properties prop = new Properties();
-            prop.load(input);
-
-            ACCOUNT_SID = prop.getProperty("twilio.account.sid");
-            AUTH_TOKEN = prop.getProperty("twilio.auth.token");
-            NUMERO_TWILIO = prop.getProperty("twilio.phone.number");
-            NUMERO_ALERTE = prop.getProperty("twilio.alert.number");
-
-            System.out.println("📖 Configuration chargée");
-
+        try {
+            Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
+            System.out.println("✅ Twilio initialisé avec succès !");
+            System.out.println("   Account SID: " + ACCOUNT_SID);
+            System.out.println("   Numéro Twilio: " + NUMERO_TWILIO);
         } catch (Exception e) {
-            System.err.println("❌ Erreur chargement config: " + e.getMessage());
-            // Valeurs par défaut pour le développement
-            ACCOUNT_SID = "ACdef405787678a6091868d4011b0c76cc";
-            AUTH_TOKEN = "e5b768670b77716a5860eba4ea09e584";
-            NUMERO_TWILIO = "+15026102896";
-            NUMERO_ALERTE = "+21652551135";
+            System.err.println("❌ Erreur initialisation Twilio: " + e.getMessage());
         }
     }
 
     public static void envoyerAlerteSMS(String nom, String message, String localisation) {
-        String texte = "🆘 URGENCE GrowMind\n\n";
-        texte += "👤 Personne: " + nom + "\n";
-        texte += "📝 Message: " + message + "\n";
+        try {
+            String texte = "🆘 URGENCE GrowMind\n\n";
+            texte += "👤 Personne: " + nom + "\n";
+            texte += "📝 Message: " + message + "\n";
+            if (localisation != null && !localisation.isEmpty()) {
+                texte += "📍 Localisation: " + localisation;
+            }
 
-        if (localisation != null && !localisation.isEmpty() && !localisation.equals("Localisation non disponible")) {
-            texte += "📍 Localisation: " + localisation;
-        } else {
-            texte += "📍 Localisation: Non partagée";
+            System.out.println("📤 Envoi SMS vers " + NUMERO_ALERTE + "...");
+
+            Message sms = Message.creator(
+                    new PhoneNumber(NUMERO_ALERTE),
+                    new PhoneNumber(NUMERO_TWILIO),
+                    texte
+            ).create();
+
+            System.out.println("✅ SMS envoyé ! SID: " + sms.getSid());
+
+        } catch (ApiException e) {
+            System.err.println("❌ Erreur Twilio: " + e.getMessage());
+            System.err.println("   Code: " + e.getCode());
+            throw e;
         }
-
-        System.out.println("📤 Envoi SMS...");
-
-        Message sms = Message.creator(
-                new PhoneNumber(NUMERO_ALERTE),
-                new PhoneNumber(NUMERO_TWILIO),
-                texte
-        ).create();
-
-        System.out.println("✅ SMS envoyé ! SID: " + sms.getSid());
     }
 }

@@ -3,7 +3,7 @@ package controllers;
 import services.ServiceForumPost;
 import services.ServiceReponse;
 import utils.TwilioUtil;
-import utils.GeolocationUtil;  // ← IMPORT MANQUANT AJOUTÉ
+import utils.GeolocationUtil;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -14,7 +14,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import utils.GeolocationUtil;
+
 public class MainForumController {
 
     @FXML private AnchorPane rootPane;
@@ -150,22 +150,18 @@ public class MainForumController {
 
     @FXML
     public void handleUrgence() {
-        // Créer une boîte de dialogue personnalisée
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("🆘 AIDE D'URGENCE");
         dialog.setHeaderText("Êtes-vous en situation de détresse ?");
 
-        // Style
         dialog.getDialogPane().setStyle("-fx-background-color: #fff5f5; -fx-border-color: #E53E3E; -fx-border-width: 2; -fx-border-radius: 10;");
 
-        // Boutons
         ButtonType btnSMS = new ButtonType("📱 Envoyer alerte SMS", ButtonBar.ButtonData.OK_DONE);
         ButtonType btnAppel = new ButtonType("📞 Appeler le 3114", ButtonBar.ButtonData.OTHER);
         ButtonType btnAnnuler = new ButtonType("Annuler", ButtonBar.ButtonData.CANCEL_CLOSE);
 
         dialog.getDialogPane().getButtonTypes().addAll(btnSMS, btnAppel, btnAnnuler);
 
-        // Contenu personnalisé
         VBox content = new VBox(15);
         content.setStyle("-fx-padding: 20;");
 
@@ -177,11 +173,9 @@ public class MainForumController {
         message.setWrapText(true);
         message.setStyle("-fx-font-size: 14px; -fx-text-fill: #2d3748;");
 
-        // Option de localisation
         CheckBox chkLocalisation = new CheckBox("Partager ma localisation (recommandé)");
         chkLocalisation.setStyle("-fx-font-weight: bold; -fx-text-fill: #E53E3E;");
 
-        // Champ pour message personnalisé
         TextArea txtMessage = new TextArea();
         txtMessage.setPromptText("Message personnalisé (optionnel)...");
         txtMessage.setPrefRowCount(3);
@@ -189,7 +183,6 @@ public class MainForumController {
         content.getChildren().addAll(message, chkLocalisation, txtMessage);
         dialog.getDialogPane().setContent(content);
 
-        // Gérer les actions
         dialog.showAndWait().ifPresent(response -> {
             if (response == btnSMS) {
                 envoyerAlerteSMS(
@@ -208,21 +201,23 @@ public class MainForumController {
 
             String localisation = "";
             if (partagerLocalisation) {
-                localisation = GeolocationUtil.getLocalisationParIP();
-                System.out.println("📍 Localisation obtenue: " + localisation);
+                try {
+                    localisation = GeolocationUtil.getLocalisationParIP();
+                } catch (Exception e) {
+                    localisation = "Localisation non disponible";
+                }
             }
 
             String message = messagePerso.isEmpty() ?
                     "Besoin d'aide immédiate" : messagePerso;
 
             TwilioUtil.envoyerAlerteSMS(nom, message, localisation);
-
             journaliserAlerte(nom, message, localisation);
 
             Alert success = new Alert(Alert.AlertType.INFORMATION);
             success.setTitle("✅ Alerte envoyée");
             success.setHeaderText("Votre demande d'urgence a été transmise");
-            success.setContentText("Localisation: " + localisation + "\n\nUn professionnel va vous contacter.");
+            success.setContentText("Un professionnel va vous contacter dans les plus brefs délais.\n\n🌿 Prenez soin de vous.");
             success.showAndWait();
 
         } catch (Exception e) {
@@ -233,7 +228,6 @@ public class MainForumController {
 
     private void appelUrgence3114() {
         try {
-            // Ouvrir le dialer avec le numéro
             java.awt.Desktop.getDesktop().browse(new java.net.URI("tel:3114"));
         } catch (Exception e) {
             showError("Erreur", "Impossible de lancer l'appel.\nComposez le 3114 manuellement.");
@@ -252,6 +246,23 @@ public class MainForumController {
         String query = searchField.getText();
         if (!query.isEmpty()) {
             showInfo("Recherche", "🔍 Recherche de : " + query + "\n\nFonctionnalité à venir !");
+        }
+    }
+
+    // ✅ NOUVEAU BOUTON ASSISTANT IA
+    @FXML
+    public void handleAssistantIA() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/gemini_chat.fxml"));
+            VBox chatView = loader.load();
+
+            Stage stage = new Stage();
+            stage.setTitle("Assistant IA - GrowMind");
+            stage.setScene(new Scene(chatView, 450, 700));
+            stage.show();
+        } catch (IOException e) {
+            showError("Erreur", "Impossible d'ouvrir l'assistant IA");
+            e.printStackTrace();
         }
     }
 

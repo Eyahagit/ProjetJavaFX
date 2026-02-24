@@ -7,8 +7,8 @@
 
 <?import javafx.geometry.Insets?>
 <AnchorPane fx:id="rootPane"
-            xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="controllers.MainForumController"
             style="-fx-background-color: radial-gradient(center 50% 50%, radius 70%, #4A6FA5, #5FB49C);"
             prefWidth="1300" prefHeight="750">
@@ -52,32 +52,44 @@
                 </HBox>
             </HBox>
 
-            <!-- NAVIGATION -->
+            <!-- NAVIGATION - TOUS LES BOUTONS -->
             <HBox spacing="15" alignment="CENTER_LEFT">
                 <Button text="💬 Forum" onAction="#handleForum"
                         style="-fx-background-color: rgba(255,255,255,0.3); -fx-text-fill: white;
                                -fx-font-weight: 700; -fx-background-radius: 30; -fx-padding: 12 25;
                                -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);"/>
+
                 <Button text="➕ Nouvelle discussion" onAction="#handleNouvelleDiscussion"
                         style="-fx-background-color: #FBBF24; -fx-text-fill: #1A202C; -fx-font-weight: 800;
                                -fx-background-radius: 30; -fx-padding: 12 25; -fx-cursor: hand;
                                -fx-effect: dropshadow(gaussian, rgba(251,191,36,0.4), 10, 0, 0, 2);"/>
+
                 <Button text="👥 Patients" onAction="#handleEspacePatient"
                         style="-fx-background-color: transparent; -fx-text-fill: white;
                                -fx-background-radius: 30; -fx-padding: 12 25; -fx-cursor: hand;
                                -fx-border-color: rgba(255,255,255,0.5); -fx-border-width: 1; -fx-border-radius: 30;"/>
+
                 <Button text="👨‍⚕️ Médecins" onAction="#handleEspaceMedecin"
                         style="-fx-background-color: transparent; -fx-text-fill: white;
                                -fx-background-radius: 30; -fx-padding: 12 25; -fx-cursor: hand;
                                -fx-border-color: rgba(255,255,255,0.5); -fx-border-width: 1; -fx-border-radius: 30;"/>
+
                 <Button text="📚 Ressources" onAction="#handleRessources"
                         style="-fx-background-color: transparent; -fx-text-fill: white;
                                -fx-background-radius: 30; -fx-padding: 12 25; -fx-cursor: hand;
                                -fx-border-color: rgba(255,255,255,0.5); -fx-border-width: 1; -fx-border-radius: 30;"/>
+
+                <!-- 🤖 BOUTON ASSISTANT IA -->
+                <Button text="🤖 Assistant IA" onAction="#handleAssistantIA"
+                        style="-fx-background-color: #667eea; -fx-text-fill: white; -fx-font-weight: 800;
+                               -fx-background-radius: 30; -fx-padding: 12 25; -fx-cursor: hand;
+                               -fx-effect: dropshadow(gaussian, rgba(102,126,234,0.4), 10, 0, 0, 2);"/>
+
                 <Button text="🆘 Urgence" onAction="#handleUrgence"
                         style="-fx-background-color: #E53E3E; -fx-text-fill: white; -fx-font-weight: 800;
                                -fx-background-radius: 30; -fx-padding: 12 25; -fx-cursor: hand;
                                -fx-effect: dropshadow(gaussian, rgba(229,62,62,0.4), 10, 0, 0, 2);"/>
+
                 <Button fx:id="btnSwitchRole" text="🔄 Changer rôle" onAction="#handleSwitchRole"
                         style="-fx-background-color: #9F7AEA; -fx-text-fill: white; -fx-font-weight: 700;
                                -fx-background-radius: 30; -fx-padding: 12 25; -fx-cursor: hand;
@@ -93,6 +105,7 @@
 
                 <!-- STATISTIQUES -->
                 <HBox spacing="25" alignment="CENTER">
+                    <!-- Patients -->
                     <VBox spacing="10" alignment="CENTER" HBox.hgrow="ALWAYS"
                           style="-fx-background-color: linear-gradient(to bottom, white, #F7FAFC);
                                  -fx-padding: 25; -fx-background-radius: 30;
@@ -105,6 +118,7 @@
                         <Label text="Patients" style="-fx-font-size: 14px; -fx-text-fill: #4A5568; -fx-font-weight: 600;"/>
                     </VBox>
 
+                    <!-- Médecins -->
                     <VBox spacing="10" alignment="CENTER" HBox.hgrow="ALWAYS"
                           style="-fx-background-color: linear-gradient(to bottom, white, #F7FAFC);
                                  -fx-padding: 25; -fx-background-radius: 30;
@@ -117,6 +131,7 @@
                         <Label text="Médecins" style="-fx-font-size: 14px; -fx-text-fill: #4A5568; -fx-font-weight: 600;"/>
                     </VBox>
 
+                    <!-- Publications -->
                     <VBox spacing="10" alignment="CENTER" HBox.hgrow="ALWAYS"
                           style="-fx-background-color: linear-gradient(to bottom, white, #F7FAFC);
                                  -fx-padding: 25; -fx-background-radius: 30;
@@ -129,6 +144,7 @@
                         <Label text="Publications" style="-fx-font-size: 14px; -fx-text-fill: #4A5568; -fx-font-weight: 600;"/>
                     </VBox>
 
+                    <!-- Réponses -->
                     <VBox spacing="10" alignment="CENTER" HBox.hgrow="ALWAYS"
                           style="-fx-background-color: linear-gradient(to bottom, white, #F7FAFC);
                                  -fx-padding: 25; -fx-background-radius: 30;
@@ -211,7 +227,7 @@
                 <!-- RESSOURCES ET AIDE -->
                 <HBox spacing="25" alignment="CENTER">
                     <VBox spacing="15" HBox.hgrow="ALWAYS"
-                          style="-fx-background-color: linear-gradient(135deg, #FEE2E2, #FFD1D1);
+                          style="-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #FEE2E2, #FFD1D1);
                                  -fx-padding: 25; -fx-background-radius: 25;
                                  -fx-border-color: #EF4444; -fx-border-width: 1; -fx-border-radius: 25;
                                  -fx-effect: dropshadow(gaussian, rgba(239,68,68,0.1), 15, 0, 0, 5);">
@@ -232,7 +248,7 @@
                     </VBox>
 
                     <VBox spacing="15" HBox.hgrow="ALWAYS"
-                          style="-fx-background-color: linear-gradient(135deg, #D1FAE5, #A7F3D0);
+                          style="-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #D1FAE5, #A7F3D0);
                                  -fx-padding: 25; -fx-background-radius: 25;
                                  -fx-border-color: #10B981; -fx-border-width: 1; -fx-border-radius: 25;
                                  -fx-effect: dropshadow(gaussian, rgba(16,185,129,0.1), 15, 0, 0, 5);">

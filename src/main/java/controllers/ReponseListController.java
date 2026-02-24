@@ -31,11 +31,24 @@ public class ReponseListController {
     private ForumPost postCourant;
     private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
+    // ✅ Ajout de la variable de langue
+    private boolean isFrench = true;
+
     @FXML
     public void initialize() {
         service = new ServiceReponse();
         setupTableColumns();
         setupActionsColumn();
+    }
+
+    // ✅ Getter pour la langue
+    public boolean isFrench() {
+        return isFrench;
+    }
+
+    // ✅ Setter pour la langue (optionnel, si besoin)
+    public void setFrench(boolean french) {
+        this.isFrench = french;
     }
 
     public void setPost(ForumPost post) {
@@ -95,7 +108,7 @@ public class ReponseListController {
             ReponseFormController controller = loader.getController();
             controller.setService(service);
             controller.setPost(postCourant);
-            controller.setReponseListController(this);
+            controller.setReponseListController(this);  // ✅ Passe la référence
 
             Stage stage = new Stage();
             stage.setTitle("Nouvelle réponse");

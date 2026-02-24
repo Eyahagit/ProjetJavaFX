@@ -15,7 +15,7 @@ public class ServiceReponse {
     }
 
     public void ajouter(Reponse reponse) {
-        String query = "INSERT INTO reponses (post_id, auteur, contenu, date_reponse, likes) VALUES (?, ?, ?, ?, ?)";
+        String query = "INSERT INTO reponses (post_id, auteur, contenu, date_reponse, likes, dislikes) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             pstmt.setInt(1, reponse.getIdPost());
@@ -23,6 +23,7 @@ public class ServiceReponse {
             pstmt.setString(3, reponse.getContenu());
             pstmt.setTimestamp(4, Timestamp.valueOf(reponse.getDateReponse()));
             pstmt.setInt(5, reponse.getLikes());
+            pstmt.setInt(6, reponse.getDislikes());
 
             pstmt.executeUpdate();
 
@@ -68,6 +69,7 @@ public class ServiceReponse {
                         rs.getTimestamp("date_reponse").toLocalDateTime(),
                         rs.getInt("likes")
                 );
+                reponse.setDislikes(rs.getInt("dislikes"));
                 reponses.add(reponse);
             }
 
@@ -76,6 +78,28 @@ public class ServiceReponse {
         }
 
         return reponses;
+    }
+
+    public void incrementerLike(int reponseId) {
+        String query = "UPDATE reponses SET likes = likes + 1 WHERE id = ?";
+
+        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+            pstmt.setInt(1, reponseId);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void incrementerDislike(int reponseId) {
+        String query = "UPDATE reponses SET dislikes = dislikes + 1 WHERE id = ?";
+
+        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+            pstmt.setInt(1, reponseId);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public int compterParPost(int idPost) {

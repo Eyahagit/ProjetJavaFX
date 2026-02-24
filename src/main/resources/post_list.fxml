@@ -4,7 +4,6 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.shape.*?>
-<?import javafx.scene.effect.*?>
 
 <VBox spacing="25" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
       fx:controller="controllers.PostListController"
@@ -46,6 +45,17 @@
                       style="-fx-background-radius: 30; -fx-background-color: white;"/>
             <ComboBox fx:id="filterRole" prefWidth="160"
                       style="-fx-background-radius: 30; -fx-background-color: white;"/>
+
+            <Button fx:id="btnTriPopularite" text="🔥 Populaires" onAction="#handleTriPopularite"
+                    style="-fx-background-color: #F39C12; -fx-text-fill: white; -fx-font-weight: 700;
+                           -fx-background-radius: 30; -fx-padding: 8 20; -fx-cursor: hand;"/>
+            <Button fx:id="btnTriRecents" text="🕒 Récents" onAction="#handleTriRecents"
+                    style="-fx-background-color: #3498DB; -fx-text-fill: white; -fx-font-weight: 700;
+                           -fx-background-radius: 30; -fx-padding: 8 20; -fx-cursor: hand;"/>
+            <Button fx:id="btnTraduire" text="🇫🇷 Français" onAction="#handleToggleLangue"
+                    style="-fx-background-color: #9B59B6; -fx-text-fill: white; -fx-font-weight: 700;
+                           -fx-background-radius: 30; -fx-padding: 8 20; -fx-cursor: hand;"/>
+
             <Pane HBox.hgrow="ALWAYS"/>
             <HBox spacing="10" style="-fx-background-color: rgba(255,255,255,0.15); -fx-padding: 5 20;
                   -fx-background-radius: 40;">
@@ -57,14 +67,11 @@
         </HBox>
     </VBox>
 
-    <!-- ========== LISTE DES DISCUSSIONS (BULLES) ========== -->
+    <!-- ========== LISTE DES DISCUSSIONS ========== -->
     <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" hbarPolicy="NEVER"
                 style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;">
 
         <VBox fx:id="discussionsContainer" spacing="20" style="-fx-padding: 10 0 10 0;">
-
-            <!-- LES CARTES SERONT AJOUTÉES DYNAMIQUEMENT ICI -->
-
         </VBox>
     </ScrollPane>
 

@@ -15,7 +15,7 @@ public class ServiceForumPost {
     }
 
     public void ajouter(ForumPost post) {
-        String query = "INSERT INTO forum_posts (nom, role, categorie, contenu, date_creation, archive, likes, vues) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO forum_posts (nom, role, categorie, contenu, date_creation, archive, likes, dislikes, vues) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             pstmt.setString(1, post.getNom());
@@ -25,7 +25,8 @@ public class ServiceForumPost {
             pstmt.setTimestamp(5, Timestamp.valueOf(post.getDateCreation()));
             pstmt.setBoolean(6, post.isArchive());
             pstmt.setInt(7, post.getLikes());
-            pstmt.setInt(8, post.getVues());
+            pstmt.setInt(8, post.getDislikes());
+            pstmt.setInt(9, post.getVues());
 
             pstmt.executeUpdate();
 
@@ -50,13 +51,12 @@ public class ServiceForumPost {
             pstmt.executeUpdate();
             System.out.println("🗑️ Post supprimé: " + post.getIdPost());
         } catch (SQLException e) {
-            System.err.println("❌ Erreur lors de la suppression du post");
             e.printStackTrace();
         }
     }
 
     public void modifier(ForumPost post) {
-        String query = "UPDATE forum_posts SET nom = ?, role = ?, categorie = ?, contenu = ?, archive = ?, likes = ?, vues = ? WHERE id = ?";
+        String query = "UPDATE forum_posts SET nom = ?, role = ?, categorie = ?, contenu = ?, archive = ?, likes = ?, dislikes = ?, vues = ? WHERE id = ?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setString(1, post.getNom());
@@ -65,13 +65,13 @@ public class ServiceForumPost {
             pstmt.setString(4, post.getContenu());
             pstmt.setBoolean(5, post.isArchive());
             pstmt.setInt(6, post.getLikes());
-            pstmt.setInt(7, post.getVues());
-            pstmt.setInt(8, post.getIdPost());
+            pstmt.setInt(7, post.getDislikes());
+            pstmt.setInt(8, post.getVues());
+            pstmt.setInt(9, post.getIdPost());
 
             pstmt.executeUpdate();
             System.out.println("✏️ Post modifié: " + post.getIdPost());
         } catch (SQLException e) {
-            System.err.println("❌ Erreur lors de la modification du post");
             e.printStackTrace();
         }
     }
@@ -95,26 +95,25 @@ public class ServiceForumPost {
                         rs.getInt("likes"),
                         rs.getInt("vues")
                 );
+                post.setDislikes(rs.getInt("dislikes"));
                 posts.add(post);
             }
 
         } catch (SQLException e) {
-            System.err.println("❌ Erreur lors du chargement des posts");
             e.printStackTrace();
         }
-
         return posts;
     }
 
-    public ForumPost getById(int id) {
-        String query = "SELECT * FROM forum_posts WHERE id = ?";
+    public ObservableList<ForumPost> recupererTrieParPopularite() {
+        ObservableList<ForumPost> posts = FXCollections.observableArrayList();
+        String query = "SELECT * FROM forum_posts ORDER BY (likes - dislikes) DESC, date_creation DESC";
 
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setInt(1, id);
-            ResultSet rs = pstmt.executeQuery();
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
 
-            if (rs.next()) {
-                return new ForumPost(
+            while (rs.next()) {
+                ForumPost post = new ForumPost(
                         rs.getInt("id"),
                         rs.getString("nom"),
                         rs.getString("role"),
@@ -125,49 +124,46 @@ public class ServiceForumPost {
                         rs.getInt("likes"),
                         rs.getInt("vues")
                 );
+                post.setDislikes(rs.getInt("dislikes"));
+                posts.add(post);
             }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-        return null;
+        return posts;
     }
 
     public void incrementerLike(int postId) {
         String query = "UPDATE forum_posts SET likes = likes + 1 WHERE id = ?";
-
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setInt(1, postId);
             pstmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        } catch (SQLException e) { e.printStackTrace(); }
+    }
+
+    public void incrementerDislike(int postId) {
+        String query = "UPDATE forum_posts SET dislikes = dislikes + 1 WHERE id = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+            pstmt.setInt(1, postId);
+            pstmt.executeUpdate();
+        } catch (SQLException e) { e.printStackTrace(); }
     }
 
     public void incrementerVue(int postId) {
         String query = "UPDATE forum_posts SET vues = vues + 1 WHERE id = ?";
-
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setInt(1, postId);
             pstmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        } catch (SQLException e) { e.printStackTrace(); }
     }
 
     public int compter() {
         String query = "SELECT COUNT(*) FROM forum_posts";
-
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
-
-            if (rs.next()) {
-                return rs.getInt(1);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) { e.printStackTrace(); }
         return 0;
     }
 }

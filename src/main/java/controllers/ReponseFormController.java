@@ -3,6 +3,7 @@ package controllers;
 import entities.ForumPost;
 import entities.Reponse;
 import services.ServiceReponse;
+import utils.BadWordsFilter;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
@@ -17,6 +18,7 @@ public class ReponseFormController {
     private ServiceReponse service;
     private ForumPost postCourant;
     private ReponseListController reponseListController;
+    private boolean isFrench = true;
 
     @FXML
     public void initialize() {
@@ -33,6 +35,9 @@ public class ReponseFormController {
 
     public void setReponseListController(ReponseListController controller) {
         this.reponseListController = controller;
+        if (controller != null) {
+            this.isFrench = controller.isFrench();  // ✅ Maintenant ça marche !
+        }
     }
 
     @FXML
@@ -40,21 +45,30 @@ public class ReponseFormController {
         String contenu = txtContenu.getText().trim();
 
         if (contenu.isEmpty()) {
-            showError("La réponse ne peut pas être vide");
+            showError(isFrench ? "La réponse ne peut pas être vide" : "Reply cannot be empty");
             txtContenu.requestFocus();
             return;
         }
 
         if (contenu.length() < 5) {
-            showError("La réponse doit contenir au moins 5 caractères");
+            showError(isFrench ? "La réponse doit contenir au moins 5 caractères" : "Reply must be at least 5 characters");
             txtContenu.requestFocus();
             return;
+        }
+
+        // Filtrage automatique des mots grossiers
+        String contenuFiltre = BadWordsFilter.filter(contenu);
+
+        if (!contenu.equals(contenuFiltre)) {
+            showInfo(isFrench ? "Information" : "Information",
+                    isFrench ? "Des mots inappropriés ont été automatiquement remplacés par ***"
+                            : "Inappropriate words have been automatically replaced with ***");
         }
 
         Reponse nouvelleReponse = new Reponse(
                 postCourant.getIdPost(),
                 "Utilisateur",
-                contenu,
+                contenuFiltre,
                 LocalDateTime.now()
         );
 
@@ -64,7 +78,7 @@ public class ReponseFormController {
             reponseListController.refreshTable();
         }
 
-        showSuccess("Réponse publiée avec succès !");
+        showSuccess(isFrench ? "Réponse publiée avec succès !" : "Reply published successfully!");
         fermerFenetre();
     }
 
@@ -79,7 +93,7 @@ public class ReponseFormController {
 
     private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Erreur");
+        alert.setTitle(isFrench ? "Erreur" : "Error");
         alert.setHeaderText(null);
         alert.setContentText("❌ " + message);
         alert.showAndWait();
@@ -87,9 +101,17 @@ public class ReponseFormController {
 
     private void showSuccess(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Succès");
+        alert.setTitle(isFrench ? "Succès" : "Success");
         alert.setHeaderText(null);
         alert.setContentText("✅ " + message);
+        alert.showAndWait();
+    }
+
+    private void showInfo(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText("ℹ️ " + message);
         alert.showAndWait();
     }
 }

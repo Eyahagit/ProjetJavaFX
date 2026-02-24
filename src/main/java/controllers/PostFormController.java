@@ -2,6 +2,7 @@ package controllers;
 
 import entities.ForumPost;
 import services.ServiceForumPost;
+import utils.BadWordsFilter;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -26,6 +27,7 @@ public class PostFormController {
     private MainForumController mainController;
     private ForumPost postCourant;
     private Mode modeCourant;
+    private boolean isFrench = true;
 
     @FXML
     public void initialize() {
@@ -49,6 +51,9 @@ public class PostFormController {
 
     public void setPostListController(PostListController controller) {
         this.postListController = controller;
+        if (controller != null) {
+            this.isFrench = controller.isFrench();
+        }
     }
 
     public void setMainController(MainForumController controller) {
@@ -58,14 +63,14 @@ public class PostFormController {
     public void setMode(Mode mode) {
         this.modeCourant = mode;
         if (mode == Mode.AJOUT) {
-            lblTitre.setText("➕ Nouvelle publication");
-            btnSauvegarder.setText("Publier");
+            lblTitre.setText(isFrench ? "➕ Nouvelle publication" : "➕ New post");
+            btnSauvegarder.setText(isFrench ? "Publier" : "Publish");
             chkArchive.setVisible(false);
             txtNom.clear();
             txtContenu.clear();
         } else {
-            lblTitre.setText("✏️ Modifier la publication");
-            btnSauvegarder.setText("Mettre à jour");
+            lblTitre.setText(isFrench ? "✏️ Modifier la publication" : "✏️ Edit post");
+            btnSauvegarder.setText(isFrench ? "Mettre à jour" : "Update");
             chkArchive.setVisible(true);
         }
     }
@@ -85,52 +90,62 @@ public class PostFormController {
         String contenu = txtContenu.getText().trim();
 
         if (nom.isEmpty()) {
-            showError("Le nom est requis");
+            showError(isFrench ? "Le nom est requis" : "Name is required");
             txtNom.requestFocus();
             return;
         }
 
         if (nom.length() < 3) {
-            showError("Le nom doit contenir au moins 3 caractères");
+            showError(isFrench ? "Le nom doit contenir au moins 3 caractères" : "Name must be at least 3 characters");
             txtNom.requestFocus();
             return;
         }
 
         if (contenu.isEmpty()) {
-            showError("Le contenu est requis");
+            showError(isFrench ? "Le contenu est requis" : "Content is required");
             txtContenu.requestFocus();
             return;
         }
 
         if (contenu.length() < 10) {
-            showError("Le contenu doit contenir au moins 10 caractères");
+            showError(isFrench ? "Le contenu doit contenir au moins 10 caractères" : "Content must be at least 10 characters");
             txtContenu.requestFocus();
             return;
         }
 
+        // ✅ FILTRAGE AUTOMATIQUE AVEC ***
+        String contenuFiltre = BadWordsFilter.filter(contenu);
+        String nomFiltre = BadWordsFilter.filter(nom);
+
+        if (!contenu.equals(contenuFiltre) || !nom.equals(nomFiltre)) {
+            showInfo(isFrench ? "Information" : "Information",
+                    isFrench ? "Des mots inappropriés ont été automatiquement remplacés par ***"
+                            : "Inappropriate words have been automatically replaced with ***");
+        }
+
         if (modeCourant == Mode.AJOUT) {
             ForumPost nouveauPost = new ForumPost(
-                    nom,
+                    nomFiltre,
                     cmbRole.getValue(),
                     cmbCategorie.getValue(),
-                    contenu,
+                    contenuFiltre,
                     LocalDateTime.now(),
                     false
             );
             service.ajouter(nouveauPost);
-            showSuccess("Publication publiée avec succès !");
+            showSuccess(isFrench ? "Publication publiée avec succès !" : "Post published successfully!");
         } else {
             if (postCourant == null) {
-                showError("Publication non trouvée");
+                showError(isFrench ? "Publication non trouvée" : "Post not found");
                 return;
             }
-            postCourant.setNom(nom);
+            postCourant.setNom(nomFiltre);
             postCourant.setRole(cmbRole.getValue());
             postCourant.setCategorie(cmbCategorie.getValue());
-            postCourant.setContenu(contenu);
+            postCourant.setContenu(contenuFiltre);
             postCourant.setArchive(chkArchive.isSelected());
             service.modifier(postCourant);
-            showSuccess("Publication modifiée avec succès !");
+            showSuccess(isFrench ? "Publication modifiée avec succès !" : "Post updated successfully!");
         }
 
         if (postListController != null) {
@@ -155,7 +170,7 @@ public class PostFormController {
 
     private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Erreur");
+        alert.setTitle(isFrench ? "Erreur" : "Error");
         alert.setHeaderText(null);
         alert.setContentText("❌ " + message);
         alert.showAndWait();
@@ -163,9 +178,17 @@ public class PostFormController {
 
     private void showSuccess(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Succès");
+        alert.setTitle(isFrench ? "Succès" : "Success");
         alert.setHeaderText(null);
         alert.setContentText("✅ " + message);
+        alert.showAndWait();
+    }
+
+    private void showInfo(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText("ℹ️ " + message);
         alert.showAndWait();
     }
 }

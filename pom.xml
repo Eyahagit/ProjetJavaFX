@@ -17,23 +17,41 @@
         <javafx.version>17.0.6</javafx.version>
     </properties>
 
+    <!-- Repositories explicites -->
+    <repositories>
+        <repository>
+            <id>central</id>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
+        <repository>
+            <id>maven-central</id>
+            <url>https://repo1.maven.org/maven2</url>
+        </repository>
+    </repositories>
+
     <dependencies>
-        <!-- JavaFX -->
+        <!-- JavaFX Contrôles -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
             <version>${javafx.version}</version>
         </dependency>
+
+        <!-- JavaFX FXML -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
             <version>${javafx.version}</version>
         </dependency>
+
+        <!-- JavaFX Base -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-base</artifactId>
             <version>${javafx.version}</version>
         </dependency>
+
+        <!-- JavaFX Graphics -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-graphics</artifactId>
@@ -47,16 +65,29 @@
             <version>8.0.33</version>
         </dependency>
 
-        <!-- Twilio -->
+        <!-- Twilio pour les SMS -->
         <dependency>
             <groupId>com.twilio.sdk</groupId>
             <artifactId>twilio</artifactId>
             <version>9.0.0</version>
         </dependency>
+        <!-- Jackson pour le parsing JSON (ultra stable) -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.15.2</version>
+        </dependency>
+
+        <!-- Gson pour le parsing JSON (NewsAPI) - Version corrigée -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.11.0</version>  <!-- Version plus récente -->
+        </dependency>
     </dependencies>
 
     <build>
-        <!-- Force la copie des ressources FXML -->
+        <!-- Force la copie des ressources FXML et HTML -->
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -65,6 +96,7 @@
                     <include>**/*.png</include>
                     <include>**/*.css</include>
                     <include>**/*.properties</include>
+                    <include>**/*.html</include>
                 </includes>
             </resource>
         </resources>
