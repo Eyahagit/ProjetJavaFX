@@ -32,7 +32,10 @@ src/main/resources/config.properties
 build/
 !**/src/main/**/build/
 !**/src/test/**/build/
-
+echo "twilio.account.sid=TON_ACCOUNT_SID" > src/main/resources/config.properties
+echo "twilio.auth.token=TON_AUTH_TOKEN" >> src/main/resources/config.properties
+echo "twilio.phone.number=TON_NUMERO_TWILIO" >> src/main/resources/config.properties
+echo "twilio.alert.number=+21652551135" >> src/main/resources/config.properties
 ### VS Code ###
 .vscode/
 
