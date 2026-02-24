@@ -45,13 +45,13 @@ public class Database {
     }
 
     public void closeConnection() {
-        if (connection != null) {
+        /*if (connection != null) {
             try {
                 connection.close();
                 System.out.println("✅ Database connection closed");
             } catch (SQLException e) {
                 System.err.println("❌ Error closing connection: " + e.getMessage());
             }
-        }
+        }*/
     }
 }

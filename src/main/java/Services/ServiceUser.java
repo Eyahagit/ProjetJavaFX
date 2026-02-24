@@ -169,5 +169,68 @@ public class ServiceUser implements Iservices<users> {
         }
         return null;
     }
+    // ========== NOUVELLES MÉTHODES POUR TWILIO ==========
+
+    /**
+     * Vérifie si un téléphone existe dans la base de données
+     */
+    public boolean userExistsByPhone(String telephone) {
+        String sql = "SELECT id FROM users WHERE phone = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, telephone);
+            ResultSet rs = stmt.executeQuery();
+            return rs.next();
+        } catch (SQLException e) {
+            System.err.println("❌ Erreur userExistsByPhone: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Met à jour le mot de passe par téléphone
+     */
+    public boolean updatePasswordByPhone(String telephone, String newPassword) {
+        String sql = "UPDATE users SET password = ? WHERE phone = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, newPassword);
+            stmt.setString(2, telephone);
+
+            int rowsAffected = stmt.executeUpdate();
+            System.out.println("✅ Lignes modifiées par téléphone: " + rowsAffected);
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("❌ Erreur updatePasswordByPhone: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Récupère un utilisateur par son téléphone
+     */
+    public users getByPhone(String telephone) throws SQLException {
+        String sql = "SELECT * FROM users WHERE phone = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, telephone);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                users user = new users();
+                user.setId(rs.getInt("id"));
+                user.setName(rs.getString("name"));
+                user.setSecond_name(rs.getString("second_name"));
+                user.setAge(rs.getInt("age"));
+                user.setGender(rs.getString("gender"));
+                user.setPhone_number(rs.getInt("phone_number"));
+                user.setBirth_date(rs.getString("birth_date"));
+                user.setEmail(rs.getString("email"));
+                user.setPassword(rs.getString("password"));
+                user.setRole(rs.getString("role"));
+                return user;
+            }
+        }
+        return null;
+    }
 
 }
