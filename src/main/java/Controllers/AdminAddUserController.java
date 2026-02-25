@@ -2,6 +2,7 @@ package Controllers;
 
 import Models.*;
 import Services.*;
+import utils.PasswordUtils; // ← NOUVEL IMPORT
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -63,7 +64,7 @@ public class AdminAddUserController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // Initialize role combo box
         if (roleBox != null) {
-            //roleBox.getItems().addAll("patient", "doctor", "admin");
+            roleBox.getItems().addAll("patient", "doctor", "admin");
 
             // Listener for role selection
             roleBox.valueProperty().addListener((obs, oldVal, newVal) -> {
@@ -196,6 +197,10 @@ public class AdminAddUserController implements Initializable {
                 return;
             }
 
+            // 🔐 HACHER LE MOT DE PASSE AVANT DE LE STOCKER
+            String plainPassword = passwordField.getText();
+            String hashedPassword = PasswordUtils.hashPassword(plainPassword);
+
             // ============ CRÉATION SELON LE RÔLE ============
             switch (role) {
                 case "patient":
@@ -235,7 +240,7 @@ public class AdminAddUserController implements Initializable {
                     p.setPhone_number(phone);
                     p.setBirth_date(dateBirth.getValue().toString());
                     p.setEmail(emailField.getText().trim());
-                    p.setPassword(passwordField.getText());
+                    p.setPassword(hashedPassword); // ← MOT DE PASSE HACHÉ
                     p.setRole(role);
                     p.setBlood_type(bloodTypeField.getText().trim());
                     p.setWeight(weight);
@@ -243,6 +248,8 @@ public class AdminAddUserController implements Initializable {
 
                     serviceUser.ajouter(p);
                     servicePatient.ajouter(p);
+
+                    System.out.println("✅ Patient ajouté avec mot de passe crypté");
                     break;
 
                 case "doctor":
@@ -282,7 +289,7 @@ public class AdminAddUserController implements Initializable {
                     d.setPhone_number(phone);
                     d.setBirth_date(dateBirth.getValue().toString());
                     d.setEmail(emailField.getText().trim());
-                    d.setPassword(passwordField.getText());
+                    d.setPassword(hashedPassword); // ← MOT DE PASSE HACHÉ
                     d.setRole(role);
                     d.setSpecialty(specialtyField.getText().trim());
                     d.setExperience(experience);
@@ -293,6 +300,8 @@ public class AdminAddUserController implements Initializable {
 
                     serviceUser.ajouter(d);
                     serviceDoctor.ajouter(d);
+
+                    System.out.println("✅ Docteur ajouté avec mot de passe crypté");
                     break;
 
                 case "admin":
@@ -304,12 +313,14 @@ public class AdminAddUserController implements Initializable {
                     a.setPhone_number(phone);
                     a.setBirth_date(dateBirth.getValue().toString());
                     a.setEmail(emailField.getText().trim());
-                    a.setPassword(passwordField.getText());
+                    a.setPassword(hashedPassword); // ← MOT DE PASSE HACHÉ
                     a.setRole(role);
                     a.setActif(adminActiveCheckBox.isSelected());
 
                     serviceUser.ajouter(a);
                     serviceAdmin.ajouter(a);
+
+                    System.out.println("✅ Admin ajouté avec mot de passe crypté");
                     break;
             }
 

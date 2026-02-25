@@ -11,6 +11,7 @@ public class users {
     private String email;
     private String password;
     private String role;
+    private boolean isBlocked;
 
     public users() {}
 
@@ -25,11 +26,15 @@ public class users {
         this.email = email;
         this.password = password;
         this.role = role;
+        this.isBlocked = false;
     }
 
     // Getters et Setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
+
+    public boolean isBlocked() { return isBlocked; }
+    public void setBlocked(boolean blocked) { isBlocked = blocked; }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }

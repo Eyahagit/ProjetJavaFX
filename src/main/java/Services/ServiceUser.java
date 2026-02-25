@@ -126,20 +126,23 @@ public class ServiceUser implements Iservices<users> {
 
     // ========== MÉTHODE D'AUTHENTIFICATION AVEC HASHAGE ==========
 
-    /**
-     * Authentifie un utilisateur avec BCrypt
-     * @param email Email de l'utilisateur
-     * @param plainPassword Mot de passe en clair saisi
-     * @return L'utilisateur si authentifié, null sinon
-     */
+
     public users authenticate(String email, String plainPassword) throws SQLException {
         users user = getByEmail(email);
 
-        if (user != null && PasswordUtils.checkPassword(plainPassword, user.getPassword())) {
-            return user; // Authentification réussie
+        if (user != null) {
+            // Vérifier d'abord si l'utilisateur est bloqué
+            if (user.isBlocked()) {
+                throw new SQLException("Votre compte a été bloqué . ");
+            }
+
+            // Ensuite vérifier le mot de passe
+            if (PasswordUtils.checkPassword(plainPassword, user.getPassword())) {
+                return user; // Authentification réussie
+            }
         }
 
-        return null; // Échec
+        return null; // Échec (utilisateur non trouvé ou mot de passe incorrect)
     }
 
     // ========== MÉTHODE POUR CHANGER LE MOT DE PASSE ==========
@@ -182,6 +185,7 @@ public class ServiceUser implements Iservices<users> {
                 user.setEmail(rs.getString("email"));
                 user.setPassword(rs.getString("password")); // ← C'EST LE HASH
                 user.setRole(rs.getString("role"));
+                user.setBlocked(rs.getBoolean("is_blocked"));
                 return user;
             }
         }
@@ -207,6 +211,7 @@ public class ServiceUser implements Iservices<users> {
                 user.setEmail(rs.getString("email"));
                 user.setPassword(rs.getString("password")); // ← C'EST LE HASH
                 user.setRole(rs.getString("role"));
+                user.setBlocked(rs.getBoolean("is_blocked"));
                 return user;
             }
         }
@@ -277,5 +282,51 @@ public class ServiceUser implements Iservices<users> {
             }
         }
         return null;
+    }
+
+
+    /**
+     * Bloque un utilisateur
+     * @param userId ID de l'utilisateur à bloquer
+     * @return true si réussi, false sinon
+     */
+    public boolean blockUser(int userId) throws SQLException {
+        String sql = "UPDATE users SET is_blocked = TRUE WHERE id = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            int rowsAffected = pstmt.executeUpdate();
+            System.out.println("✅ Utilisateur " + userId + " bloqué");
+            return rowsAffected > 0;
+        }
+    }
+
+    /**
+     * Débloque un utilisateur
+     * @param userId ID de l'utilisateur à débloquer
+     * @return true si réussi, false sinon
+     */
+    public boolean unblockUser(int userId) throws SQLException {
+        String sql = "UPDATE users SET is_blocked = FALSE WHERE id = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            int rowsAffected = pstmt.executeUpdate();
+            System.out.println("✅ Utilisateur " + userId + " débloqué");
+            return rowsAffected > 0;
+        }
+    }
+
+    /**
+     * Vérifie si un utilisateur est bloqué
+     */
+    public boolean isUserBlocked(int userId) throws SQLException {
+        String sql = "SELECT is_blocked FROM users WHERE id = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getBoolean("is_blocked");
+            }
+        }
+        return false;
     }
 }
