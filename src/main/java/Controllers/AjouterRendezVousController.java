@@ -4,6 +4,7 @@ import Models.Psychologue;
 import Models.RendezVous;
 import Service.ServicePsychologue;
 import Service.ServiceRendezVous;
+import Service.StripePaymentService;  // ← NOUVEAU IMPORT
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -19,6 +20,9 @@ import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Pattern;
+import java.awt.Desktop;  // ← NOUVEAU IMPORT
+import java.net.URI;      // ← NOUVEAU IMPORT
 
 public class AjouterRendezVousController {
 
@@ -26,7 +30,13 @@ public class AjouterRendezVousController {
     @FXML private TextField txtHeure;
     @FXML private TextField txtStatut;
     @FXML private TextField txtTypeCons;
-    @FXML private ComboBox<Psychologue> comboPsychologue;  // MODIFIÉ
+    @FXML private ComboBox<Psychologue> comboPsychologue;
+
+    // ========== CHAMPS PATIENT ==========
+    @FXML private TextField txtNomPatient;
+    @FXML private TextField txtPrenomPatient;
+    @FXML private TextField txtTelephonePatient;
+
     @FXML private ListView<RendezVous> listView;
     @FXML private TextField txtRecherche;
     @FXML private ComboBox<String> comboFiltre;
@@ -38,10 +48,16 @@ public class AjouterRendezVousController {
     private RendezVous selected;
     private ObservableList<RendezVous> masterData = FXCollections.observableArrayList();
 
+    // ========== NOUVEAU SERVICE STRIPE ==========
+    private StripePaymentService stripeService;
+
     // Liste des statuts valides
     private final List<String> STATUTS_VALIDES = Arrays.asList(
             "confirmé", "annulé", "reporté", "en attente", "terminé"
     );
+
+    // Constante pour le téléphone
+    private static final String TELEPHONE_REGEX = "^[0-9]{8}$";
 
     @FXML
     public void initialize() {
@@ -53,6 +69,13 @@ public class AjouterRendezVousController {
                 }
                 if (newValue.length() == 2 && !newValue.contains(":")) {
                     txtHeure.setText(newValue + ":");
+                }
+            });
+
+            // Restreindre téléphone aux chiffres
+            txtTelephonePatient.textProperty().addListener((observable, oldValue, newValue) -> {
+                if (!newValue.matches("\\d*")) {
+                    txtTelephonePatient.setText(newValue.replaceAll("[^\\d]", ""));
                 }
             });
 
@@ -78,14 +101,17 @@ public class AjouterRendezVousController {
 
             comboTri.setItems(FXCollections.observableArrayList(
                     "Date (récent)", "Date (ancien)", "Heure (croissant)", "Heure (décroissant)",
-                    "Statut", "Type", "Psychologue"
+                    "Statut", "Type", "Psychologue", "Patient"
             ));
             comboTri.setValue("Date (récent)");
 
-            // Charger les psychologues dans la ComboBox
+            // Charger les psychologues
             chargerPsychologues();
 
-            // Charger les données avec jointures
+            // ========== INITIALISER STRIPE ==========
+            stripeService = new StripePaymentService();
+
+            // Charger les données
             loadData();
 
             // Configurer l'affichage personnalisé
@@ -118,7 +144,6 @@ public class AjouterRendezVousController {
         }
     }
 
-    // NOUVELLE MÉTHODE
     private void chargerPsychologues() {
         try {
             ServicePsychologue servicePsychologue = new ServicePsychologue();
@@ -126,7 +151,6 @@ public class AjouterRendezVousController {
             ObservableList<Psychologue> items = FXCollections.observableArrayList(psychologues);
             comboPsychologue.setItems(items);
 
-            // Personnaliser l'affichage
             comboPsychologue.setCellFactory(lv -> new ListCell<Psychologue>() {
                 @Override
                 protected void updateItem(Psychologue p, boolean empty) {
@@ -177,7 +201,6 @@ public class AjouterRendezVousController {
                     container.setAlignment(Pos.CENTER_LEFT);
                     container.setStyle("-fx-padding: 12; -fx-background-color: transparent; -fx-border-color: transparent transparent #f0f0f0 transparent;");
 
-                    // Badge statut avec couleur
                     Label statutBadge = new Label(r.getStatut());
                     String statutStyle = "-fx-background-radius: 15; -fx-padding: 5 12; -fx-font-weight: bold; -fx-min-width: 80; -fx-alignment: center; ";
 
@@ -200,14 +223,30 @@ public class AjouterRendezVousController {
                     statutBadge.setStyle(statutStyle);
 
                     VBox infoBox = new VBox(8);
-                    infoBox.setPrefWidth(400);
+                    infoBox.setPrefWidth(500);
 
-                    // Date et Heure
                     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
                     Label dateLabel = new Label("📅 " + sdf.format(r.getDateRdv()) + " à " + r.getHeure());
                     dateLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;");
 
-                    // Psychologue (grâce à la jointure)
+                    HBox lignePatient = new HBox(10);
+                    lignePatient.setAlignment(Pos.CENTER_LEFT);
+
+                    String patientInfo = "👤 " + r.getNomCompletPatient();
+                    if (r.getTelephonePatient() != null && !r.getTelephonePatient().isEmpty()) {
+                        patientInfo += " - 📞 " + r.getTelephonePatient();
+                    }
+                    Label patientLabel = new Label(patientInfo);
+                    patientLabel.setStyle("-fx-text-fill: #34495e; -fx-font-weight: bold;");
+
+                    if (r.isRappelEnvoye()) {
+                        Label rappelBadge = new Label("✅ Rappel envoyé");
+                        rappelBadge.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 2 8; -fx-font-size: 11px;");
+                        lignePatient.getChildren().addAll(patientLabel, rappelBadge);
+                    } else {
+                        lignePatient.getChildren().add(patientLabel);
+                    }
+
                     HBox ligne1 = new HBox(10);
                     ligne1.setAlignment(Pos.CENTER_LEFT);
 
@@ -225,7 +264,6 @@ public class AjouterRendezVousController {
                     psychoLabel.setStyle("-fx-text-fill: #34495e;");
                     ligne1.getChildren().add(psychoLabel);
 
-                    // Cabinet (grâce à la jointure)
                     HBox ligne2 = new HBox(10);
                     ligne2.setAlignment(Pos.CENTER_LEFT);
 
@@ -243,11 +281,10 @@ public class AjouterRendezVousController {
                     cabinetLabel.setStyle("-fx-text-fill: #7f8c8d;");
                     ligne2.getChildren().add(cabinetLabel);
 
-                    // Type de consultation
                     Label typeLabel = new Label("📋 " + r.getTypeCons());
                     typeLabel.setStyle("-fx-text-fill: #7f8c8d; -fx-font-style: italic;");
 
-                    infoBox.getChildren().addAll(dateLabel, ligne1, ligne2, typeLabel);
+                    infoBox.getChildren().addAll(dateLabel, lignePatient, ligne1, ligne2, typeLabel);
                     container.getChildren().addAll(statutBadge, infoBox);
 
                     setGraphic(container);
@@ -272,9 +309,11 @@ public class AjouterRendezVousController {
             boolean matchSearch = true;
             boolean matchStatut = true;
 
-            // Filtre recherche (amélioré avec les champs des jointures)
             if (!searchText.isEmpty()) {
-                matchSearch = (r.getNomPsychologue() != null && r.getNomPsychologue().toLowerCase().contains(searchText)) ||
+                matchSearch = (r.getNomPatient() != null && r.getNomPatient().toLowerCase().contains(searchText)) ||
+                        (r.getPrenomPatient() != null && r.getPrenomPatient().toLowerCase().contains(searchText)) ||
+                        (r.getTelephonePatient() != null && r.getTelephonePatient().contains(searchText)) ||
+                        (r.getNomPsychologue() != null && r.getNomPsychologue().toLowerCase().contains(searchText)) ||
                         (r.getPrenomPsychologue() != null && r.getPrenomPsychologue().toLowerCase().contains(searchText)) ||
                         (r.getNomCabinet() != null && r.getNomCabinet().toLowerCase().contains(searchText)) ||
                         (r.getVilleCabinet() != null && r.getVilleCabinet().toLowerCase().contains(searchText)) ||
@@ -283,7 +322,6 @@ public class AjouterRendezVousController {
                         new SimpleDateFormat("dd/MM/yyyy").format(r.getDateRdv()).contains(searchText);
             }
 
-            // Filtre statut
             if (!statutFilter.equals("Tous")) {
                 matchStatut = r.getStatut().equalsIgnoreCase(statutFilter);
             }
@@ -329,22 +367,26 @@ public class AjouterRendezVousController {
                         return nom1.compareTo(nom2);
                     });
                     break;
+                case "Patient":
+                    items.sort((r1, r2) -> {
+                        String nom1 = r1.getNomCompletPatient();
+                        String nom2 = r2.getNomCompletPatient();
+                        return nom1.compareTo(nom2);
+                    });
+                    break;
             }
         }
     }
 
     private void remplirChamps(RendezVous r) {
         if (r != null) {
-            // Date
             if (r.getDateRdv() != null) {
                 java.sql.Date sqlDate = (java.sql.Date) r.getDateRdv();
                 datePicker.setValue(sqlDate.toLocalDate());
             }
 
-            // Heure
             txtHeure.setText(r.getHeure() != null ? r.getHeure() : "");
 
-            // Statut (avec première lettre en majuscule)
             String statut = r.getStatut();
             if (statut != null && !statut.isEmpty()) {
                 txtStatut.setText(statut.substring(0, 1).toUpperCase() + statut.substring(1).toLowerCase());
@@ -352,10 +394,12 @@ public class AjouterRendezVousController {
                 txtStatut.setText("");
             }
 
-            // Type consultation
             txtTypeCons.setText(r.getTypeCons() != null ? r.getTypeCons() : "");
 
-            // ID Psychologue - Sélectionner dans la ComboBox
+            txtNomPatient.setText(r.getNomPatient() != null ? r.getNomPatient() : "");
+            txtPrenomPatient.setText(r.getPrenomPatient() != null ? r.getPrenomPatient() : "");
+            txtTelephonePatient.setText(r.getTelephonePatient() != null ? r.getTelephonePatient() : "");
+
             for (Psychologue p : comboPsychologue.getItems()) {
                 if (p.getIdPsychologue() == r.getIdPsychologue()) {
                     comboPsychologue.setValue(p);
@@ -398,10 +442,34 @@ public class AjouterRendezVousController {
             return false;
         }
 
-        // MODIFIÉ : Validation du ComboBox
         if (comboPsychologue.getValue() == null) {
             showAlert("Erreur de saisie", "❌ Veuillez sélectionner un psychologue", AlertType.ERROR);
             comboPsychologue.requestFocus();
+            return false;
+        }
+
+        if (txtNomPatient.getText().trim().isEmpty()) {
+            showAlert("Erreur de saisie", "❌ Le nom du patient est obligatoire", AlertType.ERROR);
+            txtNomPatient.requestFocus();
+            return false;
+        }
+
+        if (txtPrenomPatient.getText().trim().isEmpty()) {
+            showAlert("Erreur de saisie", "❌ Le prénom du patient est obligatoire", AlertType.ERROR);
+            txtPrenomPatient.requestFocus();
+            return false;
+        }
+
+        if (txtTelephonePatient.getText().trim().isEmpty()) {
+            showAlert("Erreur de saisie", "❌ Le téléphone du patient est obligatoire", AlertType.ERROR);
+            txtTelephonePatient.requestFocus();
+            return false;
+        }
+
+        String telephone = txtTelephonePatient.getText().trim();
+        if (!telephone.matches(TELEPHONE_REGEX)) {
+            showAlert("Erreur de saisie", "❌ Téléphone invalide (8 chiffres)", AlertType.ERROR);
+            txtTelephonePatient.requestFocus();
             return false;
         }
 
@@ -451,8 +519,13 @@ public class AjouterRendezVousController {
                     txtHeure.getText().trim(),
                     txtStatut.getText().trim().toLowerCase(),
                     txtTypeCons.getText().trim(),
-                    comboPsychologue.getValue().getIdPsychologue()  // MODIFIÉ
+                    comboPsychologue.getValue().getIdPsychologue()
             );
+
+            r.setNomPatient(txtNomPatient.getText().trim());
+            r.setPrenomPatient(txtPrenomPatient.getText().trim());
+            r.setTelephonePatient(txtTelephonePatient.getText().trim());
+            r.setRappelEnvoye(false);
 
             service.ajouter(r);
             loadData();
@@ -490,7 +563,11 @@ public class AjouterRendezVousController {
             selected.setHeure(txtHeure.getText().trim());
             selected.setStatut(txtStatut.getText().trim().toLowerCase());
             selected.setTypeCons(txtTypeCons.getText().trim());
-            selected.setIdPsychologue(comboPsychologue.getValue().getIdPsychologue());  // MODIFIÉ
+            selected.setIdPsychologue(comboPsychologue.getValue().getIdPsychologue());
+
+            selected.setNomPatient(txtNomPatient.getText().trim());
+            selected.setPrenomPatient(txtPrenomPatient.getText().trim());
+            selected.setTelephonePatient(txtTelephonePatient.getText().trim());
 
             service.modifier(selected);
             loadData();
@@ -538,13 +615,79 @@ public class AjouterRendezVousController {
         showAlert("Succès", "✅ Liste actualisée", AlertType.INFORMATION);
     }
 
+    // ========== NOUVELLE MÉTHODE POUR LE PAIEMENT STRIPE ==========
+    @FXML
+    private void handleStripePaiement() {
+        // 1. Vérifier qu'un rendez-vous est sélectionné
+        if (selected == null) {
+            showAlert("Erreur", "❌ Veuillez sélectionner un rendez-vous", AlertType.ERROR);
+            return;
+        }
+
+        try {
+            // 2. Montant pour le test (à modifier selon tes besoins)
+            double montant = 50.0;
+
+            // 3. Afficher une alerte de progression
+            Alert loadingAlert = new Alert(AlertType.INFORMATION);
+            loadingAlert.setTitle("Paiement Stripe");
+            loadingAlert.setHeaderText("Initialisation du paiement...");
+            loadingAlert.setContentText("Connexion à Stripe en cours");
+            loadingAlert.show();
+
+            // 4. Créer la session de paiement
+            String payUrl = stripeService.creerSessionPaiement(selected, montant);
+
+            loadingAlert.close();
+
+            // 5. Traiter le résultat
+            if (payUrl != null && !payUrl.isEmpty()) {
+                // Ouvrir dans le navigateur par défaut
+                if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                    Desktop.getDesktop().browse(new URI(payUrl));
+
+                    showAlert("Succès",
+                            "✅ Redirection vers Stripe\n\n" +
+                                    "Patient: " + selected.getNomCompletPatient() + "\n" +
+                                    "Montant: " + montant + " USD\n" +
+                                    "Type: " + selected.getTypeCons() + "\n\n" +
+                                    "Utilise la carte de test: 4242 4242 4242 4242",
+                            AlertType.INFORMATION);
+                } else {
+                    showAlert("URL de paiement",
+                            "Copiez ce lien dans votre navigateur :\n\n" + payUrl,
+                            AlertType.INFORMATION);
+                }
+
+                System.out.println("\n💳 PAIEMENT STRIPE INITIÉ");
+                System.out.println("Patient: " + selected.getNomCompletPatient());
+                System.out.println("Rendez-vous ID: " + selected.getIdRdv());
+                System.out.println("Montant: " + montant + " USD");
+                System.out.println("URL: " + payUrl);
+                System.out.println("---\n");
+
+            } else {
+                showAlert("Erreur", "❌ Échec de la création du paiement Stripe\nVérifie la console pour plus de détails", AlertType.ERROR);
+            }
+
+        } catch (Exception e) {
+            showAlert("Erreur", "❌ " + e.getMessage(), AlertType.ERROR);
+            e.printStackTrace();
+        }
+    }
+
     @FXML
     private void clear() {
         datePicker.setValue(null);
         txtHeure.clear();
         txtStatut.clear();
         txtTypeCons.clear();
-        comboPsychologue.setValue(null);  // AJOUTÉ
+        comboPsychologue.setValue(null);
+
+        txtNomPatient.clear();
+        txtPrenomPatient.clear();
+        txtTelephonePatient.clear();
+
         selected = null;
         listView.getSelectionModel().clearSelection();
     }

@@ -19,6 +19,16 @@ public class RendezVous {
     private String nomCabinet;
     private String villeCabinet;
 
+    // Informations patient (AJOUTÉ)
+    private String nomPatient;
+    private String prenomPatient;
+    private String telephonePatient;
+
+    // Suivi des rappels (AJOUTÉ)
+    private boolean rappelEnvoye;
+    private Date dateRappel;
+
+
     // Constructeur vide
     public RendezVous() {
     }
@@ -32,6 +42,7 @@ public class RendezVous {
         this.statut = statut;
         this.typeCons = typeCons;
         this.idPsychologue = idPsychologue;
+        this.rappelEnvoye = false;
     }
 
     // Constructeur AVEC id (pour SELECT)
@@ -44,6 +55,7 @@ public class RendezVous {
         this.statut = statut;
         this.typeCons = typeCons;
         this.idPsychologue = idPsychologue;
+        this.rappelEnvoye = false;
     }
 
     // ================= GETTERS & SETTERS =================
@@ -96,6 +108,26 @@ public class RendezVous {
         this.idPsychologue = idPsychologue;
     }
 
+    // ========== GETTERS & SETTERS PATIENT (NOUVEAU) ==========
+    public String getNomPatient() { return nomPatient; }
+    public void setNomPatient(String nomPatient) { this.nomPatient = nomPatient; }
+
+    public String getPrenomPatient() { return prenomPatient; }
+    public void setPrenomPatient(String prenomPatient) { this.prenomPatient = prenomPatient; }
+
+    public String getTelephonePatient() { return telephonePatient; }
+    public void setTelephonePatient(String telephonePatient) {
+        this.telephonePatient = telephonePatient;
+    }
+
+    // ========== GETTERS & SETTERS RAPPELS (NOUVEAU) ==========
+    public boolean isRappelEnvoye() { return rappelEnvoye; }
+    public void setRappelEnvoye(boolean rappelEnvoye) { this.rappelEnvoye = rappelEnvoye; }
+
+    public Date getDateRappel() { return dateRappel; }
+    public void setDateRappel(Date dateRappel) { this.dateRappel = dateRappel; }
+
+
     // ========== GETTERS & SETTERS POUR LES JOINTS ==========
 
     public String getNomPsychologue() {
@@ -136,6 +168,13 @@ public class RendezVous {
 
     public void setVilleCabinet(String villeCabinet) {
         this.villeCabinet = villeCabinet;
+    }
+
+    // ========== MÉTHODES UTILITAIRES ==========
+    public String getNomCompletPatient() {
+        if (nomPatient == null && prenomPatient == null) return "Non renseigné";
+        return (prenomPatient != null ? prenomPatient : "") + " " +
+                (nomPatient != null ? nomPatient : "");
     }
 
     // ================= TOSTRING AMÉLIORÉ =================

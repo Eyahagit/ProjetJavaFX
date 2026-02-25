@@ -1,5 +1,6 @@
 package Controllers;
 
+import Models.RendezVous;  // ← NOUVEL IMPORT
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -28,6 +29,9 @@ public class MenuPrincipalController {
     @FXML private Label lblPsychologueCount;
     @FXML private Label lblRendezVousCount;
 
+    // ========== NOUVEAU COMPTEUR POUR LES RAPPELS ==========
+    @FXML private Label lblRappelsCount;
+
     @FXML private Label dashboardCabinetCount;
     @FXML private Label dashboardPsychologueCount;
     @FXML private Label dashboardRendezVousCount;
@@ -36,6 +40,7 @@ public class MenuPrincipalController {
     @FXML private Button btnCabinet;
     @FXML private Button btnPsychologue;
     @FXML private Button btnRendezVous;
+    @FXML private Button btnSuiviRappels;  // ← DÉJÀ PRÉSENT
 
     private Parent currentView = null;
 
@@ -67,6 +72,7 @@ public class MenuPrincipalController {
         timeline.play();
     }
 
+    // ========== METHODE MODIFIÉE POUR INCLURE LE COMPTEUR RAPPELS ==========
     private void updateCounters() {
         try {
             int cabinetCount = serviceCabinet.recuperer().size();
@@ -81,17 +87,32 @@ public class MenuPrincipalController {
             dashboardPsychologueCount.setText(String.valueOf(psychologueCount));
             dashboardRendezVousCount.setText(String.valueOf(rendezVousCount));
 
+            // ========== NOUVEAU : Mettre à jour le compteur de rappels ==========
+            if (lblRappelsCount != null) {
+                // Compter les rendez-vous qui ont reçu un rappel
+                long rappelsEnvoyes = serviceRendezVous.recuperer().stream()
+                        .filter(RendezVous::isRappelEnvoye)
+                        .count();
+                lblRappelsCount.setText(String.valueOf(rappelsEnvoyes));
+            }
+
         } catch (Exception e) {
             System.err.println("Erreur chargement compteurs: " + e.getMessage());
         }
     }
 
+    // ========== METHODE MODIFIÉE POUR INCLURE LE BOUTON SUIVI RAPPELS ==========
     private void setActiveButton(Button activeButton) {
         // Réinitialiser tous les boutons
         btnDashboard.setStyle("-fx-background-color: transparent; -fx-background-radius: 10; -fx-padding: 12 15;");
         btnCabinet.setStyle("-fx-background-color: transparent; -fx-background-radius: 10; -fx-padding: 12 15;");
         btnPsychologue.setStyle("-fx-background-color: transparent; -fx-background-radius: 10; -fx-padding: 12 15;");
         btnRendezVous.setStyle("-fx-background-color: transparent; -fx-background-radius: 10; -fx-padding: 12 15;");
+
+        // ========== NOUVEAU : Réinitialiser aussi le bouton suivi rappels ==========
+        if (btnSuiviRappels != null) {
+            btnSuiviRappels.setStyle("-fx-background-color: transparent; -fx-background-radius: 10; -fx-padding: 12 15;");
+        }
 
         // Mettre en surbrillance le bouton actif
         if (activeButton != null) {
@@ -135,6 +156,20 @@ public class MenuPrincipalController {
     @FXML
     private void openStatistiques() {
         loadView("/Statistiques.fxml", "Statistiques");
+    }
+
+    // ========== MÉTHODE POUR OUVRIR LE SUIVI DES RAPPELS (DÉJÀ PRÉSENTE) ==========
+    @FXML
+    private void openSuiviRappels() {
+        setActiveButton(btnSuiviRappels);  // ← AJOUTÉ pour la surbrillance
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/SuiviRappels.fxml"));
+            contentArea.getChildren().setAll(root);
+            statusLabel.setText("✅ Suivi des rappels intelligents");
+        } catch (Exception e) {
+            showAlert("Erreur", "Impossible d'ouvrir le suivi des rappels", Alert.AlertType.ERROR);
+            e.printStackTrace();
+        }
     }
 
     private void loadView(String fxmlPath, String titre) {

@@ -37,7 +37,7 @@
             <Label text="GESTION"
                    style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #7f8c8d; -fx-padding: 10 0 5 10;"/>
 
-            <!-- Dashboard - CORRIGÉ : suppression des onMouseEntered/Exited -->
+            <!-- Dashboard -->
             <Button fx:id="btnDashboard" onAction="#openDashboard"
                     style="-fx-background-color: transparent; -fx-background-radius: 10; -fx-padding: 12 15; -fx-cursor: hand;">
                 <graphic>
@@ -55,7 +55,7 @@
                     <HBox spacing="15" alignment="CENTER_LEFT">
                         <Label text="🏢" style="-fx-font-size: 18px;"/>
                         <Label text="Gestion des Cabinets" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
-                        <Label text="5" style="-fx-background-color: #5FB49C; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 2 8; -fx-font-size: 11px;" fx:id="lblCabinetCount"/>
+                        <Label fx:id="lblCabinetCount" text="0" style="-fx-background-color: #5FB49C; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 2 8; -fx-font-size: 11px;"/>
                     </HBox>
                 </graphic>
             </Button>
@@ -67,7 +67,7 @@
                     <HBox spacing="15" alignment="CENTER_LEFT">
                         <Label text="🧠" style="-fx-font-size: 18px;"/>
                         <Label text="Gestion des Psychologues" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
-                        <Label text="8" style="-fx-background-color: #E667AF; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 2 8; -fx-font-size: 11px;" fx:id="lblPsychologueCount"/>
+                        <Label fx:id="lblPsychologueCount" text="0" style="-fx-background-color: #E667AF; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 2 8; -fx-font-size: 11px;"/>
                     </HBox>
                 </graphic>
             </Button>
@@ -79,16 +79,28 @@
                     <HBox spacing="15" alignment="CENTER_LEFT">
                         <Label text="📅" style="-fx-font-size: 18px;"/>
                         <Label text="Gestion des Rendez-vous" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
-                        <Label text="12" style="-fx-background-color: #4A6FA5; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 2 8; -fx-font-size: 11px;" fx:id="lblRendezVousCount"/>
+                        <Label fx:id="lblRendezVousCount" text="0" style="-fx-background-color: #4A6FA5; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 2 8; -fx-font-size: 11px;"/>
                     </HBox>
                 </graphic>
             </Button>
 
             <Separator style="-fx-padding: 20 0 10 0;"/>
 
-            <!-- RAPPORTS -->
-            <Label text="RAPPORTS"
+            <!-- RAPPORTS & SUIVI -->
+            <Label text="RAPPORTS &amp; SUIVI"
                    style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #7f8c8d; -fx-padding: 10 0 5 10;"/>
+
+            <!-- ========== NOUVEAU BOUTON RAPPEL INTELLIGENT ========== -->
+            <Button fx:id="btnSuiviRappels" onAction="#openSuiviRappels"
+                    style="-fx-background-color: #9B59B6; -fx-background-radius: 10; -fx-padding: 12 15; -fx-cursor: hand;">
+                <graphic>
+                    <HBox spacing="15" alignment="CENTER_LEFT">
+                        <Label text="📱" style="-fx-font-size: 18px; -fx-text-fill: white;"/>
+                        <Label text="Suivi rappels intelligents" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                        <Label fx:id="lblRappelsCount" text="0" style="-fx-background-color: white; -fx-text-fill: #9B59B6; -fx-background-radius: 10; -fx-padding: 2 8; -fx-font-size: 11px;"/>
+                    </HBox>
+                </graphic>
+            </Button>
 
             <Button fx:id="btnStatistiques" onAction="#openStatistiques"
                     style="-fx-background-color: transparent; -fx-background-radius: 10; -fx-padding: 12 15; -fx-cursor: hand;">
@@ -170,7 +182,7 @@
                 </VBox>
             </HBox>
 
-            <!-- ACTIONS RAPIDES -->
+            <!-- ACTIONS RAPIDES (MODIFIÉ) -->
             <Label text="Actions rapides" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-padding: 20 0 0 0;"/>
 
             <HBox spacing="20" alignment="CENTER">
@@ -180,6 +192,9 @@
                         style="-fx-background-color: #E667AF; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 12 20;"/>
                 <Button text="➕ Nouveau rendez-vous" onAction="#openGestionRendezVous"
                         style="-fx-background-color: #5FB49C; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 12 20;"/>
+                <!-- ========== NOUVEAU BOUTON RAPPEL DANS ACTIONS RAPIDES ========== -->
+                <Button text="📱 Suivi rappels" onAction="#openSuiviRappels"
+                        style="-fx-background-color: #9B59B6; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 12 20;"/>
             </HBox>
         </VBox>
     </StackPane>

@@ -36,6 +36,20 @@
             <artifactId>javafx-controls</artifactId>
             <version>17</version>
         </dependency>
+
+        <!-- Twilio API pour les SMS -->
+        <dependency>
+            <groupId>com.twilio.sdk</groupId>
+            <artifactId>twilio</artifactId>
+            <version>9.14.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.stripe</groupId>
+            <artifactId>stripe-java</artifactId>
+            <version>28.2.0</version>
+        </dependency>
+
     </dependencies>
 
     <build>
