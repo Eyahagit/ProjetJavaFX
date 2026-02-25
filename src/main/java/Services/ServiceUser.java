@@ -2,6 +2,7 @@ package Services;
 
 import Models.users;
 import utils.Database;
+import utils.PasswordUtils; // ← NOUVEL IMPORT
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ public class ServiceUser implements Iservices<users> {
             stmt.setInt(5, users.getPhone_number());
             stmt.setString(6, users.getBirth_date());
             stmt.setString(7, users.getEmail());
-            stmt.setString(8, users.getPassword());
+            stmt.setString(8, users.getPassword()); // ← Le mot de passe est déjà haché par le contrôleur
             stmt.setString(9, users.getRole());
 
             stmt.executeUpdate();
@@ -101,7 +102,7 @@ public class ServiceUser implements Iservices<users> {
                 user.setPhone_number(rs.getInt("phone_number"));
                 user.setBirth_date(rs.getString("birth_date"));
                 user.setEmail(rs.getString("email"));
-                user.setPassword(rs.getString("password"));
+                user.setPassword(rs.getString("password")); // ← C'EST LE HASH
                 user.setRole(rs.getString("role"));
                 userslist.add(user);
             }
@@ -109,6 +110,7 @@ public class ServiceUser implements Iservices<users> {
         }
         return userslist;
     }
+
     public int countUsers() throws SQLException {
         String sql = "SELECT COUNT(*) as total FROM users";
         try (Statement statement = connection.createStatement();
@@ -120,6 +122,46 @@ public class ServiceUser implements Iservices<users> {
             }
         }
         return 0;
+    }
+
+    // ========== MÉTHODE D'AUTHENTIFICATION AVEC HASHAGE ==========
+
+    /**
+     * Authentifie un utilisateur avec BCrypt
+     * @param email Email de l'utilisateur
+     * @param plainPassword Mot de passe en clair saisi
+     * @return L'utilisateur si authentifié, null sinon
+     */
+    public users authenticate(String email, String plainPassword) throws SQLException {
+        users user = getByEmail(email);
+
+        if (user != null && PasswordUtils.checkPassword(plainPassword, user.getPassword())) {
+            return user; // Authentification réussie
+        }
+
+        return null; // Échec
+    }
+
+    // ========== MÉTHODE POUR CHANGER LE MOT DE PASSE ==========
+
+    /**
+     * Change le mot de passe d'un utilisateur (avec hashage)
+     * @param userId ID de l'utilisateur
+     * @param newPlainPassword Nouveau mot de passe en clair
+     * @return true si réussi, false sinon
+     */
+    public boolean changePassword(int userId, String newPlainPassword) throws SQLException {
+        String hashedPassword = PasswordUtils.hashPassword(newPlainPassword);
+        String sql = "UPDATE users SET password = ? WHERE id = ?";
+
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, hashedPassword);
+            pstmt.setInt(2, userId);
+
+            int rowsAffected = pstmt.executeUpdate();
+            System.out.println("✅ Mot de passe changé pour l'utilisateur ID: " + userId);
+            return rowsAffected > 0;
+        }
     }
 
     public users getByEmail(String email) throws SQLException {
@@ -138,13 +180,14 @@ public class ServiceUser implements Iservices<users> {
                 user.setPhone_number(rs.getInt("phone_number"));
                 user.setBirth_date(rs.getString("birth_date"));
                 user.setEmail(rs.getString("email"));
-                user.setPassword(rs.getString("password"));
+                user.setPassword(rs.getString("password")); // ← C'EST LE HASH
                 user.setRole(rs.getString("role"));
                 return user;
             }
         }
         return null;
     }
+
     // Méthodes supplémentaires utiles
     public users getById(int id) throws SQLException {
         String sql = "SELECT * FROM `users` WHERE id = ?";
@@ -162,14 +205,15 @@ public class ServiceUser implements Iservices<users> {
                 user.setPhone_number(rs.getInt("phone_number"));
                 user.setBirth_date(rs.getString("birth_date"));
                 user.setEmail(rs.getString("email"));
-                user.setPassword(rs.getString("password"));
+                user.setPassword(rs.getString("password")); // ← C'EST LE HASH
                 user.setRole(rs.getString("role"));
                 return user;
             }
         }
         return null;
     }
-    // ========== NOUVELLES MÉTHODES POUR TWILIO ==========
+
+    // ========== MÉTHODES POUR TWILIO ==========
 
     /**
      * Vérifie si un téléphone existe dans la base de données
@@ -188,12 +232,14 @@ public class ServiceUser implements Iservices<users> {
     }
 
     /**
-     * Met à jour le mot de passe par téléphone
+     * Met à jour le mot de passe par téléphone (AVEC HASHAGE)
      */
-    public boolean updatePasswordByPhone(String telephone, String newPassword) {
+    public boolean updatePasswordByPhone(String telephone, String newPlainPassword) {
+        String hashedPassword = PasswordUtils.hashPassword(newPlainPassword); // ← HASHAGE AJOUTÉ
         String sql = "UPDATE users SET password = ? WHERE phone = ?";
+
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, newPassword);
+            stmt.setString(1, hashedPassword); // ← STOCKAGE DU HASH
             stmt.setString(2, telephone);
 
             int rowsAffected = stmt.executeUpdate();
@@ -225,12 +271,11 @@ public class ServiceUser implements Iservices<users> {
                 user.setPhone_number(rs.getInt("phone_number"));
                 user.setBirth_date(rs.getString("birth_date"));
                 user.setEmail(rs.getString("email"));
-                user.setPassword(rs.getString("password"));
+                user.setPassword(rs.getString("password")); // ← C'EST LE HASH
                 user.setRole(rs.getString("role"));
                 return user;
             }
         }
         return null;
     }
-
 }

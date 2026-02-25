@@ -14,6 +14,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import utils.PasswordUtils;
+
 import java.io.IOException;
 import java.time.LocalDate;
 
@@ -105,6 +107,10 @@ public class usersController {
     private void addUser() {
         try {
             // ============ VALIDATION DES CHAMPS COMMUNS ============
+            String plainPassword = passwordField.getText();
+
+            // 🔐 Hacher le mot de passe
+            String hashedPassword = PasswordUtils.hashPassword(plainPassword);
 
             // Nom
             if (nameField.getText().trim().isEmpty()) {
@@ -278,7 +284,7 @@ public class usersController {
                     p.setPhone_number(phone);
                     p.setBirth_date(dateBirth.getValue().toString());
                     p.setEmail(email);
-                    p.setPassword(password);
+                    p.setPassword(hashedPassword);
                     p.setRole(role);
                     p.setBlood_type(txtBloodType.getText().trim());
                     p.setWeight(weight);
@@ -351,7 +357,7 @@ public class usersController {
                     d.setPhone_number(phone);
                     d.setBirth_date(dateBirth.getValue().toString());
                     d.setEmail(email);
-                    d.setPassword(password);
+                    d.setPassword(hashedPassword);
                     d.setRole(role);
                     d.setSpecialty(txtSpecialty.getText().trim());
                     d.setExperience(experience);
@@ -373,7 +379,7 @@ public class usersController {
                     a.setPhone_number(phone);
                     a.setBirth_date(dateBirth.getValue().toString());
                     a.setEmail(email);
-                    a.setPassword(password);
+                    a.setPassword(hashedPassword);
                     a.setRole(role);
                     a.setActif(chkActifA.isSelected());
 

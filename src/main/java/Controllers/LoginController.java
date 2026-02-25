@@ -60,10 +60,10 @@ public class LoginController {
         String password = passwordField.getText();
 
         try {
-            // VÉRIFIER SI L'UTILISATEUR EXISTE DANS LA BASE
-            users user = serviceUser.getByEmail(email);
+            // ✅ NOUVEAU : Utiliser la méthode authenticate avec BCrypt
+            users user = serviceUser.authenticate(email, password);
 
-            if (user != null && user.getPassword().equals(password)) {
+            if (user != null) {
                 // CONNEXION RÉUSSIE
                 System.out.println("✅ Login successful: " + user.getEmail() + " - Role: " + user.getRole());
 

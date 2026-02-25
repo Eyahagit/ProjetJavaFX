@@ -4,6 +4,7 @@ import Services.EmailService;
 import Services.TwilioVerifyService;
 import Services.ServiceUser;
 import utils.Database;
+import utils.PasswordUtils;
 import utils.PhoneFormatter;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -547,13 +548,14 @@ public class ForgotPasswordController {
         String query = "UPDATE users SET password = ? WHERE email = ?";
         Connection conn = null;
         PreparedStatement pstmt = null;
+        String hashedPassword = PasswordUtils.hashPassword(newPassword);
 
         try {
             conn = database.getConnection();
             if (conn == null) return false;
 
             pstmt = conn.prepareStatement(query);
-            pstmt.setString(1, newPassword);
+            pstmt.setString(1, hashedPassword);
             pstmt.setString(2, email);
 
             int rowsAffected = pstmt.executeUpdate();
@@ -622,6 +624,7 @@ public class ForgotPasswordController {
 
         try {
             int phoneNumber = Integer.parseInt(phoneWithoutCode);
+            String hashedPassword = PasswordUtils.hashPassword(newPassword);
 
             // Utiliser l'instance stockée (comme dans updatePassword)
             conn = database.getConnection();
@@ -629,7 +632,7 @@ public class ForgotPasswordController {
 
             String query = "UPDATE users SET password = ? WHERE phone_number = ?";
             pstmt = conn.prepareStatement(query);
-            pstmt.setString(1, newPassword);
+            pstmt.setString(1, hashedPassword);
             pstmt.setInt(2, phoneNumber);
 
             int rowsAffected = pstmt.executeUpdate();

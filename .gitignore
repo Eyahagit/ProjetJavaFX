@@ -36,3 +36,22 @@ build/
 
 ### Mac OS ###
 .DS_Store
+# Fichiers de configuration sensibles
+src/main/resources/client_secret.json
+client_secret.json
+
+# Dossier des tokens Google
+tokens/
+*.StoredCredential
+
+# Fichiers de configuration
+*.properties
+*.config
+*.conf
+
+# Fichiers de log
+*.log
+*.logs
+
+# Dossier target (build)
+target/

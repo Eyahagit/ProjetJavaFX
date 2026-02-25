@@ -3,6 +3,7 @@ package Services;
 import Models.users;
 import utils.Database;
 import utils.GoogleAuthUtil;
+import utils.PasswordUtils;
 
 import java.sql.*;
 import java.security.SecureRandom;
@@ -30,7 +31,10 @@ public class GoogleAuthService {
         SecureRandom random = new SecureRandom();
         byte[] bytes = new byte[12];
         random.nextBytes(bytes);
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+        String plainPassword = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+
+        // 🔐 Hacher le mot de passe aléatoire
+        return PasswordUtils.hashPassword(plainPassword);
     }
 
     private users mapGoogleToUser() {

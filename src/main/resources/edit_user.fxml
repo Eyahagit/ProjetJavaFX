@@ -136,7 +136,42 @@
                         </VBox>
 
                         <Separator />
+                        <!-- Ajoutez cette section AVANT les boutons de sauvegarde/annulation -->
 
+                        <Separator />
+                        <Label text="Sécurité" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #4A6FA5;" />
+
+                        <Button fx:id="changePasswordBtn" onAction="#handleChangePassword"
+                                text="Changer le mot de passe"
+                                style="-fx-background-color: #5FB49C; -fx-text-fill: white; -fx-font-weight: bold;"
+                                prefHeight="35" maxWidth="Infinity"/>
+
+                        <VBox fx:id="passwordChangeBox" spacing="10" visible="false" managed="false">
+                            <VBox spacing="3">
+                                <Label text="Mot de passe actuel" style="-fx-font-weight: bold;" />
+                                <PasswordField fx:id="currentPasswordField" promptText="Entrez votre mot de passe actuel"
+                                               style="-fx-padding: 8; -fx-background-radius: 5;" />
+                            </VBox>
+
+                            <VBox spacing="3">
+                                <Label text="Nouveau mot de passe" style="-fx-font-weight: bold;" />
+                                <PasswordField fx:id="newPasswordField" promptText="Minimum 6 caractères"
+                                               style="-fx-padding: 8; -fx-background-radius: 5;" />
+                            </VBox>
+
+                            <VBox spacing="3">
+                                <Label text="Confirmer le mot de passe" style="-fx-font-weight: bold;" />
+                                <PasswordField fx:id="confirmPasswordField" promptText="Retapez votre nouveau mot de passe"
+                                               style="-fx-padding: 8; -fx-background-radius: 5;" />
+                            </VBox>
+
+                            <Button onAction="#handleConfirmPasswordChange"
+                                    text="Confirmer le changement"
+                                    style="-fx-background-color: #5FB49C; -fx-text-fill: white; -fx-font-weight: bold;"
+                                    prefHeight="35" maxWidth="Infinity"/>
+                        </VBox>
+
+                        <Separator />
                         <!-- BUTTONS -->
                         <HBox spacing="20" alignment="CENTER">
                             <Button fx:id="saveBtn" onAction="#handleSave"

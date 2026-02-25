@@ -2,6 +2,7 @@ package Controllers;
 
 import Models.*;
 import Services.*;
+import utils.PasswordUtils; // ← NOUVEL IMPORT
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -25,6 +26,13 @@ public class EditUserController implements Initializable {
     @FXML private TextField ageField;
     @FXML private ComboBox<String> genderCombo;
     @FXML private TextField phoneField;
+
+    // ===== NOUVEAUX CHAMPS POUR LE MOT DE PASSE =====
+    @FXML private PasswordField currentPasswordField;
+    @FXML private PasswordField newPasswordField;
+    @FXML private PasswordField confirmPasswordField;
+    @FXML private Button changePasswordBtn;
+    @FXML private VBox passwordChangeBox;
 
     // Patient fields
     @FXML private VBox patientFields;
@@ -67,8 +75,18 @@ public class EditUserController implements Initializable {
         if (genderCombo != null) {
             genderCombo.getItems().addAll("Male", "Female", "Other");
         }
+
         // Cacher tous les champs spécifiques au début
         hideAllSpecificFields();
+
+        // ===== INITIALISER LES CHAMPS DE MOT DE PASSE =====
+        if (passwordChangeBox != null) {
+            passwordChangeBox.setVisible(false);
+            passwordChangeBox.setManaged(false);
+        }
+        if (changePasswordBtn != null) {
+            changePasswordBtn.setText("Changer le mot de passe");
+        }
     }
 
     private void hideAllSpecificFields() {
@@ -238,6 +256,86 @@ public class EditUserController implements Initializable {
 
     public void setOnSaveCallback(Runnable callback) {
         this.onSaveCallback = callback;
+    }
+
+    // ===== NOUVELLE MÉTHODE POUR GÉRER LE CHANGEMENT DE MOT DE PASSE =====
+    @FXML
+    private void handleChangePassword() {
+        if (passwordChangeBox == null) return;
+
+        // Si les champs sont cachés, on les affiche
+        if (!passwordChangeBox.isVisible()) {
+            passwordChangeBox.setVisible(true);
+            passwordChangeBox.setManaged(true);
+            changePasswordBtn.setText("Annuler le changement");
+            return;
+        }
+
+        // Si on clique avec les champs visibles, on cache
+        passwordChangeBox.setVisible(false);
+        passwordChangeBox.setManaged(false);
+        changePasswordBtn.setText("Changer le mot de passe");
+
+        // Vider les champs
+        if (currentPasswordField != null) currentPasswordField.clear();
+        if (newPasswordField != null) newPasswordField.clear();
+        if (confirmPasswordField != null) confirmPasswordField.clear();
+    }
+
+    // ===== NOUVELLE MÉTHODE POUR CONFIRMER LE CHANGEMENT DE MOT DE PASSE =====
+    @FXML
+    private void handleConfirmPasswordChange() {
+        String currentPassword = currentPasswordField.getText();
+        String newPassword = newPasswordField.getText();
+        String confirmPassword = confirmPasswordField.getText();
+
+        // Validations
+        if (currentPassword.isEmpty() || newPassword.isEmpty() || confirmPassword.isEmpty()) {
+            showAlert("Erreur", "Veuillez remplir tous les champs");
+            return;
+        }
+
+        if (!newPassword.equals(confirmPassword)) {
+            showAlert("Erreur", "Les nouveaux mots de passe ne correspondent pas");
+            return;
+        }
+
+        if (newPassword.length() < 6) {
+            showAlert("Erreur", "Le nouveau mot de passe doit contenir au moins 6 caractères");
+            return;
+        }
+
+        try {
+            // Vérifier l'ancien mot de passe
+            users user = serviceUser.getById(currentUser.getId());
+            if (user == null || !PasswordUtils.checkPassword(currentPassword, user.getPassword())) {
+                showAlert("Erreur", "Mot de passe actuel incorrect");
+                return;
+            }
+
+            // Changer le mot de passe
+            boolean updated = serviceUser.changePassword(currentUser.getId(), newPassword);
+
+            if (updated) {
+                showAlert("Succès", "Mot de passe modifié avec succès");
+
+                // Cacher les champs
+                passwordChangeBox.setVisible(false);
+                passwordChangeBox.setManaged(false);
+                changePasswordBtn.setText("Changer le mot de passe");
+
+                // Vider les champs
+                currentPasswordField.clear();
+                newPasswordField.clear();
+                confirmPasswordField.clear();
+            } else {
+                showAlert("Erreur", "Échec de la modification du mot de passe");
+            }
+
+        } catch (SQLException e) {
+            showAlert("Erreur", "Erreur: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     @FXML
