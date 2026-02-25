@@ -42,6 +42,7 @@ public class PatientDashboardController implements Initializable {
     @FXML private Button newAppointmentBtn;
 
     private patient currentPatient;
+    private users currentUser; // Pour les utilisateurs Google
     private final ServicePatient servicePatient = new ServicePatient();
     private final ServiceDoctor serviceDoctor = new ServiceDoctor();
 
@@ -70,8 +71,13 @@ public class PatientDashboardController implements Initializable {
         });
     }
 
+    /**
+     * Pour les patients normaux (avec toutes les données médicales)
+     */
     public void setPatientData(patient patient) {
         this.currentPatient = patient;
+        this.currentUser = null;
+
         if (patient != null) {
             // Update labels
             String fullName = patient.getName() + " " + patient.getSecond_name();
@@ -89,7 +95,70 @@ public class PatientDashboardController implements Initializable {
 
             // Load doctors
             loadDoctors();
+
+            System.out.println("✅ Patient data loaded: " + patient.getEmail());
         }
+    }
+
+    /**
+     * Pour les utilisateurs Google (données limitées)
+     */
+    public void setUser(users user) {
+        this.currentUser = user;
+        this.currentPatient = null;
+
+        System.out.println("✅ Utilisateur Google reçu dans dashboard: " + user.getEmail());
+        System.out.println("   Name: '" + user.getName() + "'");
+        System.out.println("   Second name: '" + user.getSecond_name() + "'");
+        System.out.println("   Age: " + user.getAge());
+        System.out.println("   Gender: '" + user.getGender() + "'");
+
+        // Afficher les informations disponibles
+        String fullName;
+        if (user.getName() != null && !user.getName().isEmpty()) {
+            fullName = user.getName() + " " + (user.getSecond_name() != null ? user.getSecond_name() : "");
+        } else {
+            // Si pas de nom, utiliser l'email
+            fullName = user.getEmail().split("@")[0];
+        }
+
+        patientNameLabel.setText(fullName.trim());
+        welcomeLabel.setText("Welcome, " + fullName.trim() + "!");
+        fullNameLabel.setText(fullName.trim());
+        emailLabel.setText(user.getEmail());
+
+        // Gestion correcte des valeurs
+        if (user.getAge() > 0) {
+            ageLabel.setText(String.valueOf(user.getAge()));
+        } else {
+            ageLabel.setText("Non renseigné");
+        }
+
+        if (user.getGender() != null && !user.getGender().isEmpty() && !user.getGender().equals("0")) {
+            genderLabel.setText(user.getGender());
+        } else {
+            genderLabel.setText("Non renseigné");
+        }
+
+        if (user.getPhone_number() > 0) {
+            phoneLabel.setText(String.valueOf(user.getPhone_number()));
+        } else {
+            phoneLabel.setText("Non renseigné");
+        }
+
+        if (user.getBirth_date() != null && !user.getBirth_date().isEmpty()) {
+            birthDateLabel.setText(user.getBirth_date());
+        } else {
+            birthDateLabel.setText("Non renseigné");
+        }
+
+        // Informations médicales (toujours vides pour Google)
+        bloodTypeLabel.setText("À compléter");
+        weightLabel.setText("À compléter");
+        heightLabel.setText("À compléter");
+
+        // Load doctors
+        loadDoctors();
     }
 
     private void loadDoctors() {
@@ -102,8 +171,6 @@ public class PatientDashboardController implements Initializable {
             e.printStackTrace();
         }
     }
-
-
 
     @FXML
     private void handleLogout(ActionEvent event) {
@@ -120,20 +187,13 @@ public class PatientDashboardController implements Initializable {
             showAlert("Erreur", "Impossible de charger la page de connexion: " + e.getMessage());
         }
     }
+
     private void loadDashboardData() {
         try {
             System.out.println("\n🔍 Chargement données dashboard patient");
-
-            // Charger les docteurs disponibles
             List<doctor> allDoctors = serviceDoctor.recuperer();
             doctorsListView.setItems(FXCollections.observableArrayList(allDoctors));
-
-            // Mettre à jour les statistiques (si tu veux)
-            // Par exemple: nombre de docteurs disponibles
-            // totalDoctorsLabel.setText(String.valueOf(allDoctors.size()));
-
             System.out.println("✅ Dashboard chargé - Docteurs disponibles: " + allDoctors.size());
-
         } catch (SQLException e) {
             System.err.println("❌ Erreur: " + e.getMessage());
             showAlert("Erreur", "Impossible de charger les données: " + e.getMessage());
@@ -149,7 +209,17 @@ public class PatientDashboardController implements Initializable {
     @FXML
     private void handleEditProfile(ActionEvent event) {
         try {
-            System.out.println("\n🔍 Édition profil patient - ID: " + currentPatient.getId());
+            int userId;
+            if (currentPatient != null) {
+                userId = currentPatient.getId();
+                System.out.println("\n🔍 Édition profil patient - ID: " + userId);
+            } else if (currentUser != null) {
+                userId = currentUser.getId();
+                System.out.println("\n🔍 Édition profil Google - ID: " + userId);
+            } else {
+                showAlert("Erreur", "Aucun utilisateur connecté");
+                return;
+            }
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/edit_user.fxml"));
             Parent root = loader.load();
@@ -157,7 +227,7 @@ public class PatientDashboardController implements Initializable {
             EditUserController controller = loader.getController();
 
             ServiceUser serviceUser = new ServiceUser();
-            users user = serviceUser.getById(currentPatient.getId());
+            users user = serviceUser.getById(userId);
 
             if (user != null) {
                 System.out.println("✅ User trouvé: " + user.getName());
@@ -166,15 +236,21 @@ public class PatientDashboardController implements Initializable {
                 controller.setOnSaveCallback(() -> {
                     // Recharger les données après modification
                     try {
-                        currentPatient = servicePatient.getById(currentPatient.getId());
-                        setPatientData(currentPatient);
-                        loadDashboardData(); // Recharger la liste des docteurs
+                        if (currentPatient != null) {
+                            currentPatient = servicePatient.getById(userId);
+                            setPatientData(currentPatient);
+                        } else {
+                            // Pour Google, on recharge juste les infos
+                            users updatedUser = serviceUser.getById(userId);
+                            setUser(updatedUser);
+                        }
+                        loadDashboardData();
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
                 });
             } else {
-                System.out.println("❌ User non trouvé pour ID: " + currentPatient.getId());
+                System.out.println("❌ User non trouvé pour ID: " + userId);
                 showAlert("Erreur", "Utilisateur non trouvé");
                 return;
             }
@@ -190,6 +266,7 @@ public class PatientDashboardController implements Initializable {
             showAlert("Erreur", "Impossible d'ouvrir le formulaire: " + e.getMessage());
         }
     }
+
     private void showAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);

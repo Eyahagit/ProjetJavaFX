@@ -177,6 +177,9 @@ public class DoctorDashboardController implements Initializable {
             showAlert("Error", "Cannot load login page: " + e.getMessage());
         }
     }
+    public void setUser(users user) {
+        System.out.println("✅ Docteur connecté: " + user.getEmail());
+    }
 
     private void showAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);

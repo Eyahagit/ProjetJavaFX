@@ -744,7 +744,9 @@
                 showAlert("Erreur", "Impossible de charger la page: " + e.getMessage());
             }
         }
-
+        public void setUser(users user) {
+            System.out.println("✅ Admin connecté: " + user.getEmail());
+        }
         private void showAlert(String title, String message) {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle(title);

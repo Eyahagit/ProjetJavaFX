@@ -4,16 +4,15 @@ import Models.users;
 import Models.admin;
 import Models.doctor;
 import Models.patient;
-import Services.ServiceUser;
-import Services.ServiceAdmin;
-import Services.ServiceDoctor;
-import Services.ServicePatient;
+import Services.*;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import utils.GoogleAuthUtil;
+
 import java.io.IOException;
 import java.sql.SQLException;
 
@@ -25,6 +24,9 @@ public class LoginController {
     @FXML private Hyperlink forgotPasswordLink;
     @FXML private Button loginButton;
     @FXML private Hyperlink signUpLink;
+    @FXML private Button googleLoginBtn;
+    @FXML private ProgressIndicator loadingIndicator;
+    @FXML private Label statusLabel;
 
     private final ServiceUser serviceUser = new ServiceUser();
     private final ServiceAdmin serviceAdmin = new ServiceAdmin();
@@ -32,7 +34,19 @@ public class LoginController {
     private final ServicePatient servicePatient = new ServicePatient();
 
     private users currentUser;
+    private GoogleAuthService googleAuthService;
 
+    @FXML
+    public void initialize() {
+        // Initialisation du service Google Auth
+        googleAuthService = GoogleAuthService.getInstance();
+
+        // Cacher les indicateurs de chargement au démarrage
+        loadingIndicator.setVisible(false);
+        statusLabel.setText("");
+
+        System.out.println("✅ LoginController initialisé");
+    }
 
     @FXML
     private void handleLogin() {
@@ -98,22 +112,17 @@ public class LoginController {
     }
 
     private void loadAdminDashboard() throws IOException, SQLException {
-        // Charger le FXML
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/admin_dashboard.fxml"));
         Parent root = loader.load();
 
-        // Récupérer le controller
         AdminDashboardController adminController = loader.getController();
 
-        // Récupérer l'admin complet avec ses informations
         admin adminUser = serviceAdmin.getById(currentUser.getId());
 
-        // Passer les données au dashboard
         if (adminUser != null) {
             adminController.setAdminData(adminUser);
             System.out.println("✅ Admin data loaded: " + adminUser.getName() + " " + adminUser.getSecond_name());
         } else {
-            // Si pas trouvé dans table admin, créer un objet admin basique
             admin tempAdmin = new admin();
             tempAdmin.setId(currentUser.getId());
             tempAdmin.setName(currentUser.getName());
@@ -124,7 +133,6 @@ public class LoginController {
             adminController.setAdminData(tempAdmin);
         }
 
-        // Afficher la scène
         Stage stage = (Stage) loginButton.getScene().getWindow();
         stage.setScene(new Scene(root));
         stage.setTitle("Admin Dashboard - GrowMind");
@@ -135,13 +143,9 @@ public class LoginController {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/doctor_dashboard.fxml"));
         Parent root = loader.load();
 
-        // ✅ Récupérer le controller
         DoctorDashboardController doctorController = loader.getController();
 
-        // ✅ Récupérer le docteur complet avec ses informations
         doctor doctorUser = serviceDoctor.getById(currentUser.getId());
-
-        // ✅ Passer les données au dashboard
         doctorController.setDoctorData(doctorUser);
 
         Stage stage = (Stage) loginButton.getScene().getWindow();
@@ -154,13 +158,9 @@ public class LoginController {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/patient_dashboard.fxml"));
         Parent root = loader.load();
 
-        // ✅ Récupérer le controller
         PatientDashboardController patientController = loader.getController();
 
-        // ✅ Récupérer le patient complet avec ses informations
         patient patientUser = servicePatient.getById(currentUser.getId());
-
-        // ✅ Passer les données au dashboard
         patientController.setPatientData(patientUser);
 
         Stage stage = (Stage) loginButton.getScene().getWindow();
@@ -176,30 +176,118 @@ public class LoginController {
             Parent root = loader.load();
             Stage stage = (Stage) signUpLink.getScene().getWindow();
             stage.setScene(new Scene(root));
-            stage.setTitle("User Management - GrowMind");
+            stage.setTitle("Inscription - GrowMind");
             stage.show();
         } catch (IOException e) {
             showAlert("Erreur", "Impossible de charger la page d'inscription: " + e.getMessage());
             e.printStackTrace();
         }
     }
+
     @FXML
     private void goToForgetPassword() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/ForgotPassword.fxml"));
             Parent root = loader.load();
-            Stage stage = (Stage) signUpLink.getScene().getWindow();
+            Stage stage = (Stage) forgotPasswordLink.getScene().getWindow();
             stage.setScene(new Scene(root));
-            stage.setTitle("Forgot password Management - GrowMind");
+            stage.setTitle("Mot de passe oublié - GrowMind");
             stage.show();
         } catch (IOException e) {
-            showAlert("Erreur", "Impossible de charger la page de mot de passe oublier: " + e.getMessage());
+            showAlert("Erreur", "Impossible de charger la page de mot de passe oublié: " + e.getMessage());
             e.printStackTrace();
         }
     }
+
     @FXML
     private void handleForgotPassword() {
-        showAlert("Mot de passe oublié", "Veuillez contacter l'administrateur pour réinitialiser votre mot de passe.\nEmail: admin@growmind.com");
+        goToForgetPassword(); // Rediriger vers la même méthode que le lien
+    }
+
+    @FXML
+    private void handleGoogleLogin() {
+        loadingIndicator.setVisible(true);
+        statusLabel.setText("⏳ Connexion avec Google...");
+
+        new Thread(() -> {
+            GoogleAuthUtil googleAuth = GoogleAuthUtil.getInstance();
+
+            // Forcer le changement de compte
+            googleAuth.forceAccountChoice();
+
+            // Authentification avec port aléatoire
+            boolean authSuccess = googleAuth.authenticate(true);
+
+            if (authSuccess) {
+                users user = googleAuthService.authenticateWithGoogle();
+
+                javafx.application.Platform.runLater(() -> {
+                    loadingIndicator.setVisible(false);
+
+                    if (user != null) {
+                        statusLabel.setStyle("-fx-text-fill: green;");
+                        statusLabel.setText("✅ Connecté: " + user.getEmail());
+                        redirectBasedOnRole(user);
+                    } else {
+                        statusLabel.setStyle("-fx-text-fill: red;");
+                        statusLabel.setText("❌ Échec création utilisateur");
+                        showAlert("Erreur", "Impossible de créer l'utilisateur dans la BD.");
+                    }
+                });
+            } else {
+                javafx.application.Platform.runLater(() -> {
+                    loadingIndicator.setVisible(false);
+                    statusLabel.setStyle("-fx-text-fill: red;");
+                    statusLabel.setText("❌ Échec authentification Google");
+                    showAlert("Erreur", "Impossible de se connecter avec Google.");
+                });
+            }
+        }).start();
+    }
+
+    private void redirectBasedOnRole(users user) {
+        try {
+            String fxmlFile;
+            String title;
+
+            switch(user.getRole()) {
+                case "admin":
+                    fxmlFile = "/admin_dashboard.fxml";
+                    title = "Admin Dashboard";
+                    break;
+                case "doctor":
+                    fxmlFile = "/doctor_dashboard.fxml";
+                    title = "Doctor Dashboard";
+                    break;
+                case "patient":
+                default:
+                    fxmlFile = "/patient_dashboard.fxml";
+                    title = "Patient Dashboard";
+                    break;
+            }
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
+            Parent root = loader.load();
+
+            // Passer l'utilisateur au controller suivant
+            Object controller = loader.getController();
+            if (controller instanceof PatientDashboardController) {
+                ((PatientDashboardController) controller).setUser(user);
+            } else if (controller instanceof DoctorDashboardController) {
+                ((DoctorDashboardController) controller).setUser(user);
+            } else if (controller instanceof AdminDashboardController) {
+                ((AdminDashboardController) controller).setUser(user);
+            }
+
+            Stage stage = (Stage) googleLoginBtn.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle(title);
+            stage.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Erreur", "Impossible de charger le tableau de bord.");
+        }
     }
 
     private void saveUserSession(users user) {
