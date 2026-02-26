@@ -5,6 +5,7 @@ import com.twilio.Twilio;
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.type.PhoneNumber;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
@@ -12,6 +13,7 @@ import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.HashMap;
 
 public class SmartReminderService {
 
@@ -43,9 +45,8 @@ public class SmartReminderService {
         List<RendezVous> historique = serviceRdv.getByTelephone(telephone);
 
         Map<String, Object> result = new HashMap<>();
-        result.put("total", historique.size());
+        result.put("total", (long) historique.size());  // ← Convertir en Long
 
-        // Compter les présences/absences
         long presents = historique.stream()
                 .filter(r -> "confirmé".equals(r.getStatut()) || "terminé".equals(r.getStatut()))
                 .count();
@@ -54,15 +55,13 @@ public class SmartReminderService {
                 .filter(r -> "annulé".equals(r.getStatut()))
                 .count();
 
-        result.put("presents", presents);
-        result.put("absents", absents);
+        result.put("presents", presents);  // ← Déjà Long
+        result.put("absents", absents);    // ← Déjà Long
 
-        // Taux de fiabilité
         double tauxFiabilite = historique.size() > 0 ?
                 (double) presents / historique.size() : 0.5;
-        result.put("tauxFiabilite", tauxFiabilite);
+        result.put("tauxFiabilite", tauxFiabilite);  // ← Double
 
-        // Analyser les heures préférées
         Map<Integer, Integer> heuresPreferees = new HashMap<>();
         for (RendezVous r : historique) {
             if ("confirmé".equals(r.getStatut()) || "terminé".equals(r.getStatut())) {
@@ -70,7 +69,7 @@ public class SmartReminderService {
                 heuresPreferees.put(heure, heuresPreferees.getOrDefault(heure, 0) + 1);
             }
         }
-        result.put("heuresPreferees", heuresPreferees);
+        result.put("heuresPreferees", heuresPreferees);  // ← Map<Integer, Integer>
 
         return result;
     }
@@ -79,14 +78,17 @@ public class SmartReminderService {
      * 2. PRÉDIRE LA MEILLEURE HEURE D'ENVOI
      */
     public int predictBestHour(String telephone) {
-        Map<String, Object> analyse = analyserPatient(telephone);
-        Map<Integer, Integer> heuresPreferees = (Map<Integer, Integer>) analyse.get("heuresPreferees");
-
-        if (heuresPreferees.isEmpty()) {
+        if (telephone == null || telephone.isEmpty()) {
             return 12; // Heure par défaut
         }
 
-        // Trouver l'heure avec le plus de présences
+        Map<String, Object> analyse = analyserPatient(telephone);
+        Map<Integer, Integer> heuresPreferees = (Map<Integer, Integer>) analyse.get("heuresPreferees");
+
+        if (heuresPreferees == null || heuresPreferees.isEmpty()) {
+            return 12;
+        }
+
         return heuresPreferees.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)
@@ -97,64 +99,103 @@ public class SmartReminderService {
      * 3. GÉNÉRER UN MESSAGE PERSONNALISÉ
      */
     public String generateMessage(RendezVous rdv) {
-        Map<String, Object> analyse = analyserPatient(rdv.getTelephonePatient());
-        double tauxFiabilite = (double) analyse.get("tauxFiabilite");
-        long total = (long) analyse.get("total");
-        long absents = (long) analyse.get("absents");
+        // Analyse patient (avec fallback)
+        Map<String, Object> analyse;
+        try {
+            analyse = analyserPatient(rdv.getTelephonePatient());
+        } catch (Exception e) {
+            analyse = new HashMap<>();
+            analyse.put("tauxFiabilite", 0.5);
+            analyse.put("total", 0L);
+            analyse.put("absents", 0L);
+        }
 
+        // Récupération sécurisée
+        double tauxFiabilite = (double) analyse.getOrDefault("tauxFiabilite", 0.5);
+        long total = (long) analyse.getOrDefault("total", 0L);
+        long absents = (long) analyse.getOrDefault("absents", 0L);
+
+        // Construction du message avec valeurs par défaut
         String baseMsg = String.format(
-                "🔔 RAPPEL INTELLIGENT - GrowMind\n\n" +
-                        "Bonjour %s %s,\n\n" +
-                        "Rendez-vous avec Dr. %s %s\n" +
-                        "📅 Date: %s\n" +
-                        "⏰ Heure: %s\n" +
-                        "📍 Lieu: %s\n\n",
-                rdv.getPrenomPatient(),
-                rdv.getNomPatient(),
-                rdv.getNomPsychologue(),
-                rdv.getPrenomPsychologue(),
-                new java.text.SimpleDateFormat("dd/MM/yyyy").format(rdv.getDateRdv()),
-                rdv.getHeure(),
-                rdv.getNomCabinet() != null ? rdv.getNomCabinet() : "Cabinet"
+                "🔔 RAPPEL INTELLIGENT - GrowMind\n\nBonjour %s %s,\n\nRendez-vous avec Dr. %s %s\n📅 Date: %s\n⏰ Heure: %s\n📍 Lieu: %s\n\n",
+                getSafe(rdv.getPrenomPatient(), "Patient"),
+                getSafe(rdv.getNomPatient(), ""),
+                getSafe(rdv.getNomPsychologue(), "Psychologue"),
+                getSafe(rdv.getPrenomPsychologue(), ""),
+                formatDateSafe(rdv.getDateRdv()),
+                getSafe(rdv.getHeure(), "Heure inconnue"),
+                getSafe(rdv.getNomCabinet(), "Cabinet")
         );
 
-        // Personnalisation intelligente
-        if (total == 0) {
-            return baseMsg + "🌟 Premier rendez-vous ? Arrivez 10 minutes avant !";
-        } else if (tauxFiabilite > 0.8) {
-            return baseMsg + "✨ Merci pour votre fidélité ! À très bientôt.";
-        } else if (tauxFiabilite < 0.5) {
-            return baseMsg + String.format(
-                    "⚠️ Vous avez annulé %d rendez-vous récemment.\n" +
-                            "Merci de confirmer votre présence 24h avant.",
-                    absents
-            );
-        } else {
-            return baseMsg + "📞 Pour tout changement, contactez-nous.";
+        // Personnalisation
+        if (total == 0) return baseMsg + "🌟 Premier rendez-vous ? Arrivez 10 minutes avant !";
+        if (tauxFiabilite > 0.8) return baseMsg + "✨ Merci pour votre fidélité !";
+        if (tauxFiabilite < 0.5) return baseMsg + String.format("⚠️ Vous avez annulé %d rendez-vous récemment.", absents);
+        return baseMsg + "📞 Pour tout changement, contactez-nous.";
+    }
+
+    private String getSafe(String value, String defaultValue) {
+        return value != null ? value : defaultValue;
+    }
+
+    private String formatDateSafe(Date date) {
+        try {
+            return new java.text.SimpleDateFormat("dd/MM/yyyy").format(date);
+        } catch (Exception e) {
+            return "Date inconnue";
         }
     }
 
     /**
      * 4. CALCULER LA DATE D'ENVOI OPTIMALE
      */
-    public LocalDateTime calculateSendTime(RendezVous rdv, int bestHour) {
-        LocalDateTime rdvTime = rdv.getDateRdv().toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDateTime();
+   /** public LocalDateTime calculateSendTime(RendezVous rdv, int bestHour) {
+        try {
+            // Récupérer la date (gérer si c'est java.sql.Date ou java.util.Date)
+            Date date = rdv.getDateRdv();
+            LocalDate dateRdv;
 
-        // Envoyer 24h avant à l'heure optimale
-        LocalDateTime sendTime = rdvTime.minusDays(1)
-                .withHour(bestHour)
-                .withMinute(0)
-                .withSecond(0);
+            if (date instanceof java.sql.Date) {
+                // Cas java.sql.Date
+                dateRdv = ((java.sql.Date) date).toLocalDate();
+            } else {
+                // Cas java.util.Date
+                dateRdv = date.toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDate();
+            }
 
-        // Si déjà passé, envoyer dans 5 minutes
-        if (sendTime.isBefore(LocalDateTime.now())) {
-            sendTime = LocalDateTime.now().plusMinutes(5);
+            // Extraire l'heure
+            String[] heureParts = rdv.getHeure().split(":");
+            int heure = Integer.parseInt(heureParts[0]);
+            int minute = Integer.parseInt(heureParts[1]);
+
+            // Créer LocalDateTime
+            LocalDateTime rdvTime = dateRdv.atTime(heure, minute);
+
+            // Calculer la date d'envoi (24h avant à l'heure optimale)
+            LocalDateTime sendTime = rdvTime.minusDays(1)
+                    .withHour(bestHour)
+                    .withMinute(0)
+                    .withSecond(0);
+
+            // Si déjà passé, envoyer dans 5 minutes
+            if (sendTime.isBefore(LocalDateTime.now())) {
+                sendTime = LocalDateTime.now().plusMinutes(5);
+            }
+
+            return sendTime;
+
+        } catch (Exception e) {
+            System.err.println("❌ Erreur calcul date: " + e.getMessage());
+            // Valeur par défaut : dans 5 minutes
+            return LocalDateTime.now().plusMinutes(5);
         }
-
-        return sendTime;
-    }
+    }**/
+        public LocalDateTime calculateSendTime(RendezVous rdv, int bestHour) {
+            // Pour TEST SEULEMENT - envoi dans 1 minute
+            return LocalDateTime.now().plusMinutes(1);
+        }
 
     /**
      * 5. ENVOYER LE SMS VIA TWILIO
@@ -250,20 +291,19 @@ public class SmartReminderService {
         List<RendezVous> all = serviceRdv.recuperer();
 
         Map<String, Object> stats = new HashMap<>();
-        stats.put("total", all.size());
+        stats.put("total", (long) all.size());  // ← Convertir en Long
 
         long rappelsEnvoyes = all.stream().filter(RendezVous::isRappelEnvoye).count();
-        stats.put("rappelsEnvoyes", rappelsEnvoyes);
+        stats.put("rappelsEnvoyes", rappelsEnvoyes);  // ← Déjà Long
 
-        // Compter par statut
-        stats.put("confirmes", all.stream().filter(r -> "confirmé".equals(r.getStatut())).count());
-        stats.put("annules", all.stream().filter(r -> "annulé".equals(r.getStatut())).count());
-        stats.put("enAttente", all.stream().filter(r -> "en attente".equals(r.getStatut())).count());
-        stats.put("termines", all.stream().filter(r -> "terminé".equals(r.getStatut())).count());
+        // Compter par statut - CONVERTIR EN LONG
+        stats.put("confirmes", (long) all.stream().filter(r -> "confirmé".equals(r.getStatut())).count());
+        stats.put("annules", (long) all.stream().filter(r -> "annulé".equals(r.getStatut())).count());
+        stats.put("enAttente", (long) all.stream().filter(r -> "en attente".equals(r.getStatut())).count());
+        stats.put("termines", (long) all.stream().filter(r -> "terminé".equals(r.getStatut())).count());
 
         return stats;
     }
-
     /**
      * 9. ARRÊTER LE PLANIFICATEUR
      */

@@ -4,7 +4,8 @@ import Models.Psychologue;
 import Models.RendezVous;
 import Service.ServicePsychologue;
 import Service.ServiceRendezVous;
-import Service.StripePaymentService;  // ← NOUVEAU IMPORT
+import Service.StripePaymentService;
+import Service.EmailService;  // ← NOUVEAU IMPORT
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -20,9 +21,10 @@ import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
-import java.awt.Desktop;  // ← NOUVEAU IMPORT
-import java.net.URI;      // ← NOUVEAU IMPORT
+import java.awt.Desktop;
+import java.net.URI;
 
 public class AjouterRendezVousController {
 
@@ -48,8 +50,9 @@ public class AjouterRendezVousController {
     private RendezVous selected;
     private ObservableList<RendezVous> masterData = FXCollections.observableArrayList();
 
-    // ========== NOUVEAU SERVICE STRIPE ==========
+    // ========== SERVICES ==========
     private StripePaymentService stripeService;
+    private EmailService emailService;  // ← NOUVEAU
 
     // Liste des statuts valides
     private final List<String> STATUTS_VALIDES = Arrays.asList(
@@ -108,8 +111,9 @@ public class AjouterRendezVousController {
             // Charger les psychologues
             chargerPsychologues();
 
-            // ========== INITIALISER STRIPE ==========
+            // ========== INITIALISER LES SERVICES ==========
             stripeService = new StripePaymentService();
+            emailService = new EmailService();  // ← NOUVEAU
 
             // Charger les données
             loadData();
@@ -615,7 +619,7 @@ public class AjouterRendezVousController {
         showAlert("Succès", "✅ Liste actualisée", AlertType.INFORMATION);
     }
 
-    // ========== NOUVELLE MÉTHODE POUR LE PAIEMENT STRIPE ==========
+    // ========== MÉTHODE DE PAIEMENT STRIPE AVEC EMAIL ==========
     @FXML
     private void handleStripePaiement() {
         // 1. Vérifier qu'un rendez-vous est sélectionné
@@ -625,34 +629,69 @@ public class AjouterRendezVousController {
         }
 
         try {
-            // 2. Montant pour le test (à modifier selon tes besoins)
+            // 2. Demander l'email du patient
+            TextInputDialog dialog = new TextInputDialog("exemple@gmail.com");
+            dialog.setTitle("Email de confirmation");
+            dialog.setHeaderText("Envoyer une confirmation par email");
+            dialog.setContentText("Adresse email du patient :");
+
+            Optional<String> result = dialog.showAndWait();
+            if (result.isEmpty() || result.get().trim().isEmpty()) {
+                showAlert("Information", "Aucun email fourni. Le paiement continue sans confirmation.", AlertType.INFORMATION);
+            }
+
+            String emailPatient = result.isPresent() ? result.get().trim() : null;
+
+            // 3. Montant pour le test
             double montant = 50.0;
 
-            // 3. Afficher une alerte de progression
+            // 4. Afficher une alerte de progression
             Alert loadingAlert = new Alert(AlertType.INFORMATION);
             loadingAlert.setTitle("Paiement Stripe");
             loadingAlert.setHeaderText("Initialisation du paiement...");
             loadingAlert.setContentText("Connexion à Stripe en cours");
             loadingAlert.show();
 
-            // 4. Créer la session de paiement
+            // 5. Créer la session de paiement
             String payUrl = stripeService.creerSessionPaiement(selected, montant);
 
             loadingAlert.close();
 
-            // 5. Traiter le résultat
+            // 6. Traiter le résultat
             if (payUrl != null && !payUrl.isEmpty()) {
                 // Ouvrir dans le navigateur par défaut
                 if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
                     Desktop.getDesktop().browse(new URI(payUrl));
 
-                    showAlert("Succès",
-                            "✅ Redirection vers Stripe\n\n" +
-                                    "Patient: " + selected.getNomCompletPatient() + "\n" +
-                                    "Montant: " + montant + " USD\n" +
-                                    "Type: " + selected.getTypeCons() + "\n\n" +
-                                    "Utilise la carte de test: 4242 4242 4242 4242",
-                            AlertType.INFORMATION);
+                    // 7. Envoyer l'email de confirmation (si un email a été fourni)
+                    if (emailPatient != null && !emailPatient.isEmpty()) {
+                        // Envoyer l'email dans un thread séparé pour ne pas bloquer l'interface
+                        new Thread(() -> {
+                            boolean emailEnvoye = emailService.envoyerConfirmationPaiement(selected, emailPatient, montant);
+                            if (emailEnvoye) {
+                                System.out.println("✅ Email de confirmation envoyé à " + emailPatient);
+                            } else {
+                                System.err.println("❌ Échec de l'envoi de l'email");
+                            }
+                        }).start();
+
+                        showAlert("Succès",
+                                "✅ Redirection vers Stripe\n\n" +
+                                        "Patient: " + selected.getNomCompletPatient() + "\n" +
+                                        "Montant: " + montant + " USD\n" +
+                                        "Email: " + emailPatient + "\n\n" +
+                                        "Un email de confirmation sera envoyé après le paiement.\n" +
+                                        "Utilise la carte de test: 4242 4242 4242 4242",
+                                AlertType.INFORMATION);
+                    } else {
+                        showAlert("Succès",
+                                "✅ Redirection vers Stripe\n\n" +
+                                        "Patient: " + selected.getNomCompletPatient() + "\n" +
+                                        "Montant: " + montant + " USD\n" +
+                                        "Type: " + selected.getTypeCons() + "\n\n" +
+                                        "Utilise la carte de test: 4242 4242 4242 4242",
+                                AlertType.INFORMATION);
+                    }
                 } else {
                     showAlert("URL de paiement",
                             "Copiez ce lien dans votre navigateur :\n\n" + payUrl,

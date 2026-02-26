@@ -170,22 +170,19 @@ public class SuiviRappelsController {
     }
 
     private void updateStats() {
-        try {
-            Map<String, Object> stats = reminderService.getGlobalStats();
+        Map<String, Object> stats = reminderService.getGlobalStats();
 
-            lblTotalRdv.setText(String.valueOf(stats.get("total")));
-            lblRappelsEnvoyes.setText(String.valueOf(stats.get("rappelsEnvoyes")));
+        lblTotalRdv.setText(String.valueOf(stats.get("total")));
+        lblRappelsEnvoyes.setText(String.valueOf(stats.get("rappelsEnvoyes")));
 
-            long total = (long) stats.get("total");
-            long confirmes = (long) stats.get("confirmes");
-            long annules = (long) stats.get("annules");
+        // Récupérer en tant que Long, pas Integer
+        long total = (Long) stats.get("total");
+        long confirmes = (Long) stats.get("confirmes");
+        long annules = (Long) stats.get("annules");
 
-            if (total > 0) {
-                lblTauxOuverture.setText(String.format("%.1f%%", (double) confirmes / total * 100));
-                lblTauxAbsenteisme.setText(String.format("%.1f%%", (double) annules / total * 100));
-            }
-        } catch (Exception e) {
-            System.err.println("Erreur lors de la mise à jour des stats: " + e.getMessage());
+        if (total > 0) {
+            lblTauxOuverture.setText(String.format("%.1f%%", (double) confirmes / total * 100));
+            lblTauxAbsenteisme.setText(String.format("%.1f%%", (double) annules / total * 100));
         }
     }
 
@@ -193,11 +190,18 @@ public class SuiviRappelsController {
         try {
             // Pie Chart
             Map<String, Object> stats = reminderService.getGlobalStats();
+
+            // Récupérer en tant que Long
+            long confirmes = (Long) stats.get("confirmes");
+            long annules = (Long) stats.get("annules");
+            long enAttente = (Long) stats.get("enAttente");
+            long termines = (Long) stats.get("termines");
+
             ObservableList<PieChart.Data> pieData = FXCollections.observableArrayList(
-                    new PieChart.Data("Confirmés", (long) stats.get("confirmes")),
-                    new PieChart.Data("Annulés", (long) stats.get("annules")),
-                    new PieChart.Data("En attente", (long) stats.get("enAttente")),
-                    new PieChart.Data("Terminés", (long) stats.get("termines"))
+                    new PieChart.Data("Confirmés", confirmes),
+                    new PieChart.Data("Annulés", annules),
+                    new PieChart.Data("En attente", enAttente),
+                    new PieChart.Data("Terminés", termines)
             );
             pieChartStatuts.setData(pieData);
 
