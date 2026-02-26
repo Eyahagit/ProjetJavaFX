@@ -40,6 +40,8 @@ public class PatientDashboardController implements Initializable {
     @FXML private ListView<doctor> doctorsListView;
     @FXML private Button logoutButton;
     @FXML private Button newAppointmentBtn;
+    @FXML private Button homeButton;
+    private users loggedInUser;
 
     private patient currentPatient;
     private users currentUser; // Pour les utilisateurs Google
@@ -185,6 +187,53 @@ public class PatientDashboardController implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
             showAlert("Erreur", "Impossible de charger la page de connexion: " + e.getMessage());
+        }
+    }
+    @FXML
+    private void handleHome() {
+        System.out.println("\n=== Retour à l'accueil ===");
+
+        if (loggedInUser == null) {
+            System.err.println("❌ loggedInUser est null - tentative de récupération");
+
+            // Tentative de récupération si loggedInUser est null
+            if (currentPatient != null) {
+                try {
+                    ServiceUser serviceUser = new ServiceUser();
+                    loggedInUser = serviceUser.getById(currentPatient.getId());
+                    System.out.println("✅ loggedInUser récupéré depuis currentPatient: " + loggedInUser.getEmail());
+                } catch (SQLException e) {
+                    showAlert("Erreur", "Impossible de récupérer les informations utilisateur");
+                    e.printStackTrace();
+                    return;
+                }
+            } else if (currentUser != null) {
+                loggedInUser = currentUser;
+                System.out.println("✅ loggedInUser récupéré depuis currentUser: " + loggedInUser.getEmail());
+            } else {
+                showAlert("Erreur", "Aucun utilisateur connecté");
+                return;
+            }
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/home.fxml"));
+            Parent root = loader.load();
+
+            HomeController homeController = loader.getController();
+            homeController.setUser(loggedInUser);
+
+            Stage stage = (Stage) homeButton.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Accueil - GrowMind");
+            stage.show();
+
+            System.out.println("✅ Retour à l'accueil réussi pour: " + loggedInUser.getEmail());
+
+        } catch (IOException e) {
+            System.err.println("❌ Erreur IO: " + e.getMessage());
+            e.printStackTrace();
+            showAlert("Erreur", "Impossible de retourner à l'accueil: " + e.getMessage());
         }
     }
 

@@ -14,6 +14,9 @@
                 <Label style="-fx-font-size: 12px; -fx-text-fill: rgba(255,255,255,0.8);" text="Mental Health Platform" />
             </VBox>
             <Region HBox.hgrow="ALWAYS" />
+            <Button fx:id="homeButton" onAction="#handleHome"
+                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-border-color: white; -fx-border-radius: 5; -fx-padding: 5 15;"
+                    text="🏠 Accueil" />
             <HBox spacing="15" alignment="CENTER_RIGHT">
                 <Label style="-fx-font-size: 14px; -fx-text-fill: white;" text="👨‍⚕️" />
                 <Label fx:id="doctorNameLabel" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: white;" text="Doctor" />

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane style="-fx-background-color: linear-gradient(135deg, #667eea, #764ba2);"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="Controllers.HomeController"
+            prefHeight="800.0" prefWidth="1200.0">
+
+    <!-- TOP BAR -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-background-color: linear-gradient(to right, #4A6FA5, #5FB49C); -fx-padding: 15 30 15 30;">
+            <VBox spacing="2">
+                <Label style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;" text="GrowMind" />
+                <Label style="-fx-font-size: 12px; -fx-text-fill: rgba(255,255,255,0.8);" text="Mental Health Platform" />
+            </VBox>
+
+            <Region HBox.hgrow="ALWAYS" />
+
+            <Label fx:id="dateLabel" style="-fx-text-fill: white; -fx-font-size: 14px;" />
+
+            <Button fx:id="profileButton" onAction="#goToProfile"
+                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-border-color: white; -fx-border-radius: 20; -fx-background-radius: 20; -fx-padding: 8 15; -fx-cursor: hand;"
+                    text="👤 Mon Profil" />
+
+            <Button fx:id="logoutButton" onAction="#handleLogout"
+                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-border-color: white; -fx-border-radius: 20; -fx-background-radius: 20; -fx-padding: 8 15; -fx-cursor: hand;"
+                    text="🚪 Déconnexion" />
+        </HBox>
+    </top>
+
+    <!-- CENTER CONTENT -->
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;">
+            <VBox alignment="TOP_CENTER" spacing="30" style="-fx-padding: 40;">
+
+                <!-- Message de bienvenue -->
+                <VBox alignment="CENTER" spacing="5">
+                    <Label fx:id="welcomeLabel" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #4A6FA5;" text="Bienvenue sur votre espace" />
+                    <Label fx:id="userNameLabel" style="-fx-font-size: 18px; -fx-text-fill: rgba(1,0,3,5);" text="Chargement..." />
+                    <Label fx:id="userRoleLabel" style="-fx-font-size: 16px; -fx-text-fill: #FFD700;" text="" />
+                </VBox>
+
+                <!-- Bouton pour aller vers le dashboard -->
+                <Button fx:id="goToDashboardButton" onAction="#goToDashboard"
+                        style="-fx-background-color: white; -fx-text-fill: #4A6FA5; -fx-font-weight: bold; -fx-font-size: 18px; -fx-padding: 15 30; -fx-background-radius: 30; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 5);"
+                        text="🚀 Accéder à mon tableau de bord" />
+
+                <!-- Cartes de gestion -->
+                <GridPane hgap="20" vgap="20" alignment="CENTER">
+                    <padding>
+                        <Insets top="20" bottom="20" />
+                    </padding>
+
+                    <!-- Ligne 1 -->
+                    <VBox fx:id="cabinetCard" onMouseClicked="#goToCabinet" GridPane.rowIndex="0" GridPane.columnIndex="0" prefWidth="280" prefHeight="180" />
+                    <VBox fx:id="forumCard" onMouseClicked="#goToForum" GridPane.rowIndex="0" GridPane.columnIndex="1" prefWidth="280" prefHeight="180" />
+                    <VBox fx:id="eventCard" onMouseClicked="#goToEvent" GridPane.rowIndex="0" GridPane.columnIndex="2" prefWidth="280" prefHeight="180" />
+
+                    <!-- Ligne 2 -->
+                    <VBox fx:id="santeCard" onMouseClicked="#goToSante" GridPane.rowIndex="1" GridPane.columnIndex="0" prefWidth="280" prefHeight="180" />
+                    <VBox fx:id="responsabiliteCard" onMouseClicked="#goToResponsabilite" GridPane.rowIndex="1" GridPane.columnIndex="1" prefWidth="280" prefHeight="180" />
+
+                    <columnConstraints>
+                        <ColumnConstraints halignment="CENTER" />
+                        <ColumnConstraints halignment="CENTER" />
+                        <ColumnConstraints halignment="CENTER" />
+                    </columnConstraints>
+                </GridPane>
+
+                <!-- Footer -->
+                <VBox alignment="CENTER" spacing="10" style="-fx-padding: 20;">
+                    <Label style="-fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 12px;"
+                           text="© 2025 GrowMind - Plateforme de bien-être mental. Tous droits réservés." />
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

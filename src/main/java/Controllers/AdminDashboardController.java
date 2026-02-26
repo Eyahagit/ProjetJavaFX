@@ -69,6 +69,7 @@ public class AdminDashboardController implements Initializable {
     @FXML private Button manageDoctorsBtn;
     @FXML private Button reportsBtn;
     @FXML private Button settingsBtn;
+    @FXML private Button homeButton;
 
     private final ServiceUser serviceUser = new ServiceUser();
     private final ServicePatient servicePatient = new ServicePatient();
@@ -76,6 +77,7 @@ public class AdminDashboardController implements Initializable {
     private final ServiceAdmin serviceAdmin = new ServiceAdmin();
 
     private admin currentAdmin;
+    private users loggedInUser;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -289,6 +291,53 @@ public class AdminDashboardController implements Initializable {
                 }
             }
         });
+    }
+    @FXML
+    private void handleHome() {
+        System.out.println("\n=== Retour à l'accueil ===");
+
+        if (loggedInUser == null) {
+            System.err.println("❌ loggedInUser est null - tentative de récupération");
+
+            // Tentative de récupération si loggedInUser est null
+            if (currentAdmin != null) {
+                try {
+                    ServiceUser serviceUser = new ServiceUser();
+                    loggedInUser = serviceUser.getById(currentAdmin.getId());
+                    System.out.println("✅ loggedInUser récupéré depuis currentPatient: " + loggedInUser.getEmail());
+                } catch (SQLException e) {
+                    showAlert("Erreur", "Impossible de récupérer les informations utilisateur");
+                    e.printStackTrace();
+                    return;
+                }
+            } else if (currentAdmin != null) {
+                loggedInUser = currentAdmin;
+                System.out.println("✅ loggedInUser récupéré depuis currentUser: " + loggedInUser.getEmail());
+            } else {
+                showAlert("Erreur", "Aucun utilisateur connecté");
+                return;
+            }
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/home.fxml"));
+            Parent root = loader.load();
+
+            HomeController homeController = loader.getController();
+            homeController.setUser(loggedInUser);
+
+            Stage stage = (Stage) homeButton.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Accueil - GrowMind");
+            stage.show();
+
+            System.out.println("✅ Retour à l'accueil réussi pour: " + loggedInUser.getEmail());
+
+        } catch (IOException e) {
+            System.err.println("❌ Erreur IO: " + e.getMessage());
+            e.printStackTrace();
+            showAlert("Erreur", "Impossible de retourner à l'accueil: " + e.getMessage());
+        }
     }
 
     // ========== NOUVELLES MÉTHODES POUR LE BLOCAGE ==========

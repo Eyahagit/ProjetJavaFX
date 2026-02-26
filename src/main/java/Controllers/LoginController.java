@@ -60,7 +60,7 @@ public class LoginController {
         String password = passwordField.getText();
 
         try {
-            // ✅ NOUVEAU : Utiliser la méthode authenticate avec BCrypt
+            // Utiliser la méthode authenticate avec BCrypt
             users user = serviceUser.authenticate(email, password);
 
             if (user != null) {
@@ -74,8 +74,8 @@ public class LoginController {
                     saveUserSession(user);
                 }
 
-                // Rediriger vers la page appropriée selon le rôle
-                redirectToRolePage(user.getRole());
+                // ✅ REDIRIGER VERS LA PAGE D'ACCUEIL (HOME)
+                goToHome();
 
             } else {
                 // CONNEXION ÉCHOUÉE
@@ -84,89 +84,37 @@ public class LoginController {
             }
 
         } catch (SQLException e) {
-            showAlert("Erreur", "Erreur de connexion à la base de données: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    private void redirectToRolePage(String role) {
-        try {
-            switch (role.toLowerCase()) {
-                case "patient":
-                    loadPatientDashboard();
-                    break;
-                case "doctor":
-                    loadDoctorDashboard();
-                    break;
-                case "admin":
-                    loadAdminDashboard();
-                    break;
-                default:
-                    showAlert("Erreur", "Rôle non reconnu: " + role);
-                    break;
+            // Gestion spéciale pour compte bloqué
+            if (e.getMessage() != null && e.getMessage().contains("bloqué")) {
+                showAlert("⛔ Compte bloqué", e.getMessage());
+            } else {
+                showAlert("Erreur", "Erreur de connexion à la base de données: " + e.getMessage());
             }
-        } catch (IOException | SQLException e) {
-            showAlert("Erreur", "Impossible de charger la page: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    private void loadAdminDashboard() throws IOException, SQLException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/admin_dashboard.fxml"));
-        Parent root = loader.load();
+    // ✅ NOUVELLE MÉTHODE POUR ALLER VERS HOME
+    private void goToHome() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/home.fxml"));
+            Parent root = loader.load();
 
-        AdminDashboardController adminController = loader.getController();
+            // Passer l'utilisateur au HomeController
+            HomeController homeController = loader.getController();
+            homeController.setUser(currentUser);
 
-        admin adminUser = serviceAdmin.getById(currentUser.getId());
+            Stage stage = (Stage) loginButton.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Accueil - GrowMind");
+            stage.show();
 
-        if (adminUser != null) {
-            adminController.setAdminData(adminUser);
-            System.out.println("✅ Admin data loaded: " + adminUser.getName() + " " + adminUser.getSecond_name());
-        } else {
-            admin tempAdmin = new admin();
-            tempAdmin.setId(currentUser.getId());
-            tempAdmin.setName(currentUser.getName());
-            tempAdmin.setSecond_name(currentUser.getSecond_name());
-            tempAdmin.setEmail(currentUser.getEmail());
-            tempAdmin.setRole(currentUser.getRole());
-            tempAdmin.setActif(true);
-            adminController.setAdminData(tempAdmin);
+            System.out.println("✅ Redirection vers Home réussie");
+
+        } catch (IOException e) {
+            showAlert("Erreur", "Impossible de charger la page d'accueil: " + e.getMessage());
+            e.printStackTrace();
         }
-
-        Stage stage = (Stage) loginButton.getScene().getWindow();
-        stage.setScene(new Scene(root));
-        stage.setTitle("Admin Dashboard - GrowMind");
-        stage.show();
-    }
-
-    private void loadDoctorDashboard() throws IOException, SQLException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/doctor_dashboard.fxml"));
-        Parent root = loader.load();
-
-        DoctorDashboardController doctorController = loader.getController();
-
-        doctor doctorUser = serviceDoctor.getById(currentUser.getId());
-        doctorController.setDoctorData(doctorUser);
-
-        Stage stage = (Stage) loginButton.getScene().getWindow();
-        stage.setScene(new Scene(root));
-        stage.setTitle("Doctor Dashboard - GrowMind");
-        stage.show();
-    }
-
-    private void loadPatientDashboard() throws IOException, SQLException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/patient_dashboard.fxml"));
-        Parent root = loader.load();
-
-        PatientDashboardController patientController = loader.getController();
-
-        patient patientUser = servicePatient.getById(currentUser.getId());
-        patientController.setPatientData(patientUser);
-
-        Stage stage = (Stage) loginButton.getScene().getWindow();
-        stage.setScene(new Scene(root));
-        stage.setTitle("Patient Dashboard - GrowMind");
-        stage.show();
     }
 
     @FXML
@@ -201,7 +149,7 @@ public class LoginController {
 
     @FXML
     private void handleForgotPassword() {
-        goToForgetPassword(); // Rediriger vers la même méthode que le lien
+        goToForgetPassword();
     }
 
     @FXML
@@ -227,7 +175,11 @@ public class LoginController {
                     if (user != null) {
                         statusLabel.setStyle("-fx-text-fill: green;");
                         statusLabel.setText("✅ Connecté: " + user.getEmail());
-                        redirectBasedOnRole(user);
+
+                        // ✅ REDIRIGER VERS HOME AUSSI POUR GOOGLE
+                        currentUser = user;
+                        goToHome();
+
                     } else {
                         statusLabel.setStyle("-fx-text-fill: red;");
                         statusLabel.setText("❌ Échec création utilisateur");
@@ -245,53 +197,7 @@ public class LoginController {
         }).start();
     }
 
-    private void redirectBasedOnRole(users user) {
-        try {
-            String fxmlFile;
-            String title;
-
-            switch(user.getRole()) {
-                case "admin":
-                    fxmlFile = "/admin_dashboard.fxml";
-                    title = "Admin Dashboard";
-                    break;
-                case "doctor":
-                    fxmlFile = "/doctor_dashboard.fxml";
-                    title = "Doctor Dashboard";
-                    break;
-                case "patient":
-                default:
-                    fxmlFile = "/patient_dashboard.fxml";
-                    title = "Patient Dashboard";
-                    break;
-            }
-
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
-            Parent root = loader.load();
-
-            // Passer l'utilisateur au controller suivant
-            Object controller = loader.getController();
-            if (controller instanceof PatientDashboardController) {
-                ((PatientDashboardController) controller).setUser(user);
-            } else if (controller instanceof DoctorDashboardController) {
-                ((DoctorDashboardController) controller).setUser(user);
-            } else if (controller instanceof AdminDashboardController) {
-                ((AdminDashboardController) controller).setUser(user);
-            }
-
-            Stage stage = (Stage) googleLoginBtn.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle(title);
-            stage.show();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            showAlert("Erreur", "Impossible de charger le tableau de bord.");
-        }
-    }
-
     private void saveUserSession(users user) {
-        // TODO: Sauvegarder la session (Préférences, fichier, etc.)
         System.out.println("💾 Session saved for: " + user.getEmail());
     }
 
