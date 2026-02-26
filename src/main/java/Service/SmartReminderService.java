@@ -13,15 +13,16 @@ import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.HashMap;
 
 public class SmartReminderService {
 
     // ========== IDENTIFIANTS TWILIO ==========
-    // Remplace par TES identifiants
     private static final String ACCOUNT_SID = "AC24cd8001e602babe774bcd055e8af0f1";
-    private static final String AUTH_TOKEN = "14c34701bc77233cbeb8e15a80504d9c";
-    private static final String TWILIO_PHONE = "+18382063587"; // Ton numéro Twilio
+    private static final String AUTH_TOKEN = "4fe3f9652f782e153c794c34f0c40185";
+    private static final String TWILIO_PHONE = "+1 838 206 3587";
+
+    // ========== TON NUMÉRO POUR LES TESTS ==========
+    private static final String ALERT_PHONE_NUMBER = "+21624269512";  // ← Mets TON numéro ici !
 
     // ========== SERVICES ==========
     private ServiceRendezVous serviceRdv;
@@ -42,10 +43,21 @@ public class SmartReminderService {
      * 1. ANALYSER L'HISTORIQUE D'UN PATIENT
      */
     private Map<String, Object> analyserPatient(String telephone) {
+        Map<String, Object> result = new HashMap<>();
+
+        // Valeurs par défaut si téléphone null
+        if (telephone == null || telephone.isEmpty()) {
+            result.put("total", 0L);
+            result.put("presents", 0L);
+            result.put("absents", 0L);
+            result.put("tauxFiabilite", 0.5);
+            result.put("heuresPreferees", new HashMap<Integer, Integer>());
+            return result;
+        }
+
         List<RendezVous> historique = serviceRdv.getByTelephone(telephone);
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("total", (long) historique.size());  // ← Convertir en Long
+        result.put("total", (long) historique.size());
 
         long presents = historique.stream()
                 .filter(r -> "confirmé".equals(r.getStatut()) || "terminé".equals(r.getStatut()))
@@ -55,21 +67,26 @@ public class SmartReminderService {
                 .filter(r -> "annulé".equals(r.getStatut()))
                 .count();
 
-        result.put("presents", presents);  // ← Déjà Long
-        result.put("absents", absents);    // ← Déjà Long
+        result.put("presents", presents);
+        result.put("absents", absents);
 
         double tauxFiabilite = historique.size() > 0 ?
                 (double) presents / historique.size() : 0.5;
-        result.put("tauxFiabilite", tauxFiabilite);  // ← Double
+        result.put("tauxFiabilite", tauxFiabilite);
 
         Map<Integer, Integer> heuresPreferees = new HashMap<>();
         for (RendezVous r : historique) {
-            if ("confirmé".equals(r.getStatut()) || "terminé".equals(r.getStatut())) {
-                int heure = Integer.parseInt(r.getHeure().split(":")[0]);
-                heuresPreferees.put(heure, heuresPreferees.getOrDefault(heure, 0) + 1);
+            if (r.getHeure() != null &&
+                    ("confirmé".equals(r.getStatut()) || "terminé".equals(r.getStatut()))) {
+                try {
+                    int heure = Integer.parseInt(r.getHeure().split(":")[0]);
+                    heuresPreferees.put(heure, heuresPreferees.getOrDefault(heure, 0) + 1);
+                } catch (Exception e) {
+                    // Ignorer les heures invalides
+                }
             }
         }
-        result.put("heuresPreferees", heuresPreferees);  // ← Map<Integer, Integer>
+        result.put("heuresPreferees", heuresPreferees);
 
         return result;
     }
@@ -83,6 +100,8 @@ public class SmartReminderService {
         }
 
         Map<String, Object> analyse = analyserPatient(telephone);
+
+        @SuppressWarnings("unchecked")
         Map<Integer, Integer> heuresPreferees = (Map<Integer, Integer>) analyse.get("heuresPreferees");
 
         if (heuresPreferees == null || heuresPreferees.isEmpty()) {
@@ -110,14 +129,13 @@ public class SmartReminderService {
             analyse.put("absents", 0L);
         }
 
-        // Récupération sécurisée
         double tauxFiabilite = (double) analyse.getOrDefault("tauxFiabilite", 0.5);
         long total = (long) analyse.getOrDefault("total", 0L);
         long absents = (long) analyse.getOrDefault("absents", 0L);
 
-        // Construction du message avec valeurs par défaut
+        // Message SANS émojis
         String baseMsg = String.format(
-                "🔔 RAPPEL INTELLIGENT - GrowMind\n\nBonjour %s %s,\n\nRendez-vous avec Dr. %s %s\n📅 Date: %s\n⏰ Heure: %s\n📍 Lieu: %s\n\n",
+                "RAPPEL - GrowMind\n\nBonjour %s %s,\n\nRendez-vous avec Dr. %s %s\nDate: %s\nHeure: %s\nLieu: %s\n\n",
                 getSafe(rdv.getPrenomPatient(), "Patient"),
                 getSafe(rdv.getNomPatient(), ""),
                 getSafe(rdv.getNomPsychologue(), "Psychologue"),
@@ -127,11 +145,11 @@ public class SmartReminderService {
                 getSafe(rdv.getNomCabinet(), "Cabinet")
         );
 
-        // Personnalisation
-        if (total == 0) return baseMsg + "🌟 Premier rendez-vous ? Arrivez 10 minutes avant !";
-        if (tauxFiabilite > 0.8) return baseMsg + "✨ Merci pour votre fidélité !";
-        if (tauxFiabilite < 0.5) return baseMsg + String.format("⚠️ Vous avez annulé %d rendez-vous récemment.", absents);
-        return baseMsg + "📞 Pour tout changement, contactez-nous.";
+        // Personnalisation sans émojis
+        if (total == 0) return baseMsg + "Premier rendez-vous ? Arrivez 10 minutes avant !";
+        if (tauxFiabilite > 0.8) return baseMsg + "Merci pour votre fidelite !";
+        if (tauxFiabilite < 0.5) return baseMsg + String.format("Vous avez annule %d rendez-vous recemment.", absents);
+        return baseMsg + "Pour tout changement, contactez-nous.";
     }
 
     private String getSafe(String value, String defaultValue) {
@@ -149,7 +167,7 @@ public class SmartReminderService {
     /**
      * 4. CALCULER LA DATE D'ENVOI OPTIMALE
      */
-   /** public LocalDateTime calculateSendTime(RendezVous rdv, int bestHour) {
+    public LocalDateTime calculateSendTime(RendezVous rdv, int bestHour) {
         try {
             // Récupérer la date (gérer si c'est java.sql.Date ou java.util.Date)
             Date date = rdv.getDateRdv();
@@ -165,7 +183,7 @@ public class SmartReminderService {
                         .toLocalDate();
             }
 
-            // Extraire l'heure
+            // Extraire l'heure (avec protection)
             String[] heureParts = rdv.getHeure().split(":");
             int heure = Integer.parseInt(heureParts[0]);
             int minute = Integer.parseInt(heureParts[1]);
@@ -188,14 +206,10 @@ public class SmartReminderService {
 
         } catch (Exception e) {
             System.err.println("❌ Erreur calcul date: " + e.getMessage());
-            // Valeur par défaut : dans 5 minutes
-            return LocalDateTime.now().plusMinutes(5);
+            // ENVOI IMMÉDIAT : retourne maintenant
+            return LocalDateTime.now();
         }
-    }**/
-        public LocalDateTime calculateSendTime(RendezVous rdv, int bestHour) {
-            // Pour TEST SEULEMENT - envoi dans 1 minute
-            return LocalDateTime.now().plusMinutes(1);
-        }
+    }
 
     /**
      * 5. ENVOYER LE SMS VIA TWILIO
@@ -203,9 +217,12 @@ public class SmartReminderService {
     public void sendSMS(String toPhone, String message) {
         try {
             // Formater le numéro
+            String originalPhone = toPhone;
             if (!toPhone.startsWith("+")) {
                 toPhone = "+216" + toPhone; // Indicatif Tunisie
             }
+
+            System.out.println("📞 Envoi vers: " + toPhone);
 
             Message twilioMessage = Message.creator(
                     new PhoneNumber(toPhone),
@@ -229,54 +246,55 @@ public class SmartReminderService {
      * 6. PLANIFIER L'ENVOI INTELLIGENT
      */
     public void scheduleSmartReminder(RendezVous rdv) {
-        // Vérifier si le téléphone existe
-        if (rdv.getTelephonePatient() == null || rdv.getTelephonePatient().isEmpty()) {
-            System.err.println("❌ Pas de téléphone pour ce rendez-vous");
+        // Vérifier si le rendez-vous est valide
+        if (rdv == null) {
+            System.err.println("❌ Rendez-vous null");
             return;
         }
 
-        // Prédire la meilleure heure
-        int bestHour = predictBestHour(rdv.getTelephonePatient());
-
-        // Générer le message personnalisé
-        String message = generateMessage(rdv);
-
-        // Calculer la date d'envoi
-        LocalDateTime sendTime = calculateSendTime(rdv, bestHour);
-
-        // Calculer le délai en secondes
-        long delay = ChronoUnit.SECONDS.between(LocalDateTime.now(), sendTime);
-
-        if (delay < 0) {
-            sendSMS(rdv.getTelephonePatient(), message);
-            serviceRdv.marquerRappelEnvoye(rdv.getIdRdv(), new Date());
-        } else {
-            scheduler.schedule(() -> {
-                sendSMS(rdv.getTelephonePatient(), message);
-                serviceRdv.marquerRappelEnvoye(rdv.getIdRdv(), new Date());
-            }, delay, TimeUnit.SECONDS);
-
-            System.out.println("📅 Rappel programmé pour " + sendTime);
+        // Vérifier si le téléphone existe
+        if (rdv.getTelephonePatient() == null || rdv.getTelephonePatient().trim().isEmpty()) {
+            System.err.println("❌ Pas de téléphone pour ce rendez-vous #" + rdv.getIdRdv());
+            return;
         }
 
-        // Afficher les infos
-        System.out.println("\n📊 ANALYSE INTELLIGENTE");
-        System.out.println("Patient: " + rdv.getNomCompletPatient());
-        System.out.println("Téléphone: " + rdv.getTelephonePatient());
-        System.out.println("Rendez-vous: " + rdv.getDateRdv() + " à " + rdv.getHeure());
-        System.out.println("Heure optimale prédite: " + bestHour + "h");
-        System.out.println("Envoi programmé: " + sendTime);
-        System.out.println("Type message: " + getMessageType(rdv.getTelephonePatient()));
-        System.out.println("---\n");
-    }
+        try {
+            // Prédire la meilleure heure (optionnel, pour analyse)
+            int bestHour = predictBestHour(rdv.getTelephonePatient());
 
+            // Générer le message personnalisé
+            String message = generateMessage(rdv);
+
+            // === ENVOI IMMÉDIAT - PAS DE PLANIFICATION ===
+            sendSMS(rdv.getTelephonePatient(), message);
+            serviceRdv.marquerRappelEnvoye(rdv.getIdRdv(), new Date());
+
+            // Afficher les infos
+            System.out.println("\n📊 ANALYSE INTELLIGENTE");
+            System.out.println("Patient: " + rdv.getNomCompletPatient());
+            System.out.println("Téléphone: " + rdv.getTelephonePatient());
+            System.out.println("Rendez-vous: " + rdv.getDateRdv() + " à " + rdv.getHeure());
+            System.out.println("Heure optimale prédite: " + bestHour + "h");
+            System.out.println("📱 ENVOI IMMÉDIAT !");
+            System.out.println("Type message: " + getMessageType(rdv.getTelephonePatient()));
+            System.out.println("---\n");
+
+        } catch (Exception e) {
+            System.err.println("❌ Erreur lors de l'envoi: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
     /**
      * 7. DÉTERMINER LE TYPE DE MESSAGE
      */
     private String getMessageType(String telephone) {
+        if (telephone == null || telephone.isEmpty()) {
+            return "PATIENT STANDARD";
+        }
+
         Map<String, Object> analyse = analyserPatient(telephone);
-        double tauxFiabilite = (double) analyse.get("tauxFiabilite");
-        long total = (long) analyse.get("total");
+        double tauxFiabilite = (double) analyse.getOrDefault("tauxFiabilite", 0.5);
+        long total = (long) analyse.getOrDefault("total", 0L);
 
         if (total == 0) return "NOUVEAU PATIENT";
         if (tauxFiabilite > 0.8) return "PATIENT FIDÈLE";
@@ -291,12 +309,12 @@ public class SmartReminderService {
         List<RendezVous> all = serviceRdv.recuperer();
 
         Map<String, Object> stats = new HashMap<>();
-        stats.put("total", (long) all.size());  // ← Convertir en Long
+        stats.put("total", (long) all.size());
 
         long rappelsEnvoyes = all.stream().filter(RendezVous::isRappelEnvoye).count();
-        stats.put("rappelsEnvoyes", rappelsEnvoyes);  // ← Déjà Long
+        stats.put("rappelsEnvoyes", rappelsEnvoyes);
 
-        // Compter par statut - CONVERTIR EN LONG
+        // Compter par statut
         stats.put("confirmes", (long) all.stream().filter(r -> "confirmé".equals(r.getStatut())).count());
         stats.put("annules", (long) all.stream().filter(r -> "annulé".equals(r.getStatut())).count());
         stats.put("enAttente", (long) all.stream().filter(r -> "en attente".equals(r.getStatut())).count());
@@ -304,6 +322,7 @@ public class SmartReminderService {
 
         return stats;
     }
+
     /**
      * 9. ARRÊTER LE PLANIFICATEUR
      */
