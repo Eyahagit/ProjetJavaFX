@@ -41,8 +41,8 @@
         </VBox>
 
         <HBox alignment="CENTER" spacing="20" style="-fx-padding: 20 0 0 0;">
-            <Button onAction="#handleSauvegarder" style="-fx-background-color: #5FB49C; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 10 20;" text="Sauvegarder" />
-            <Button onAction="#handleAnnuler" style="-fx-background-color: #E667AF; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 10 20;" text="Annuler" />
+            <Button fx:id="btnSauvegarder" onAction="#handleSauvegarder" style="-fx-background-color: #5FB49C; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 10 20;" text="Sauvegarder" />
+            <Button fx:id="btnAnnuler" onAction="#handleAnnuler" style="-fx-background-color: #E667AF; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 10 20;" text="Annuler" />
         </HBox>
 
     </VBox>

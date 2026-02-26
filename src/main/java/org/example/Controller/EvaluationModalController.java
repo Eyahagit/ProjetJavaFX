@@ -4,8 +4,11 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
-import javafx.scene.layout.HBox;
+import javafx.scene.control.Tooltip;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
+import org.controlsfx.control.Rating;
 import org.example.Models.Evaluation;
 import org.example.Models.Ressource;
 import org.example.Models.User;
@@ -19,7 +22,7 @@ public class EvaluationModalController {
     @FXML
     private Label lblResourceTitle;
     @FXML
-    private HBox ratingBox;
+    private Rating ratingControl;
     @FXML
     private TextArea txtCommentaire;
     @FXML
@@ -27,7 +30,11 @@ public class EvaluationModalController {
     @FXML
     private Label lblCommentError;
 
-    private int currentRating = 0;
+    @FXML
+    private Button btnSubmit;
+    @FXML
+    private Button btnCancel;
+
     private Ressource ressource;
     private Evaluation existingEvaluation;
     private final evaluationService service = new evaluationService();
@@ -35,7 +42,12 @@ public class EvaluationModalController {
 
     @FXML
     public void initialize() {
-        createStars();
+        applyIcon(btnSubmit, "submit.png", "Soumettre", 20);
+        applyIcon(btnCancel, "cancel.png", "Annuler", 20);
+        if (ratingControl != null) {
+            ratingControl.setMax(5);
+            ratingControl.setRating(0);
+        }
     }
 
     public void setRessource(Ressource r, UserRessourceController parent) {
@@ -47,41 +59,16 @@ public class EvaluationModalController {
     public void setExistingEvaluation(Evaluation e) {
         this.existingEvaluation = e;
         if (e != null) {
-            setRating(e.getNote());
+            if (ratingControl != null) ratingControl.setRating(e.getNote());
             txtCommentaire.setText(e.getCommentaire());
-        }
-    }
-
-    private void createStars() {
-        ratingBox.getChildren().clear();
-        for (int i = 1; i <= 5; i++) {
-            Button star = new Button("★");
-            star.setStyle(
-                    "-fx-background-color: transparent; -fx-font-size: 24px; -fx-text-fill: #bdc3c7; -fx-cursor: hand; -fx-padding: 0;");
-            int ratingValue = i;
-            star.setOnAction(e -> setRating(ratingValue));
-            ratingBox.getChildren().add(star);
-        }
-    }
-
-    private void setRating(int rating) {
-        currentRating = rating;
-        for (int i = 0; i < 5; i++) {
-            Button star = (Button) ratingBox.getChildren().get(i);
-            if (i < rating) {
-                star.setStyle(
-                        "-fx-background-color: transparent; -fx-font-size: 24px; -fx-text-fill: #F1C40F; -fx-cursor: hand; -fx-padding: 0;");
-            } else {
-                star.setStyle(
-                        "-fx-background-color: transparent; -fx-font-size: 24px; -fx-text-fill: #bdc3c7; -fx-cursor: hand; -fx-padding: 0;");
-            }
         }
     }
 
     @FXML
     private void handleSubmit() {
         boolean valid = true;
-        if (currentRating == 0) {
+        int note = ratingControl != null ? (int) Math.round(ratingControl.getRating()) : 0;
+        if (note < 1 || note > 5) {
             lblRatingError.setVisible(true);
             valid = false;
         } else {
@@ -100,12 +87,12 @@ public class EvaluationModalController {
 
         User user = StaticUser.get();
         if (existingEvaluation != null) {
-            existingEvaluation.setNote(currentRating);
+            existingEvaluation.setNote(note);
             existingEvaluation.setCommentaire(txtCommentaire.getText());
             existingEvaluation.setDateEvaluation(LocalDate.now());
             service.update(existingEvaluation);
         } else {
-            Evaluation newEval = new Evaluation(user, ressource, currentRating, txtCommentaire.getText(),
+            Evaluation newEval = new Evaluation(user, ressource, note, txtCommentaire.getText(),
                     LocalDate.now());
             service.create(newEval);
         }
@@ -123,5 +110,31 @@ public class EvaluationModalController {
     private void closeWindow() {
         Stage stage = (Stage) txtCommentaire.getScene().getWindow();
         stage.close();
+    }
+
+    private void applyIcon(Button btn, String iconName, String tooltipText, double size) {
+        if (btn == null) return;
+        for (String path : new String[] { "/icons/" + iconName, "/" + iconName }) {
+            try {
+                java.io.InputStream is = getClass().getResourceAsStream(path);
+                if (is == null) continue;
+                Image img = new Image(is);
+                if (img.isError()) continue;
+                ImageView iv = new ImageView(img);
+                iv.setFitWidth(size);
+                iv.setFitHeight(size);
+                iv.setPreserveRatio(true);
+                iv.setSmooth(true);
+                btn.setGraphic(iv);
+                btn.setText(null);
+                btn.setTooltip(new Tooltip(tooltipText));
+                btn.setContentDisplay(javafx.scene.control.ContentDisplay.GRAPHIC_ONLY);
+                btn.setMinWidth(44);
+                btn.setMaxWidth(44);
+                btn.setMinHeight(44);
+                btn.setMaxHeight(44);
+                return;
+            } catch (Exception ignored) {}
+        }
     }
 }

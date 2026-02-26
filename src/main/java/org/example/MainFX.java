@@ -16,7 +16,7 @@ public class MainFX extends Application {
         Main.initDatabaseAndStaticUser();
 
         // Load Admin Dashboard by default
-        Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/userressource.fxml")));
+        Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/main.fxml")));
         primaryStage.setTitle("GrowMind - Admin Dashboard");
         primaryStage.setScene(new Scene(root));
         primaryStage.show();

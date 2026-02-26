@@ -8,12 +8,15 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import org.example.Models.Evaluation;
 import org.example.Models.Ressource;
 import org.example.Models.User; // Assuming User model has meaningful toString or getters
 import org.example.Services.evaluationService;
 import org.example.utils.StaticUser;
+import org.example.utils.StarRatingHelper;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -34,6 +37,13 @@ public class EvaluationsListController {
     @FXML
     private TableColumn<Evaluation, LocalDate> colDate;
 
+    @FXML
+    private Button btnBack;
+    @FXML
+    private Button btnEdit;
+    @FXML
+    private Button btnDelete;
+
     private Ressource currentRessource;
     private final evaluationService service = new evaluationService();
     private ObservableList<Evaluation> evaluationList = FXCollections.observableArrayList();
@@ -46,7 +56,19 @@ public class EvaluationsListController {
 
     @FXML
     public void initialize() {
+        applyIcon(btnBack, "back.png", "Retour", 20);
+        applyIcon(btnEdit, "edit.png", "Modifier", 20);
+        applyIcon(btnDelete, "delete.png", "Supprimer", 20);
+
         colNote.setCellValueFactory(new PropertyValueFactory<>("note"));
+        colNote.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(Integer note, boolean empty) {
+                super.updateItem(note, empty);
+                setText(empty || note == null ? "" : StarRatingHelper.toStarString(note));
+                setStyle("-fx-font-size: 14px; -fx-text-fill: #F1C40F;");
+            }
+        });
         colComment.setCellValueFactory(new PropertyValueFactory<>("commentaire"));
         colDate.setCellValueFactory(new PropertyValueFactory<>("dateEvaluation"));
 
@@ -142,5 +164,31 @@ public class EvaluationsListController {
         alert.setHeaderText(null);
         alert.setContentText(content);
         alert.show();
+    }
+
+    private void applyIcon(Button btn, String iconName, String tooltipText, double size) {
+        if (btn == null) return;
+        for (String path : new String[] { "/icons/" + iconName, "/" + iconName }) {
+            try {
+                java.io.InputStream is = getClass().getResourceAsStream(path);
+                if (is == null) continue;
+                Image img = new Image(is);
+                if (img.isError()) continue;
+                ImageView iv = new ImageView(img);
+                iv.setFitWidth(size);
+                iv.setFitHeight(size);
+                iv.setPreserveRatio(true);
+                iv.setSmooth(true);
+                btn.setGraphic(iv);
+                btn.setText(null);
+                btn.setTooltip(new Tooltip(tooltipText));
+                btn.setContentDisplay(javafx.scene.control.ContentDisplay.GRAPHIC_ONLY);
+                btn.setMinWidth(44);
+                btn.setMaxWidth(44);
+                btn.setMinHeight(44);
+                btn.setMaxHeight(44);
+                return;
+            } catch (Exception ignored) {}
+        }
     }
 }

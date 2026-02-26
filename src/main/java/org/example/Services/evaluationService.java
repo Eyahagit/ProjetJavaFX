@@ -63,7 +63,7 @@ public class evaluationService implements evaluationInterface {
     }
 
     @Override
-    public List<Evaluation> findAll() {
+    public List<Evaluation> findAll() {   //create
         String sql = "SELECT id, userId, ressourceId, note, commentaire, dateEvaluation FROM " + TABLE;
         List<Evaluation> list = new ArrayList<>();
         try (Connection conn = MyDatabase.getInstance().getConnection();
@@ -97,12 +97,12 @@ public class evaluationService implements evaluationInterface {
     }
 
     @Override
-    public boolean delete(int id) {
+    public boolean delete(int id) {   //            Quand je clique sur supprimer, le Controller récupère l’id, puis appelle service.delete(i
         String sql = "DELETE FROM " + TABLE + " WHERE id = ?";
-        try (Connection conn = MyDatabase.getInstance().getConnection();
+        try (Connection conn = MyDatabase.getInstance().getConnection();   //MyDatabase.getInstance().getConnection() pour obtenir une connexion JDBC, ensuite j’exécute une requête SQL DELETE avec PreparedStatement.
                 PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
-            return ps.executeUpdate() > 0;
+            return ps.executeUpdate() > 0;    //renvoie le nombre de lignes supprimées, donc je sais si la suppression a réussi.
         } catch (SQLException e) {
             throw new RuntimeException("Error deleting evaluation", e);
         }

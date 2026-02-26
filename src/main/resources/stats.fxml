@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
+
+<AnchorPane prefHeight="750.0" prefWidth="1200.0" style="-fx-background-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.Controller.StatsController">
+
+    <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#9B59B6" height="120.0" layoutX="-50.0" layoutY="0.0" opacity="0.15" rotate="45.0" width="300.0" />
+    <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#E667AF" height="150.0" layoutX="1100.0" layoutY="650.0" opacity="0.15" rotate="-30.0" width="200.0" />
+
+    <VBox alignment="CENTER" layoutX="0.0" layoutY="0.0" prefHeight="100.0" prefWidth="1200.0" style="-fx-background-color: linear-gradient(to right, #4A6FA5, #5FB49C); -fx-background-radius: 0 0 25 25;">
+        <HBox alignment="CENTER" spacing="20">
+            <Label style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: white;" text="📊 Statistiques GrowMind" />
+        </HBox>
+        <Button onAction="#handleBack" text="← Retour Admin" style="-fx-background-color: rgba(255,255,255,0.3); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-cursor: hand; -fx-padding: 6 16;" />
+    </VBox>
+
+    <ScrollPane fitToWidth="true" layoutY="100.0" prefHeight="620.0" prefWidth="1200.0" style="-fx-background: transparent; -fx-background-color: transparent;">
+        <content>
+            <VBox fx:id="chartsContainer" spacing="25" style="-fx-padding: 25; -fx-background-color: transparent;">
+                <!-- Charts injected by controller -->
+            </VBox>
+        </content>
+    </ScrollPane>
+
+    <HBox alignment="CENTER" layoutX="0.0" layoutY="720.0" prefHeight="30.0" prefWidth="1200.0" style="-fx-background-color: #2c3e50;">
+        <Label style="-fx-font-size: 12px; -fx-text-fill: #bdc3c7;" text="© 2024 GrowMind - Statistiques" />
+    </HBox>
+</AnchorPane>

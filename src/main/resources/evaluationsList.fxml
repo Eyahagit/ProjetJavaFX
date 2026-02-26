@@ -29,7 +29,7 @@
     <VBox layoutX="50.0" layoutY="130.0" prefHeight="550.0" prefWidth="1100.0" spacing="20" style="-fx-background-color: rgba(255,255,255,0.95); -fx-background-radius: 15; -fx-padding: 30; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);">
         
         <HBox alignment="CENTER_LEFT" spacing="20">
-            <Button onAction="#handleBack" text="⬅ Retour" style="-fx-background-color: #bdc3c7; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-cursor: hand;"/>
+            <Button fx:id="btnBack" onAction="#handleBack" text="⬅ Retour" style="-fx-background-color: #bdc3c7; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-cursor: hand;"/>
             <Label style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" text="Avis des utilisateurs" />
         </HBox>
 
@@ -43,8 +43,8 @@
         </TableView>
 
         <HBox alignment="CENTER_RIGHT" spacing="15">
-            <Button onAction="#handleEdit" text="✏️ Modifier" style="-fx-background-color: #4A6FA5; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-cursor: hand; -fx-padding: 10 20;"/>
-            <Button onAction="#handleDelete" text="🗑️ Supprimer" style="-fx-background-color: #E667AF; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-cursor: hand; -fx-padding: 10 20;"/>
+            <Button fx:id="btnEdit" onAction="#handleEdit" text="✏️ Modifier" style="-fx-background-color: #4A6FA5; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-cursor: hand; -fx-padding: 10 20;"/>
+            <Button fx:id="btnDelete" onAction="#handleDelete" text="🗑️ Supprimer" style="-fx-background-color: #E667AF; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-cursor: hand; -fx-padding: 10 20;"/>
         </HBox>
     </VBox>
 

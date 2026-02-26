@@ -8,6 +8,7 @@ import org.example.Models.Evaluation;
 import org.example.Models.Favori;
 import org.example.Models.Ressource;
 import org.example.Models.User;
+import org.example.Services.MailService;
 import org.example.Services.userService;
 import org.example.utils.MyDatabase;
 import org.example.utils.StaticUser;
@@ -133,5 +134,10 @@ public class Main {
         Favori fav = new Favori(currentUser, res, today);
         fav = favoriCtrl.create(fav);
         System.out.println("Favori ajouté: id=" + fav.getId());
+        MailService.sendEmail(
+                MailService.DEFAULT_TO_EMAIL,
+                "Test GrowMind",
+                "Email de test depuis l'application JavaFX GrowMind."
+        );
     }
 }

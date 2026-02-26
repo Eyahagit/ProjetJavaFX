@@ -5,18 +5,21 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
-
-import javafx.stage.Stage;
+import javafx.scene.layout.VBox;
 import org.example.Models.Ressource;
 import org.example.Services.ressourceService;
+import org.example.Services.CloudinaryService;
+import org.example.Services.MailService;
 
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.geometry.Pos;
 import java.time.LocalDate;
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import org.controlsfx.control.Notifications;
 
 public class RessourceFXController {
 
@@ -26,9 +29,17 @@ public class RessourceFXController {
     @FXML
     private TextArea txtDescription;
     @FXML
-    private TextField txtLocalisation; // Mapping to content
+    private TextField txtLocalisation;
     @FXML
-    private DatePicker datePicker; // Mapping to dateCreation (display only)
+    private TextField txtAuthor;
+    @FXML
+    private DatePicker datePicker;
+    @FXML
+    private ComboBox<String> comboType;
+    @FXML
+    private ComboBox<String> comboCategory;
+    @FXML
+    private ComboBox<String> comboStatus;
 
     @FXML
     private Button btnAjouter;
@@ -36,6 +47,9 @@ public class RessourceFXController {
     private Button btnModifier;
     @FXML
     private Button btnSupprimer;
+
+    @FXML
+    private Button btnFloatingAdd;
 
     @FXML
     private TableView<Ressource> listEvenements; // Mapped to the TableView in FXML
@@ -64,12 +78,35 @@ public class RessourceFXController {
     @FXML
     private Label lblCount;
 
+    @FXML
+    private Button btnStat;
+
+    @FXML
+    private Button btnUploadImage;
+
+    @FXML
+    private VBox listPanel;
+    @FXML
+    private VBox statsPanel;
+
+    @FXML
+    private VBox formPanel;
+
     private final ressourceService service = new ressourceService();
+    private CloudinaryService cloudinaryService; // lazy init so app runs without config
+
+    /** Mots interdits dans titre/description — avertissement admin, compte banni en cas de récidive */
+    private static final String[] BAD_WORDS = { "bad1", "bad2", "bad3" };
+
     private ObservableList<Ressource> ressourceList = FXCollections.observableArrayList();
     private ObservableList<Ressource> filteredList = FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
+        comboType.getItems().addAll("formation", "article", "video", "image", "evenement");
+        comboCategory.getItems().addAll("santé", "bien-etre", "developement personel", "motivation");
+        comboStatus.getItems().addAll("Active", "Draft");
+
         // Initialize Table Columns
         colTitre.setCellValueFactory(new PropertyValueFactory<>("title"));
         colDescription.setCellValueFactory(new PropertyValueFactory<>("description"));
@@ -118,33 +155,109 @@ public class RessourceFXController {
     }
 
     private void showDetails(Ressource r) {
-        if (txtTitre != null)
-            txtTitre.setText(r.getTitle());
-        if (txtDescription != null)
-            txtDescription.setText(r.getDescription());
-        if (txtLocalisation != null)
-            txtLocalisation.setText(r.getContent());
-        if (datePicker != null)
-            datePicker.setValue(r.getDateCreation());
+        if (txtTitre != null) txtTitre.setText(r.getTitle());
+        if (txtDescription != null) txtDescription.setText(r.getDescription());
+        if (txtLocalisation != null) txtLocalisation.setText(r.getContent());
+        if (txtAuthor != null) txtAuthor.setText(r.getAuthor());
+        if (datePicker != null) datePicker.setValue(r.getDateCreation());
+        if (comboType != null) comboType.setValue(r.getType());
+        if (comboCategory != null) comboCategory.setValue(r.getCategory());
+        if (comboStatus != null) comboStatus.setValue(r.getStatus() != null ? r.getStatus() : "Active");
+    }
+
+    private boolean containsBadWord(String text) {
+        if (text == null || text.isBlank()) return false;
+        String lower = text.toLowerCase();
+        for (String bad : BAD_WORDS) {
+            if (lower.contains(bad.toLowerCase())) return true;
+        }
+        return false;
+    }
+
+    private void showSuccessNotification(String title, String text) {
+        Notifications.create()
+                .title(title)
+                .text(text)
+                .position(Pos.BOTTOM_RIGHT)
+                .showInformation();
+    }
+
+    private void showWarningNotification(String title, String text) {
+        Notifications.create()
+                .title(title)
+                .text(text)
+                .position(Pos.BOTTOM_RIGHT)
+                .showWarning();
+    }
+
+    /** Sends email notification in background so UI doesn't block. */
+    private void sendNewResourceNotification(Ressource r) {
+        Thread mailThread = new Thread(() -> {
+            try {
+                String dateStr = r.getDateCreation() != null ? r.getDateCreation().toString() : null;
+                String html = MailService.buildNewResourceEmailHtml(
+                        r.getTitle(), r.getDescription(), r.getType(), r.getCategory(), r.getAuthor(), dateStr);
+                MailService.sendEmail(
+                        MailService.DEFAULT_TO_EMAIL,
+                        "Nouvelle ressource ajoutée - GrowMind",
+                        html,
+                        true
+                );
+            } catch (Exception e) {
+                System.err.println("Email non envoyé : " + e.getMessage());
+                e.printStackTrace();
+                javafx.application.Platform.runLater(() ->
+                        showWarningNotification("Email", "Notification email non envoyée : " + e.getMessage()));
+            }
+        });
+        mailThread.setDaemon(true);
+        mailThread.start();
     }
 
     @FXML
     private void ajouterEvenement() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/addRessource.fxml"));
-            Parent root = loader.load();
-
-            AddRessourceController controller = loader.getController();
-            controller.setMainController(this);
-
-            Stage stage = new Stage();
-            stage.setTitle("Ajouter Ressource");
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Erreur", "Impossible d'ouvrir la fenêtre d'ajout.");
+        String title = txtTitre.getText();
+        String description = txtDescription.getText();
+        if (title == null || title.trim().isEmpty() || description == null || description.trim().isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Champs requis", "Titre et Description sont obligatoires.");
+            return;
         }
+        if (comboType.getValue() == null || comboCategory.getValue() == null) {
+            showAlert(Alert.AlertType.WARNING, "Champs requis", "Veuillez sélectionner Type et Catégorie.");
+            return;
+        }
+        if (containsBadWord(title) || containsBadWord(description)) {
+            showWarningNotification(
+                    "⚠️ Avertissement — Contenu inapproprié",
+                    "Contenu inapproprié détecté. Ceci est un avertissement pour l'administrateur : votre compte sera banni en cas de récidive (infraction)."
+            );
+            return;
+        }
+        Ressource r = new Ressource();
+        r.setTitle(title.trim());
+        r.setDescription(description.trim());
+        r.setType(comboType.getValue());
+        r.setCategory(comboCategory.getValue());
+        r.setContent(txtLocalisation != null ? txtLocalisation.getText() : null);
+        r.setAuthor(txtAuthor != null && txtAuthor.getText() != null ? txtAuthor.getText().trim() : "Admin");
+        r.setDateCreation(datePicker.getValue() != null ? datePicker.getValue() : LocalDate.now());
+        r.setStatus(comboStatus.getValue() != null ? comboStatus.getValue() : "Active");
+        service.create(r);
+        refreshList();
+        clearForm();
+        showSuccessNotification("✅ Succès", "Ressource ajoutée avec succès !");
+        sendNewResourceNotification(r);
+    }
+
+    private void clearForm() {
+        txtTitre.setText("");
+        txtDescription.setText("");
+        txtLocalisation.setText("");
+        if (txtAuthor != null) txtAuthor.setText("Admin");
+        datePicker.setValue(LocalDate.now());
+        comboType.setValue(null);
+        comboCategory.setValue(null);
+        comboStatus.setValue("Active");
     }
 
     @FXML
@@ -154,21 +267,26 @@ public class RessourceFXController {
             showAlert(Alert.AlertType.WARNING, "Sélection requise", "Veuillez sélectionner une ressource à modifier.");
             return;
         }
-
-        // We can update directly from the fields on the left (if we keep them editable)
-        // Or open a dialogue. The user said "l'admin peut modifier...".
-        // Use the fields on the left for modification to keep "meme design"
-
-        selected.setTitle(txtTitre.getText());
-        selected.setDescription(txtDescription.getText());
-        selected.setContent(txtLocalisation.getText());
-        if (datePicker.getValue() != null) {
-            selected.setDateCreation(datePicker.getValue());
+        String title = txtTitre.getText();
+        String description = txtDescription.getText();
+        if (containsBadWord(title) || containsBadWord(description)) {
+            showWarningNotification(
+                    "⚠️ Avertissement — Contenu inapproprié",
+                    "Contenu inapproprié détecté. Ceci est un avertissement pour l'administrateur : votre compte sera banni en cas de récidive (infraction)."
+            );
+            return;
         }
-
+        selected.setTitle(title);
+        selected.setDescription(description);
+        selected.setType(comboType.getValue());
+        selected.setCategory(comboCategory.getValue());
+        selected.setContent(txtLocalisation.getText());
+        selected.setAuthor(txtAuthor != null ? txtAuthor.getText() : selected.getAuthor());
+        if (datePicker.getValue() != null) selected.setDateCreation(datePicker.getValue());
+        selected.setStatus(comboStatus.getValue() != null ? comboStatus.getValue() : "Active");
         service.update(selected);
         refreshList();
-        showAlert(Alert.AlertType.INFORMATION, "Succès", "Ressource modifiée avec succès !");
+        showSuccessNotification("✅ Succès", "Ressource modifiée avec succès !");
     }
 
     @FXML
@@ -188,6 +306,7 @@ public class RessourceFXController {
         if (result.isPresent() && result.get() == ButtonType.OK) {
             service.delete(selected.getId());
             refreshList();
+            showSuccessNotification("✅ Succès", "Ressource supprimée avec succès !");
         }
     }
 
@@ -221,6 +340,63 @@ public class RessourceFXController {
     private void handleListClick() {
     }
 
+    @FXML
+    private void uploadImageToCloudinary() {
+        javafx.stage.FileChooser chooser = new javafx.stage.FileChooser();
+        chooser.setTitle("Choisir une image ou vidéo");
+        chooser.getExtensionFilters().addAll(
+            new javafx.stage.FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp"),
+            new javafx.stage.FileChooser.ExtensionFilter("Vidéos", "*.mp4", "*.webm"),
+            new javafx.stage.FileChooser.ExtensionFilter("Tous les fichiers", "*.*")
+        );
+        File file = chooser.showOpenDialog(txtLocalisation.getScene().getWindow());
+        if (file == null) return;
+        try {
+            if (cloudinaryService == null) cloudinaryService = new CloudinaryService();
+            String url = cloudinaryService.upload(file);
+            if (url != null && !url.isBlank()) {
+                txtLocalisation.setText(url);
+                showAlert(Alert.AlertType.INFORMATION, "Upload réussi", "Lien Cloudinary copié dans Contenu / Lien.");
+            } else {
+                showAlert(Alert.AlertType.WARNING, "Upload", "Aucune URL reçue.");
+            }
+        } catch (IllegalStateException e) {
+            showAlert(Alert.AlertType.WARNING, "Cloudinary non configuré", e.getMessage());
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "Erreur upload", e.getMessage() != null ? e.getMessage() : "Upload échoué.");
+        }
+    }
+
+    @FXML
+    private void openStats() {
+        try {
+            if (statsPanel.getChildren().isEmpty()) {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/statsContent.fxml"));
+                Parent statsRoot = loader.load();
+                StatsController statsCtrl = loader.getController();
+                statsCtrl.setOnBack(this::showListPanel);
+                statsPanel.getChildren().setAll(statsRoot);
+            }
+            formPanel.setVisible(false);
+            formPanel.setManaged(false);
+            listPanel.setVisible(false);
+            listPanel.setManaged(false);
+            statsPanel.setVisible(true);
+            statsPanel.setManaged(true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    void showListPanel() {
+        statsPanel.setVisible(false);
+        statsPanel.setManaged(false);
+        formPanel.setVisible(true);
+        formPanel.setManaged(true);
+        listPanel.setVisible(true);
+        listPanel.setManaged(true);
+    }
+
     private void showAlert(Alert.AlertType type, String title, String content) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
@@ -228,4 +404,5 @@ public class RessourceFXController {
         alert.setContentText(content);
         alert.showAndWait();
     }
+
 }
