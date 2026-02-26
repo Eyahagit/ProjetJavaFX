@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="15" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="controllers.ReponseListController" style="-fx-background-color: #F8F9FA;">
+
+    <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+
+    <HBox alignment="CENTER_LEFT">
+        <Label text="💬 Réponses" style="-fx-font-size: 20px; -fx-font-weight: 900; -fx-text-fill: #2C3E50;"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button fx:id="btnNouvelleReponse" text="➕ Répondre" onAction="#handleNouvelleReponse"
+                style="-fx-background-color: #2ECC71; -fx-text-fill: white; -fx-font-weight: 700; -fx-background-radius: 20;"/>
+    </HBox>
+
+    <Label fx:id="lblTitrePost" style="-fx-font-style: italic; -fx-text-fill: #7F8C8D;"/>
+
+    <TableView fx:id="tableReponses" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colAuteur" text="Auteur" prefWidth="130"/>
+            <TableColumn fx:id="colContenu" text="Réponse" prefWidth="350"/>
+            <TableColumn fx:id="colDate" text="Date" prefWidth="150"/>
+            <TableColumn fx:id="colActions" text="" prefWidth="50"/>
+        </columns>
+    </TableView>
+
+    <Label fx:id="lblTotalReponses" style="-fx-font-style: italic; -fx-text-fill: #7F8C8D;"/>
+</VBox>

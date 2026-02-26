@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="15" xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="controllers.ArticlesController"
+      style="-fx-background-color: #F7FAFC; -fx-padding: 20;"
+      prefWidth="900" prefHeight="700">
+
+    <!-- EN-TÊTE -->
+    <HBox alignment="CENTER_LEFT" spacing="15">
+        <Label text="📰 Articles Bien-être"
+               style="-fx-font-size: 28px; -fx-font-weight: 900; -fx-text-fill: #667eea;"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <ProgressIndicator fx:id="progressIndicator" visible="false" prefWidth="25" prefHeight="25"/>
+        <Label fx:id="lblChargement" text="Chargement..." visible="false" style="-fx-text-fill: #718096;"/>
+    </HBox>
+
+    <Separator/>
+
+    <!-- FILTRES ET RECHERCHE -->
+    <HBox spacing="15" alignment="CENTER_LEFT">
+        <Label text="Catégorie:" style="-fx-font-weight: bold;"/>
+        <ComboBox fx:id="cmbCategorie" prefWidth="180"/>
+
+        <Label text="Pays:" style="-fx-font-weight: bold;"/>
+        <ComboBox fx:id="cmbPays" prefWidth="150"/>
+
+        <Region HBox.hgrow="ALWAYS"/>
+
+        <TextField fx:id="txtRecherche" promptText="Rechercher..." prefWidth="200"
+                   style="-fx-background-radius: 20; -fx-background-color: white;"/>
+        <Button fx:id="btnRechercher" text="🔍 Rechercher" onAction="#handleRechercher"
+                style="-fx-background-color: #3498DB; -fx-text-fill: white; -fx-font-weight: bold;
+                       -fx-background-radius: 20; -fx-padding: 8 20; -fx-cursor: hand;"/>
+        <Button fx:id="btnActualiser" text="🔄 Actualiser" onAction="#handleActualiser"
+                style="-fx-background-color: #27AE60; -fx-text-fill: white; -fx-font-weight: bold;
+                       -fx-background-radius: 20; -fx-padding: 8 20; -fx-cursor: hand;"/>
+    </HBox>
+
+    <!-- LISTE DES ARTICLES -->
+    <ListView fx:id="listViewArticles" VBox.vgrow="ALWAYS"
+              style="-fx-background-color: transparent; -fx-border-color: transparent;"/>
+
+    <!-- STATISTIQUES -->
+    <HBox alignment="CENTER_RIGHT">
+        <Label fx:id="lblTotal" text="📰 0 articles"
+               style="-fx-background-color: #EDF2F7; -fx-padding: 10 25; -fx-background-radius: 40;
+                      -fx-font-weight: 600; -fx-text-fill: #4A5568;"/>
+    </HBox>
+
+    <!-- BOUTON FERMER -->
+    <HBox alignment="CENTER_RIGHT">
+        <Button text="Fermer" onAction="#handleFermer"
+                style="-fx-background-color: #E74C3C; -fx-text-fill: white; -fx-font-weight: bold;
+                       -fx-background-radius: 20; -fx-padding: 8 20; -fx-cursor: hand;"/>
+    </HBox>
+
+</VBox>
