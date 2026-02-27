@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="20" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="controllers.ReponseFormController"
+      style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 25;">
+
+    <Label text="➕ Nouvelle réponse" style="-fx-font-size: 20px; -fx-font-weight: 900; -fx-text-fill: #2ECC71;"/>
+
+    <TextArea fx:id="txtContenu" prefRowCount="5" prefWidth="350" wrapText="true"/>
+
+    <HBox spacing="15" alignment="CENTER_RIGHT">
+        <Button fx:id="btnAnnuler" text="Annuler" onAction="#handleAnnuler" prefWidth="100"/>
+        <Button fx:id="btnSauvegarder" text="Publier" onAction="#handleSauvegarder" prefWidth="120"
+                style="-fx-background-color: #2ECC71; -fx-text-fill: white; -fx-font-weight: 700;"/>
+    </HBox>
+</VBox>

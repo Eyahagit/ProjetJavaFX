@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="20" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="controllers.PostFormController"
+      style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 25; -fx-border-color: #667eea; -fx-border-width: 2; -fx-border-radius: 15;">
+
+    <Label fx:id="lblTitre" style="-fx-font-size: 22px; -fx-font-weight: 900; -fx-text-fill: #667eea;"/>
+
+    <GridPane hgap="15" vgap="15">
+        <Label text="Nom:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtNom" GridPane.rowIndex="0" GridPane.columnIndex="1" prefWidth="300"/>
+
+        <Label text="Rôle:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="cmbRole" GridPane.rowIndex="1" GridPane.columnIndex="1" prefWidth="300"/>
+
+        <Label text="Catégorie:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="cmbCategorie" GridPane.rowIndex="2" GridPane.columnIndex="1" prefWidth="300"/>
+
+        <Label text="Contenu:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <TextArea fx:id="txtContenu" GridPane.rowIndex="3" GridPane.columnIndex="1" prefRowCount="5" prefWidth="300"/>
+
+        <Label text="Archivé:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+        <CheckBox fx:id="chkArchive" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+    </GridPane>
+
+    <HBox spacing="15" alignment="CENTER_RIGHT">
+        <Button fx:id="btnAnnuler" text="Annuler" onAction="#handleAnnuler" prefWidth="100"/>
+        <Button fx:id="btnSauvegarder" text="Publier" onAction="#handleSauvegarder" prefWidth="120"
+                style="-fx-background-color: #667eea; -fx-text-fill: white; -fx-font-weight: 700;"/>
+    </HBox>
+</VBox>

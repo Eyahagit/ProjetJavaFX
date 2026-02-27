@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.shape.*?>
+
+<VBox spacing="25" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="controllers.PostListController"
+      style="-fx-background-color: #F7FAFC; -fx-font-family: 'Segoe UI', 'System', sans-serif;">
+
+    <padding><Insets top="25" right="25" bottom="25" left="25"/></padding>
+
+    <!-- ========== EN-TÊTE ========== -->
+    <VBox spacing="15" style="-fx-background-color: linear-gradient(to right, #667eea, #764ba2);
+          -fx-background-radius: 30; -fx-padding: 25;
+          -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 20, 0.2, 0, 5);">
+
+        <HBox alignment="CENTER_LEFT">
+            <VBox spacing="5">
+                <Label text="🌱 GrowMind"
+                       style="-fx-font-size: 32px; -fx-font-weight: 900; -fx-text-fill: white;
+                              -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);"/>
+                <Label text="Forum d'échange et de soutien"
+                       style="-fx-font-size: 14px; -fx-text-fill: rgba(255,255,255,0.95); -fx-font-weight: 600;"/>
+            </VBox>
+            <Pane HBox.hgrow="ALWAYS"/>
+            <HBox spacing="10">
+                <Button fx:id="btnNouveauPost" text="➕ Nouvelle discussion" onAction="#handleNouveauPost"
+                        style="-fx-background-color: #FBBF24; -fx-text-fill: #1A202C; -fx-font-weight: 800;
+                               -fx-background-radius: 40; -fx-padding: 12 30; -fx-cursor: hand;
+                               -fx-effect: dropshadow(gaussian, rgba(251,191,36,0.4), 12, 0, 0, 3);"/>
+                <Button fx:id="btnRetour" text="🏠 Accueil" onAction="#handleRetour"
+                        style="-fx-background-color: rgba(255,255,255,0.2); -fx-text-fill: white;
+                               -fx-font-weight: 700; -fx-background-radius: 40; -fx-padding: 12 30;
+                               -fx-cursor: hand; -fx-border-color: rgba(255,255,255,0.5);
+                               -fx-border-width: 1.5; -fx-border-radius: 40;"/>
+            </HBox>
+        </HBox>
+
+        <!-- ========== FILTRES ========== -->
+        <HBox spacing="15" alignment="CENTER_LEFT">
+            <Label text="Filtrer :" style="-fx-text-fill: white; -fx-font-weight: 700;"/>
+            <ComboBox fx:id="filterCategory" prefWidth="160"
+                      style="-fx-background-radius: 30; -fx-background-color: white;"/>
+            <ComboBox fx:id="filterRole" prefWidth="160"
+                      style="-fx-background-radius: 30; -fx-background-color: white;"/>
+
+            <Button fx:id="btnTriPopularite" text="🔥 Populaires" onAction="#handleTriPopularite"
+                    style="-fx-background-color: #F39C12; -fx-text-fill: white; -fx-font-weight: 700;
+                           -fx-background-radius: 30; -fx-padding: 8 20; -fx-cursor: hand;"/>
+            <Button fx:id="btnTriRecents" text="🕒 Récents" onAction="#handleTriRecents"
+                    style="-fx-background-color: #3498DB; -fx-text-fill: white; -fx-font-weight: 700;
+                           -fx-background-radius: 30; -fx-padding: 8 20; -fx-cursor: hand;"/>
+            <Button fx:id="btnTraduire" text="🇫🇷 Français" onAction="#handleToggleLangue"
+                    style="-fx-background-color: #9B59B6; -fx-text-fill: white; -fx-font-weight: 700;
+                           -fx-background-radius: 30; -fx-padding: 8 20; -fx-cursor: hand;"/>
+
+            <Pane HBox.hgrow="ALWAYS"/>
+            <HBox spacing="10" style="-fx-background-color: rgba(255,255,255,0.15); -fx-padding: 5 20;
+                  -fx-background-radius: 40;">
+                <Label text="🔍" style="-fx-text-fill: white;"/>
+                <TextField fx:id="searchField" promptText="Rechercher..."
+                           style="-fx-background-color: transparent; -fx-text-fill: white;
+                                  -fx-prompt-text-fill: rgba(255,255,255,0.7);"/>
+            </HBox>
+        </HBox>
+    </VBox>
+
+    <!-- ========== LISTE DES DISCUSSIONS ========== -->
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" hbarPolicy="NEVER"
+                style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;">
+
+        <VBox fx:id="discussionsContainer" spacing="20" style="-fx-padding: 10 0 10 0;">
+        </VBox>
+    </ScrollPane>
+
+    <!-- ========== STATISTIQUES ========== -->
+    <HBox alignment="CENTER_RIGHT">
+        <Label fx:id="lblTotalPosts"
+               style="-fx-font-style: italic; -fx-text-fill: #4A5568; -fx-font-size: 14px;
+                      -fx-font-weight: 600; -fx-background-color: #EDF2F7;
+                      -fx-padding: 10 25; -fx-background-radius: 40;"/>
+    </HBox>
+
+</VBox>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="20" xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="controllers.PostDetailsController"
+      style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 25;
+             -fx-border-color: #667eea; -fx-border-width: 2; -fx-border-radius: 15;
+             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);"
+      prefWidth="700" prefHeight="800">
+
+    <!-- EN-TÊTE AVEC TITRE -->
+    <HBox alignment="CENTER_LEFT" spacing="15">
+        <Label text="📄 Détails de la publication"
+               style="-fx-font-size: 24px; -fx-font-weight: 900; -fx-text-fill: #667eea;"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Label fx:id="lblStatut" text="Actif" style="-fx-padding: 5 15; -fx-background-radius: 20;"/>
+    </HBox>
+
+    <Separator/>
+
+    <!-- INFORMATIONS AUTEUR -->
+    <GridPane hgap="20" vgap="15" style="-fx-padding: 10 0;">
+        <!-- Ligne 0 -->
+        <Label text="Auteur:" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <HBox spacing="10" GridPane.rowIndex="0" GridPane.columnIndex="1">
+            <Label fx:id="lblNom" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+            <Label fx:id="lblRole" style="-fx-background-color: #E8F5E9; -fx-text-fill: #27AE60; -fx-padding: 2 10; -fx-background-radius: 15;"/>
+        </HBox>
+
+        <!-- Ligne 1 -->
+        <Label text="Badge:" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <Label fx:id="lblBadge" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+        <!-- Ligne 2 -->
+        <Label text="Catégorie:" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <Label fx:id="lblCategorie" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+        <!-- Ligne 3 -->
+        <Label text="Date:" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <Label fx:id="lblDateCreation" GridPane.rowIndex="3" GridPane.columnIndex="1" style="-fx-text-fill: #718096;"/>
+    </GridPane>
+
+    <Separator/>
+
+    <!-- CONTENU -->
+    <VBox spacing="10">
+        <Label text="📝 Contenu" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+        <TextArea fx:id="txtContenu" prefRowCount="8" wrapText="true"
+                  style="-fx-background-color: #f8f9fa; -fx-background-radius: 10; -fx-padding: 15; -fx-font-size: 14px;"/>
+    </VBox>
+
+    <!-- STATISTIQUES -->
+    <HBox spacing="30" alignment="CENTER" style="-fx-padding: 10 0;">
+        <Label fx:id="lblLikes" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #27AE60;"/>
+        <Label fx:id="lblDislikes" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #E74C3C;"/>
+        <Label fx:id="lblVues" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #718096;"/>
+    </HBox>
+
+    <!-- BOUTONS D'ACTION -->
+    <HBox spacing="15" alignment="CENTER_RIGHT" style="-fx-padding: 20 0 0 0;">
+        <Button fx:id="btnLike" text="👍 J'aime" onAction="#handleLike"
+                style="-fx-background-color: #E8F5E9; -fx-text-fill: #27AE60; -fx-font-weight: bold;
+                       -fx-background-radius: 20; -fx-padding: 8 20; -fx-cursor: hand;
+                       -fx-border-color: #A5D6A5; -fx-border-width: 1; -fx-border-radius: 20;"/>
+        <Button fx:id="btnDislike" text="👎 Je n'aime pas" onAction="#handleDislike"
+                style="-fx-background-color: #FFEBEE; -fx-text-fill: #E74C3C; -fx-font-weight: bold;
+                       -fx-background-radius: 20; -fx-padding: 8 20; -fx-cursor: hand;
+                       -fx-border-color: #FFCDD2; -fx-border-width: 1; -fx-border-radius: 20;"/>
+        <Button fx:id="btnRepondre" text="💬 Répondre" onAction="#handleRepondre"
+                style="-fx-background-color: #3498DB; -fx-text-fill: white; -fx-font-weight: bold;
+                       -fx-background-radius: 20; -fx-padding: 8 20; -fx-cursor: hand;"/>
+        <Button fx:id="btnFermer" text="Fermer" onAction="#handleFermer"
+                style="-fx-background-color: #E74C3C; -fx-text-fill: white; -fx-font-weight: bold;
+                       -fx-background-radius: 20; -fx-padding: 8 20; -fx-cursor: hand;"/>
+    </HBox>
+
+</VBox>
