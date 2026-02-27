@@ -92,6 +92,16 @@
                             <Label text="8 chiffres (indicatif +216 sera ajouté automatiquement)"
                                    style="-fx-text-fill: #7f8c8d; -fx-font-size: 10px;"/>
                         </VBox>
+
+                        <!-- ========== NOUVEAU CHAMP EMAIL ========== -->
+                        <VBox spacing="5">
+                            <Label text="📧 Email du patient *" style="-fx-font-weight: bold; -fx-text-fill: #34495e;"/>
+                            <TextField fx:id="txtEmailPatient" promptText="exemple@gmail.com"
+                                       style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #e0e0e0; -fx-padding: 8;"
+                                       maxWidth="Infinity"/>
+                            <Label text="Pour recevoir les confirmations et rappels"
+                                   style="-fx-text-fill: #7f8c8d; -fx-font-size: 10px;"/>
+                        </VBox>
                     </VBox>
 
                     <!-- BOUTONS CRUD -->
@@ -115,6 +125,13 @@
                     <HBox alignment="CENTER" spacing="15" style="-fx-padding: 10 0 10 0;">
                         <Button text="💳 Payer avec Stripe" onAction="#handleStripePaiement"
                                 style="-fx-background-color: #9B59B6; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 12 20; -fx-cursor: hand;"
+                                prefWidth="220" prefHeight="40"/>
+                    </HBox>
+
+                    <!-- BOUTON RAPPEL EMAIL (NOUVEAU) -->
+                    <HBox alignment="CENTER" spacing="15" style="-fx-padding: 0 0 10 0;">
+                        <Button text="📧 Envoyer rappel email" onAction="#handleEnvoyerRappelEmail"
+                                style="-fx-background-color: #4A6FA5; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 12 20; -fx-cursor: hand;"
                                 prefWidth="220" prefHeight="40"/>
                     </HBox>
 

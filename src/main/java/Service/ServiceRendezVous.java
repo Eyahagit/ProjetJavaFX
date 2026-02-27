@@ -16,33 +16,28 @@ public class ServiceRendezVous implements Iservice<RendezVous> {
         connection = MyDatabase.getInstance().getConnection();
     }
 
-    // ========== CRUD DE BASE MODIFIÉ ==========
+    // ========== CRUD DE BASE AVEC EMAIL ==========
 
     @Override
     public void ajouter(RendezVous r) {
-        // REQUÊTE MODIFIÉE : Ajout des colonnes patient et rappel
         String sql = "INSERT INTO rendezvous (dateRdv, heure, statut, typeCons, idPsychologue, " +
-                "telephone_patient, nom_patient, prenom_patient, rappel_envoye) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "telephone_patient, nom_patient, prenom_patient, email_patient, rappel_envoye) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            // Champs existants
             ps.setDate(1, new java.sql.Date(r.getDateRdv().getTime()));
             ps.setString(2, r.getHeure());
             ps.setString(3, r.getStatut());
             ps.setString(4, r.getTypeCons());
             ps.setInt(5, r.getIdPsychologue());
-
-            // NOUVEAUX CHAMPS patient
             ps.setString(6, r.getTelephonePatient());
             ps.setString(7, r.getNomPatient());
             ps.setString(8, r.getPrenomPatient());
-
-            // NOUVEAU CHAMP rappel
-            ps.setBoolean(9, r.isRappelEnvoye());
+            ps.setString(9, r.getEmailPatient());  // ← EMAIL AJOUTÉ
+            ps.setBoolean(10, r.isRappelEnvoye());
 
             ps.executeUpdate();
-            System.out.println("✅ Rendez-vous ajouté avec informations patient !");
+            System.out.println("✅ Rendez-vous ajouté avec email !");
 
         } catch (SQLException e) {
             System.err.println("❌ Erreur ajout: " + e.getMessage());
@@ -65,32 +60,25 @@ public class ServiceRendezVous implements Iservice<RendezVous> {
 
     @Override
     public void modifier(RendezVous r) {
-        // REQUÊTE MODIFIÉE : Inclure les nouveaux champs
         String sql = "UPDATE rendezvous SET dateRdv=?, heure=?, statut=?, typeCons=?, idPsychologue=?, " +
-                "telephone_patient=?, nom_patient=?, prenom_patient=?, rappel_envoye=? " +
+                "telephone_patient=?, nom_patient=?, prenom_patient=?, email_patient=?, rappel_envoye=? " +
                 "WHERE idRdv=?";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            // Champs existants
             ps.setDate(1, new java.sql.Date(r.getDateRdv().getTime()));
             ps.setString(2, r.getHeure());
             ps.setString(3, r.getStatut());
             ps.setString(4, r.getTypeCons());
             ps.setInt(5, r.getIdPsychologue());
-
-            // NOUVEAUX CHAMPS patient
             ps.setString(6, r.getTelephonePatient());
             ps.setString(7, r.getNomPatient());
             ps.setString(8, r.getPrenomPatient());
-
-            // NOUVEAU CHAMP rappel
-            ps.setBoolean(9, r.isRappelEnvoye());
-
-            // WHERE clause
-            ps.setInt(10, r.getIdRdv());
+            ps.setString(9, r.getEmailPatient());  // ← EMAIL AJOUTÉ
+            ps.setBoolean(10, r.isRappelEnvoye());
+            ps.setInt(11, r.getIdRdv());
 
             ps.executeUpdate();
-            System.out.println("✅ Rendez-vous modifié !");
+            System.out.println("✅ Rendez-vous modifié avec email !");
 
         } catch (SQLException e) {
             System.err.println("❌ Erreur modification: " + e.getMessage());
@@ -101,31 +89,24 @@ public class ServiceRendezVous implements Iservice<RendezVous> {
     @Override
     public List<RendezVous> recuperer() {
         List<RendezVous> list = new ArrayList<>();
-        // REQUÊTE MODIFIÉE : Sélectionner tous les champs
         String sql = "SELECT * FROM rendezvous ORDER BY dateRdv DESC, heure";
 
         try (Statement st = connection.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) {
                 RendezVous r = new RendezVous();
-
-                // Champs existants
                 r.setIdRdv(rs.getInt("idRdv"));
                 r.setDateRdv(rs.getDate("dateRdv"));
                 r.setHeure(rs.getString("heure"));
                 r.setStatut(rs.getString("statut"));
                 r.setTypeCons(rs.getString("typeCons"));
                 r.setIdPsychologue(rs.getInt("idPsychologue"));
-
-                // NOUVEAUX CHAMPS patient
                 r.setTelephonePatient(rs.getString("telephone_patient"));
                 r.setNomPatient(rs.getString("nom_patient"));
                 r.setPrenomPatient(rs.getString("prenom_patient"));
-
-                // NOUVEAU CHAMP rappel
+                r.setEmailPatient(rs.getString("email_patient"));  // ← EMAIL AJOUTÉ
                 r.setRappelEnvoye(rs.getBoolean("rappel_envoye"));
                 r.setDateRappel(rs.getTimestamp("date_rappel"));
-
                 list.add(r);
             }
             System.out.println("✅ " + list.size() + " rendez-vous chargés");
@@ -136,11 +117,10 @@ public class ServiceRendezVous implements Iservice<RendezVous> {
         return list;
     }
 
-    // ========== MÉTHODES AVEC JOINTURES MODIFIÉES ==========
+    // ========== MÉTHODES AVEC JOINTURES ==========
 
     public List<RendezVous> recupererAvecDetails() {
         List<RendezVous> list = new ArrayList<>();
-        // REQUÊTE MODIFIÉE : Inclure tous les nouveaux champs
         String sql = "SELECT r.*, " +
                 "p.nom as nomPsycho, p.prenom as prenomPsycho, p.specialite, " +
                 "c.nomCabinet, c.ville " +
@@ -153,33 +133,23 @@ public class ServiceRendezVous implements Iservice<RendezVous> {
              ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) {
                 RendezVous r = new RendezVous();
-
-                // Champs existants
                 r.setIdRdv(rs.getInt("idRdv"));
                 r.setDateRdv(rs.getDate("dateRdv"));
                 r.setHeure(rs.getString("heure"));
                 r.setStatut(rs.getString("statut"));
                 r.setTypeCons(rs.getString("typeCons"));
                 r.setIdPsychologue(rs.getInt("idPsychologue"));
-
-                // NOUVEAUX CHAMPS patient
                 r.setTelephonePatient(rs.getString("telephone_patient"));
                 r.setNomPatient(rs.getString("nom_patient"));
                 r.setPrenomPatient(rs.getString("prenom_patient"));
-
-                // NOUVEAU CHAMP rappel
+                r.setEmailPatient(rs.getString("email_patient"));  // ← EMAIL AJOUTÉ
                 r.setRappelEnvoye(rs.getBoolean("rappel_envoye"));
                 r.setDateRappel(rs.getTimestamp("date_rappel"));
-
-                // Infos psychologue (existants)
                 r.setNomPsychologue(rs.getString("nomPsycho"));
                 r.setPrenomPsychologue(rs.getString("prenomPsycho"));
                 r.setSpecialitePsychologue(rs.getString("specialite"));
-
-                // Infos cabinet (existants)
                 r.setNomCabinet(rs.getString("nomCabinet"));
                 r.setVilleCabinet(rs.getString("ville"));
-
                 list.add(r);
             }
             System.out.println("✅ " + list.size() + " rendez-vous chargés avec détails");
@@ -190,15 +160,11 @@ public class ServiceRendezVous implements Iservice<RendezVous> {
         return list;
     }
 
-    // ========== NOUVELLES MÉTHODES POUR LES RAPPELS ==========
+    // ========== MÉTHODES POUR LES RAPPELS ==========
 
-    /**
-     * Récupère les rendez-vous par téléphone (pour l'historique patient)
-     */
     public List<RendezVous> getByTelephone(String telephone) {
         List<RendezVous> list = new ArrayList<>();
-        String sql = "SELECT r.*, " +
-                "p.nom as nomPsycho, p.prenom as prenomPsycho " +
+        String sql = "SELECT r.*, p.nom as nomPsycho, p.prenom as prenomPsycho " +
                 "FROM rendezvous r " +
                 "LEFT JOIN psychologue p ON r.idPsychologue = p.idPsychologue " +
                 "WHERE r.telephone_patient = ? " +
@@ -210,24 +176,18 @@ public class ServiceRendezVous implements Iservice<RendezVous> {
 
             while (rs.next()) {
                 RendezVous r = new RendezVous();
-
-                // Champs existants
                 r.setIdRdv(rs.getInt("idRdv"));
                 r.setDateRdv(rs.getDate("dateRdv"));
                 r.setHeure(rs.getString("heure"));
                 r.setStatut(rs.getString("statut"));
                 r.setTypeCons(rs.getString("typeCons"));
                 r.setIdPsychologue(rs.getInt("idPsychologue"));
-
-                // Informations patient
                 r.setTelephonePatient(rs.getString("telephone_patient"));
                 r.setNomPatient(rs.getString("nom_patient"));
                 r.setPrenomPatient(rs.getString("prenom_patient"));
-
-                // Infos psychologue pour affichage
+                r.setEmailPatient(rs.getString("email_patient"));  // ← EMAIL AJOUTÉ
                 r.setNomPsychologue(rs.getString("nomPsycho"));
                 r.setPrenomPsychologue(rs.getString("prenomPsycho"));
-
                 list.add(r);
             }
         } catch (SQLException e) {
@@ -237,9 +197,6 @@ public class ServiceRendezVous implements Iservice<RendezVous> {
         return list;
     }
 
-    /**
-     * Marquer un rappel comme envoyé
-     */
     public void marquerRappelEnvoye(int idRdv, Date dateRappel) {
         String sql = "UPDATE rendezvous SET rappel_envoye = ?, date_rappel = ? WHERE idRdv = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -254,9 +211,6 @@ public class ServiceRendezVous implements Iservice<RendezVous> {
         }
     }
 
-    /**
-     * Récupère les rendez-vous à venir (non passés)
-     */
     public List<RendezVous> getRendezVousAVenir() {
         List<RendezVous> list = new ArrayList<>();
         String sql = "SELECT * FROM rendezvous WHERE dateRdv >= CURDATE() ORDER BY dateRdv, heure";
@@ -274,6 +228,7 @@ public class ServiceRendezVous implements Iservice<RendezVous> {
                 r.setTelephonePatient(rs.getString("telephone_patient"));
                 r.setNomPatient(rs.getString("nom_patient"));
                 r.setPrenomPatient(rs.getString("prenom_patient"));
+                r.setEmailPatient(rs.getString("email_patient"));  // ← EMAIL AJOUTÉ
                 r.setRappelEnvoye(rs.getBoolean("rappel_envoye"));
                 list.add(r);
             }
@@ -283,9 +238,6 @@ public class ServiceRendezVous implements Iservice<RendezVous> {
         return list;
     }
 
-    /**
-     * Récupère les rendez-vous sans rappel envoyé
-     */
     public List<RendezVous> getRendezVousSansRappel() {
         List<RendezVous> list = new ArrayList<>();
         String sql = "SELECT r.*, " +
@@ -310,6 +262,7 @@ public class ServiceRendezVous implements Iservice<RendezVous> {
                 r.setTelephonePatient(rs.getString("telephone_patient"));
                 r.setNomPatient(rs.getString("nom_patient"));
                 r.setPrenomPatient(rs.getString("prenom_patient"));
+                r.setEmailPatient(rs.getString("email_patient"));  // ← EMAIL AJOUTÉ
                 r.setRappelEnvoye(rs.getBoolean("rappel_envoye"));
                 r.setNomPsychologue(rs.getString("nomPsycho"));
                 r.setPrenomPsychologue(rs.getString("prenomPsycho"));
@@ -344,14 +297,12 @@ public class ServiceRendezVous implements Iservice<RendezVous> {
                 r.setStatut(rs.getString("statut"));
                 r.setTypeCons(rs.getString("typeCons"));
                 r.setIdPsychologue(rs.getInt("idPsychologue"));
-                r.setNomPsychologue(rs.getString("nomPsycho"));
-                r.setPrenomPsychologue(rs.getString("prenomPsycho"));
-
-                // Ajout des infos patient si elles existent
                 r.setTelephonePatient(rs.getString("telephone_patient"));
                 r.setNomPatient(rs.getString("nom_patient"));
                 r.setPrenomPatient(rs.getString("prenom_patient"));
-
+                r.setEmailPatient(rs.getString("email_patient"));  // ← EMAIL AJOUTÉ
+                r.setNomPsychologue(rs.getString("nomPsycho"));
+                r.setPrenomPsychologue(rs.getString("prenomPsycho"));
                 list.add(r);
             }
         } catch (SQLException e) {
@@ -382,15 +333,13 @@ public class ServiceRendezVous implements Iservice<RendezVous> {
                 r.setStatut(rs.getString("statut"));
                 r.setTypeCons(rs.getString("typeCons"));
                 r.setIdPsychologue(rs.getInt("idPsychologue"));
-                r.setNomPsychologue(rs.getString("nomPsycho"));
-                r.setPrenomPsychologue(rs.getString("prenomPsycho"));
-                r.setNomCabinet(rs.getString("nomCabinet"));
-
-                // Ajout des infos patient
                 r.setTelephonePatient(rs.getString("telephone_patient"));
                 r.setNomPatient(rs.getString("nom_patient"));
                 r.setPrenomPatient(rs.getString("prenom_patient"));
-
+                r.setEmailPatient(rs.getString("email_patient"));  // ← EMAIL AJOUTÉ
+                r.setNomPsychologue(rs.getString("nomPsycho"));
+                r.setPrenomPsychologue(rs.getString("prenomPsycho"));
+                r.setNomCabinet(rs.getString("nomCabinet"));
                 list.add(r);
             }
         } catch (SQLException e) {
@@ -438,23 +387,17 @@ public class ServiceRendezVous implements Iservice<RendezVous> {
                 r.setStatut(rs.getString("statut"));
                 r.setTypeCons(rs.getString("typeCons"));
                 r.setIdPsychologue(rs.getInt("idPsychologue"));
-
-                // Infos patient
                 r.setTelephonePatient(rs.getString("telephone_patient"));
                 r.setNomPatient(rs.getString("nom_patient"));
                 r.setPrenomPatient(rs.getString("prenom_patient"));
+                r.setEmailPatient(rs.getString("email_patient"));  // ← EMAIL AJOUTÉ
                 r.setRappelEnvoye(rs.getBoolean("rappel_envoye"));
                 r.setDateRappel(rs.getTimestamp("date_rappel"));
-
-                // Infos psychologue
                 r.setNomPsychologue(rs.getString("nomPsycho"));
                 r.setPrenomPsychologue(rs.getString("prenomPsycho"));
                 r.setSpecialitePsychologue(rs.getString("specialite"));
-
-                // Infos cabinet
                 r.setNomCabinet(rs.getString("nomCabinet"));
                 r.setVilleCabinet(rs.getString("ville"));
-
                 return r;
             }
         } catch (SQLException e) {

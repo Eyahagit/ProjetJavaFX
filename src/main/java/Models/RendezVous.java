@@ -28,6 +28,8 @@ public class RendezVous {
     private boolean rappelEnvoye;
     private Date dateRappel;
 
+    private String emailPatient;
+
 
     // Constructeur vide
     public RendezVous() {
@@ -170,6 +172,10 @@ public class RendezVous {
         this.villeCabinet = villeCabinet;
     }
 
+
+    public String getEmailPatient() { return emailPatient; }
+    public void setEmailPatient(String emailPatient) { this.emailPatient = emailPatient; }
+
     // ========== MÉTHODES UTILITAIRES ==========
     public String getNomCompletPatient() {
         if (nomPatient == null && prenomPatient == null) return "Non renseigné";
@@ -198,4 +204,5 @@ public class RendezVous {
 
         return sb.toString();
     }
+
 }

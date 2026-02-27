@@ -5,7 +5,8 @@ import Models.RendezVous;
 import Service.ServicePsychologue;
 import Service.ServiceRendezVous;
 import Service.StripePaymentService;
-import Service.EmailService;  // ← NOUVEAU IMPORT
+import Service.EmailRappelService;
+import Service.EmailConfirmationPaiementService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -21,7 +22,6 @@ import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Pattern;
 import java.awt.Desktop;
 import java.net.URI;
@@ -38,6 +38,7 @@ public class AjouterRendezVousController {
     @FXML private TextField txtNomPatient;
     @FXML private TextField txtPrenomPatient;
     @FXML private TextField txtTelephonePatient;
+    @FXML private TextField txtEmailPatient;  // ← NOUVEAU
 
     @FXML private ListView<RendezVous> listView;
     @FXML private TextField txtRecherche;
@@ -46,21 +47,21 @@ public class AjouterRendezVousController {
     @FXML private Label lblTotal;
     @FXML private Label lblStatus;
 
-    private ServiceRendezVous service = new ServiceRendezVous();
+    private final ServiceRendezVous service = new ServiceRendezVous();
     private RendezVous selected;
-    private ObservableList<RendezVous> masterData = FXCollections.observableArrayList();
+    private final ObservableList<RendezVous> masterData = FXCollections.observableArrayList();
 
     // ========== SERVICES ==========
     private StripePaymentService stripeService;
-    private EmailService emailService;  // ← NOUVEAU
+    private EmailRappelService emailRappelService;
+    private EmailConfirmationPaiementService emailConfirmationService;
 
-    // Liste des statuts valides
+    // ========== CONSTANTES ==========
     private final List<String> STATUTS_VALIDES = Arrays.asList(
             "confirmé", "annulé", "reporté", "en attente", "terminé"
     );
-
-    // Constante pour le téléphone
     private static final String TELEPHONE_REGEX = "^[0-9]{8}$";
+    private static final String EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@(.+)$";
 
     @FXML
     public void initialize() {
@@ -113,7 +114,8 @@ public class AjouterRendezVousController {
 
             // ========== INITIALISER LES SERVICES ==========
             stripeService = new StripePaymentService();
-            emailService = new EmailService();  // ← NOUVEAU
+            emailRappelService = new EmailRappelService();
+            emailConfirmationService = new EmailConfirmationPaiementService();
 
             // Charger les données
             loadData();
@@ -240,16 +242,12 @@ public class AjouterRendezVousController {
                     if (r.getTelephonePatient() != null && !r.getTelephonePatient().isEmpty()) {
                         patientInfo += " - 📞 " + r.getTelephonePatient();
                     }
+                    if (r.getEmailPatient() != null && !r.getEmailPatient().isEmpty()) {
+                        patientInfo += " - ✉️ " + r.getEmailPatient();
+                    }
                     Label patientLabel = new Label(patientInfo);
                     patientLabel.setStyle("-fx-text-fill: #34495e; -fx-font-weight: bold;");
-
-                    if (r.isRappelEnvoye()) {
-                        Label rappelBadge = new Label("✅ Rappel envoyé");
-                        rappelBadge.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 2 8; -fx-font-size: 11px;");
-                        lignePatient.getChildren().addAll(patientLabel, rappelBadge);
-                    } else {
-                        lignePatient.getChildren().add(patientLabel);
-                    }
+                    lignePatient.getChildren().add(patientLabel);
 
                     HBox ligne1 = new HBox(10);
                     ligne1.setAlignment(Pos.CENTER_LEFT);
@@ -317,6 +315,7 @@ public class AjouterRendezVousController {
                 matchSearch = (r.getNomPatient() != null && r.getNomPatient().toLowerCase().contains(searchText)) ||
                         (r.getPrenomPatient() != null && r.getPrenomPatient().toLowerCase().contains(searchText)) ||
                         (r.getTelephonePatient() != null && r.getTelephonePatient().contains(searchText)) ||
+                        (r.getEmailPatient() != null && r.getEmailPatient().toLowerCase().contains(searchText)) ||
                         (r.getNomPsychologue() != null && r.getNomPsychologue().toLowerCase().contains(searchText)) ||
                         (r.getPrenomPsychologue() != null && r.getPrenomPsychologue().toLowerCase().contains(searchText)) ||
                         (r.getNomCabinet() != null && r.getNomCabinet().toLowerCase().contains(searchText)) ||
@@ -403,6 +402,7 @@ public class AjouterRendezVousController {
             txtNomPatient.setText(r.getNomPatient() != null ? r.getNomPatient() : "");
             txtPrenomPatient.setText(r.getPrenomPatient() != null ? r.getPrenomPatient() : "");
             txtTelephonePatient.setText(r.getTelephonePatient() != null ? r.getTelephonePatient() : "");
+            txtEmailPatient.setText(r.getEmailPatient() != null ? r.getEmailPatient() : "");
 
             for (Psychologue p : comboPsychologue.getItems()) {
                 if (p.getIdPsychologue() == r.getIdPsychologue()) {
@@ -434,8 +434,25 @@ public class AjouterRendezVousController {
             return false;
         }
 
+        if (!txtHeure.getText().trim().matches("^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$")) {
+            showAlert("Erreur de saisie",
+                    "❌ Format d'heure invalide\nUtilisez le format HH:MM (ex: 14:30)",
+                    AlertType.ERROR);
+            txtHeure.requestFocus();
+            return false;
+        }
+
         if (txtStatut.getText().trim().isEmpty()) {
             showAlert("Erreur de saisie", "❌ Veuillez saisir le statut", AlertType.ERROR);
+            txtStatut.requestFocus();
+            return false;
+        }
+
+        String statut = txtStatut.getText().trim().toLowerCase();
+        if (!STATUTS_VALIDES.contains(statut)) {
+            showAlert("Erreur de saisie",
+                    "❌ Statut invalide\nStatuts acceptés: Confirmé, Annulé, Reporté, En attente, Terminé",
+                    AlertType.ERROR);
             txtStatut.requestFocus();
             return false;
         }
@@ -477,21 +494,16 @@ public class AjouterRendezVousController {
             return false;
         }
 
-        String heure = txtHeure.getText().trim();
-        if (!heure.matches("^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$")) {
-            showAlert("Erreur de saisie",
-                    "❌ Format d'heure invalide\nUtilisez le format HH:MM (ex: 14:30)",
-                    AlertType.ERROR);
-            txtHeure.requestFocus();
+        if (txtEmailPatient.getText().trim().isEmpty()) {
+            showAlert("Erreur de saisie", "❌ L'email du patient est obligatoire", AlertType.ERROR);
+            txtEmailPatient.requestFocus();
             return false;
         }
 
-        String statut = txtStatut.getText().trim().toLowerCase();
-        if (!STATUTS_VALIDES.contains(statut)) {
-            showAlert("Erreur de saisie",
-                    "❌ Statut invalide\nStatuts acceptés: Confirmé, Annulé, Reporté, En attente, Terminé",
-                    AlertType.ERROR);
-            txtStatut.requestFocus();
+        String email = txtEmailPatient.getText().trim();
+        if (!Pattern.matches(EMAIL_REGEX, email)) {
+            showAlert("Erreur de saisie", "❌ Email invalide", AlertType.ERROR);
+            txtEmailPatient.requestFocus();
             return false;
         }
 
@@ -529,6 +541,7 @@ public class AjouterRendezVousController {
             r.setNomPatient(txtNomPatient.getText().trim());
             r.setPrenomPatient(txtPrenomPatient.getText().trim());
             r.setTelephonePatient(txtTelephonePatient.getText().trim());
+            r.setEmailPatient(txtEmailPatient.getText().trim().toLowerCase());
             r.setRappelEnvoye(false);
 
             service.ajouter(r);
@@ -572,6 +585,7 @@ public class AjouterRendezVousController {
             selected.setNomPatient(txtNomPatient.getText().trim());
             selected.setPrenomPatient(txtPrenomPatient.getText().trim());
             selected.setTelephonePatient(txtTelephonePatient.getText().trim());
+            selected.setEmailPatient(txtEmailPatient.getText().trim().toLowerCase());
 
             service.modifier(selected);
             loadData();
@@ -619,99 +633,71 @@ public class AjouterRendezVousController {
         showAlert("Succès", "✅ Liste actualisée", AlertType.INFORMATION);
     }
 
-    // ========== MÉTHODE DE PAIEMENT STRIPE AVEC EMAIL ==========
+    // ========== MÉTHODE DE PAIEMENT STRIPE ==========
     @FXML
     private void handleStripePaiement() {
-        // 1. Vérifier qu'un rendez-vous est sélectionné
         if (selected == null) {
             showAlert("Erreur", "❌ Veuillez sélectionner un rendez-vous", AlertType.ERROR);
             return;
         }
 
         try {
-            // 2. Demander l'email du patient
-            TextInputDialog dialog = new TextInputDialog("exemple@gmail.com");
-            dialog.setTitle("Email de confirmation");
-            dialog.setHeaderText("Envoyer une confirmation par email");
-            dialog.setContentText("Adresse email du patient :");
+            double montant = 50.0; // Montant fixe pour le test
 
-            Optional<String> result = dialog.showAndWait();
-            if (result.isEmpty() || result.get().trim().isEmpty()) {
-                showAlert("Information", "Aucun email fourni. Le paiement continue sans confirmation.", AlertType.INFORMATION);
-            }
-
-            String emailPatient = result.isPresent() ? result.get().trim() : null;
-
-            // 3. Montant pour le test
-            double montant = 50.0;
-
-            // 4. Afficher une alerte de progression
-            Alert loadingAlert = new Alert(AlertType.INFORMATION);
-            loadingAlert.setTitle("Paiement Stripe");
-            loadingAlert.setHeaderText("Initialisation du paiement...");
-            loadingAlert.setContentText("Connexion à Stripe en cours");
-            loadingAlert.show();
-
-            // 5. Créer la session de paiement
+            // Créer la session de paiement
             String payUrl = stripeService.creerSessionPaiement(selected, montant);
 
-            loadingAlert.close();
-
-            // 6. Traiter le résultat
             if (payUrl != null && !payUrl.isEmpty()) {
-                // Ouvrir dans le navigateur par défaut
-                if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-                    Desktop.getDesktop().browse(new URI(payUrl));
 
-                    // 7. Envoyer l'email de confirmation (si un email a été fourni)
-                    if (emailPatient != null && !emailPatient.isEmpty()) {
-                        // Envoyer l'email dans un thread séparé pour ne pas bloquer l'interface
-                        new Thread(() -> {
-                            boolean emailEnvoye = emailService.envoyerConfirmationPaiement(selected, emailPatient, montant);
-                            if (emailEnvoye) {
-                                System.out.println("✅ Email de confirmation envoyé à " + emailPatient);
-                            } else {
-                                System.err.println("❌ Échec de l'envoi de l'email");
-                            }
-                        }).start();
+                // Envoyer email de confirmation
+                new Thread(() -> {
+                    emailConfirmationService.envoyerConfirmation(selected, montant);
+                }).start();
 
-                        showAlert("Succès",
-                                "✅ Redirection vers Stripe\n\n" +
-                                        "Patient: " + selected.getNomCompletPatient() + "\n" +
-                                        "Montant: " + montant + " USD\n" +
-                                        "Email: " + emailPatient + "\n\n" +
-                                        "Un email de confirmation sera envoyé après le paiement.\n" +
-                                        "Utilise la carte de test: 4242 4242 4242 4242",
-                                AlertType.INFORMATION);
-                    } else {
-                        showAlert("Succès",
-                                "✅ Redirection vers Stripe\n\n" +
-                                        "Patient: " + selected.getNomCompletPatient() + "\n" +
-                                        "Montant: " + montant + " USD\n" +
-                                        "Type: " + selected.getTypeCons() + "\n\n" +
-                                        "Utilise la carte de test: 4242 4242 4242 4242",
-                                AlertType.INFORMATION);
-                    }
-                } else {
-                    showAlert("URL de paiement",
-                            "Copiez ce lien dans votre navigateur :\n\n" + payUrl,
-                            AlertType.INFORMATION);
-                }
+                // Ouvrir la page Stripe
+                Desktop.getDesktop().browse(new URI(payUrl));
 
-                System.out.println("\n💳 PAIEMENT STRIPE INITIÉ");
-                System.out.println("Patient: " + selected.getNomCompletPatient());
-                System.out.println("Rendez-vous ID: " + selected.getIdRdv());
-                System.out.println("Montant: " + montant + " USD");
-                System.out.println("URL: " + payUrl);
-                System.out.println("---\n");
-
-            } else {
-                showAlert("Erreur", "❌ Échec de la création du paiement Stripe\nVérifie la console pour plus de détails", AlertType.ERROR);
+                showAlert("Succès",
+                        "✅ Redirection vers Stripe\n" +
+                                "Un email de confirmation sera envoyé",
+                        AlertType.INFORMATION);
             }
 
         } catch (Exception e) {
             showAlert("Erreur", "❌ " + e.getMessage(), AlertType.ERROR);
             e.printStackTrace();
+        }
+    }
+
+    // ========== MÉTHODE DE RAPPEL PAR EMAIL ==========
+    @FXML
+    private void handleEnvoyerRappelEmail() {
+        if (selected == null) {
+            showAlert("Erreur", "❌ Veuillez sélectionner un rendez-vous", AlertType.ERROR);
+            return;
+        }
+
+        if (selected.getEmailPatient() == null || selected.getEmailPatient().isEmpty()) {
+            showAlert("Erreur", "❌ Ce rendez-vous n'a pas d'email", AlertType.ERROR);
+            return;
+        }
+
+        new Thread(() -> {
+            boolean envoye = emailRappelService.envoyerRappel(selected);
+            if (envoye) {
+                System.out.println("✅ Rappel envoyé à " + selected.getEmailPatient());
+            }
+        }).start();
+
+        showAlert("Succès", "✅ Rappel envoyé par email", AlertType.INFORMATION);
+    }
+
+    // ========== MÉTHODE UTILITAIRE POUR FORMATER LA DATE ==========
+    private String formatDateSafe(Date date) {
+        try {
+            return new SimpleDateFormat("dd/MM/yyyy").format(date);
+        } catch (Exception e) {
+            return "Date inconnue";
         }
     }
 
@@ -726,6 +712,7 @@ public class AjouterRendezVousController {
         txtNomPatient.clear();
         txtPrenomPatient.clear();
         txtTelephonePatient.clear();
+        txtEmailPatient.clear();
 
         selected = null;
         listView.getSelectionModel().clearSelection();

@@ -1,74 +1,75 @@
 package Service;
 
-import Models.RendezVous;
-
 import javax.mail.*;
 import javax.mail.internet.*;
 import java.util.Properties;
 
 public class EmailService {
 
-    private static final String SMTP_HOST = "smtp.gmail.com";
-    private static final String SMTP_PORT = "587";
-    private static final String EMAIL_EXPEDITEUR = "rahmabenssib0@gmail.com"; // Remplace par ton email
-    private static final String MOT_DE_PASSE = "vhmi geyb vzfd wmci"; // Mot de passe d'application Gmail
+    private final String smtpHost;
+    private final String smtpPort;
+    private final String expediteur;
+    private final String motDePasse;
+
+    public EmailService(String smtpHost, String smtpPort, String expediteur, String motDePasse) {
+        this.smtpHost = smtpHost;
+        this.smtpPort = smtpPort;
+        this.expediteur = expediteur;
+        this.motDePasse = motDePasse;
+    }
 
     /**
-     * Envoyer un email de confirmation de paiement
+     * Envoyer un email
      */
-    public boolean envoyerConfirmationPaiement(RendezVous rdv, String emailDestinataire, double montant) {
+    public boolean envoyerEmail(String destinataire, String sujet, String contenu) {
+
+        if (destinataire == null || destinataire.isEmpty()) {
+            System.err.println("❌ Destinataire email manquant");
+            return false;
+        }
 
         // Configurer les propriétés SMTP
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.host", SMTP_HOST);
-        props.put("mail.smtp.port", SMTP_PORT);
+        props.put("mail.smtp.host", smtpHost);
+        props.put("mail.smtp.port", smtpPort);
+        props.put("mail.smtp.ssl.trust", "*"); // Ignorer les problèmes de certificat
 
         // Créer la session
         Session session = Session.getInstance(props, new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(EMAIL_EXPEDITEUR, MOT_DE_PASSE);
+                return new PasswordAuthentication(expediteur, motDePasse);
             }
         });
 
         try {
             // Créer le message
             Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(EMAIL_EXPEDITEUR));
-            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(emailDestinataire));
-            message.setSubject("✅ Confirmation de paiement - GrowMind");
-
-            // Corps de l'email
-            String contenu = String.format(
-                    "Bonjour %s %s,\n\n" +
-                            "Votre paiement a été effectué avec succès !\n\n" +
-                            "📅 Rendez-vous : %s à %s\n" +
-                            "👤 Psychologue : Dr. %s %s\n" +
-                            "💰 Montant payé : %.2f USD\n\n" +
-                            "Merci de votre confiance !\n" +
-                            "L'équipe GrowMind",
-                    rdv.getPrenomPatient(),
-                    rdv.getNomPatient(),
-                    rdv.getDateRdv(),
-                    rdv.getHeure(),
-                    rdv.getNomPsychologue(),
-                    rdv.getPrenomPsychologue(),
-                    montant
-            );
-
+            message.setFrom(new InternetAddress(expediteur));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(destinataire));
+            message.setSubject(sujet);
             message.setText(contenu);
 
             // Envoyer
             Transport.send(message);
 
-            System.out.println("✅ Email de confirmation envoyé à " + emailDestinataire);
+            System.out.println("✅ Email envoyé à " + destinataire);
+            System.out.println("📧 Sujet: " + sujet);
             return true;
 
         } catch (MessagingException e) {
             System.err.println("❌ Erreur envoi email: " + e.getMessage());
             e.printStackTrace();
+
+            // Mode test - afficher dans la console
+            System.out.println("\n📧 SIMULATION EMAIL");
+            System.out.println("À: " + destinataire);
+            System.out.println("Sujet: " + sujet);
+            System.out.println("Contenu:\n" + contenu);
+            System.out.println("---\n");
+
             return false;
         }
     }
