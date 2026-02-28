@@ -11,7 +11,10 @@ import org.example.Services.StatService;
 
 import java.io.IOException;
 import java.util.Map;
+<<<<<<< HEAD
 import java.util.List;
+=======
+>>>>>>> 7d8812e180519f847fbc6852e6afbef657ee5ca4
 
 public class StatsController {
 
@@ -21,10 +24,14 @@ public class StatsController {
     private final StatService statService = new StatService();
     private Runnable onBack;
 
+<<<<<<< HEAD
     /**
      * When stats are shown in the right panel, call this so "Retour" goes back to
      * list instead of loading main.
      */
+=======
+    /** When stats are shown in the right panel, call this so "Retour" goes back to list instead of loading main. */
+>>>>>>> 7d8812e180519f847fbc6852e6afbef657ee5ca4
     public void setOnBack(Runnable onBack) {
         this.onBack = onBack;
     }
@@ -45,8 +52,12 @@ public class StatsController {
         pie.setPrefSize(600, 320);
         for (Map.Entry<String, Number> e : byType.entrySet()) {
             String label = e.getKey() == null || e.getKey().isEmpty() ? "(sans type)" : e.getKey();
+<<<<<<< HEAD
             PieChart.Data slice = new PieChart.Data(label + " (" + e.getValue().intValue() + ")",
                     e.getValue().intValue());
+=======
+            PieChart.Data slice = new PieChart.Data(label + " (" + e.getValue().intValue() + ")", e.getValue().intValue());
+>>>>>>> 7d8812e180519f847fbc6852e6afbef657ee5ca4
             pie.getData().add(slice);
         }
         wrapInCard("Répartition des ressources par type de contenu (formation, article, vidéo, événement…)", pie);
@@ -88,6 +99,7 @@ public class StatsController {
             lineSeries.getData().add(new XYChart.Data<>(e.getKey(), e.getValue()));
         line.getData().add(lineSeries);
         wrapInCard("Évolution du nombre d'évaluations mois par mois", line);
+<<<<<<< HEAD
 
         // ----- 4) AREA: Moyenne d'évaluation par ressource -----
         List<Map.Entry<String, Number>> topAverages = statService.getAverageEvaluationPerRessource(10);
@@ -188,12 +200,18 @@ public class StatsController {
         }
 
         wrapInCard("Détail des moyennes pour chaque ressource", listContainer);
+=======
+>>>>>>> 7d8812e180519f847fbc6852e6afbef657ee5ca4
     }
 
     private void wrapInCard(String cardTitle, javafx.scene.Node chart) {
         VBox card = new VBox(12);
+<<<<<<< HEAD
         card.setStyle(
                 "-fx-background-color: rgba(255,255,255,0.98); -fx-background-radius: 15; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 12, 0, 0, 4); -fx-border-color: #4A6FA5; -fx-border-radius: 15; -fx-border-width: 1;");
+=======
+        card.setStyle("-fx-background-color: rgba(255,255,255,0.98); -fx-background-radius: 15; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 12, 0, 0, 4); -fx-border-color: #4A6FA5; -fx-border-radius: 15; -fx-border-width: 1;");
+>>>>>>> 7d8812e180519f847fbc6852e6afbef657ee5ca4
         javafx.scene.control.Label title = new javafx.scene.control.Label(cardTitle);
         title.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;");
         title.setWrapText(true);
