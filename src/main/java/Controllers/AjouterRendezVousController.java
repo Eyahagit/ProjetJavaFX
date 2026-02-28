@@ -642,8 +642,7 @@ public class AjouterRendezVousController {
         }
 
         try {
-            double montant = 50.0; // Montant fixe pour le test
-
+            double montant = 50.0;  // ← Prend le tarif du psychologue
             // Créer la session de paiement
             String payUrl = stripeService.creerSessionPaiement(selected, montant);
 

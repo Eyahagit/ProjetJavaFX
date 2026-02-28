@@ -76,23 +76,25 @@
                 </columns>
             </TableView>
 
+            <!-- ========== NOUVEAU : BOUTONS SMS ET EMAIL ========== -->
             <HBox spacing="10" alignment="CENTER">
-                <Button text="📱 Envoyer rappel intelligent" onAction="#handleEnvoyerRappel"
-                        style="-fx-background-color: #5FB49C; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 25; -fx-background-radius: 5;"/>
+                <Button text="📱 Envoyer SMS" onAction="#handleEnvoyerSMS"
+                        style="-fx-background-color: #5FB49C; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 25; -fx-background-radius: 5; -fx-cursor: hand;"/>
+                <Button text="📧 Envoyer Email" onAction="#handleEnvoyerEmail"
+                        style="-fx-background-color: #4A6FA5; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 25; -fx-background-radius: 5; -fx-cursor: hand;"/>
             </HBox>
         </VBox>
 
-
         <!-- Graphiques -->
         <HBox spacing="20" prefHeight="200">
-            <!-- Pie Chart (correct) -->
+            <!-- Pie Chart -->
             <VBox spacing="10" HBox.hgrow="ALWAYS"
                   style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 15;">
                 <Label text="Statut des rendez-vous" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
                 <PieChart fx:id="pieChartStatuts" prefHeight="150"/>
             </VBox>
 
-            <!-- BarChart CORRIGÉ (ligne 96) -->
+            <!-- BarChart -->
             <VBox spacing="10" HBox.hgrow="ALWAYS"
                   style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 15;">
                 <Label text="Rappels par jour" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
@@ -106,7 +108,7 @@
                 </BarChart>
             </VBox>
 
-            <!-- LineChart CORRIGÉ -->
+            <!-- LineChart -->
             <VBox spacing="10" HBox.hgrow="ALWAYS"
                   style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 15;">
                 <Label text="Tendance absentéisme" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>

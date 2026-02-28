@@ -29,6 +29,7 @@ public class RendezVous {
     private Date dateRappel;
 
     private String emailPatient;
+    private double tarif;
 
 
     // Constructeur vide
@@ -204,5 +205,6 @@ public class RendezVous {
 
         return sb.toString();
     }
+
 
 }

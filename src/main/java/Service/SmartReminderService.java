@@ -14,6 +14,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+// ========== IMPORTS POUR EMAIL ==========
+import javax.mail.*;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import java.util.Properties;
+import utils.EmailConfig;
+
 public class SmartReminderService {
 
     // ========== IDENTIFIANTS TWILIO ==========
@@ -22,11 +29,11 @@ public class SmartReminderService {
     private static final String TWILIO_PHONE = "+1 838 206 3587";
 
     // ========== TON NUMÉRO POUR LES TESTS ==========
-    private static final String ALERT_PHONE_NUMBER = "+21624269512";  // ← Mets TON numéro ici !
+    // private static final String ALERT_PHONE_NUMBER = "+21624269512"; // Commenté si non utilisé
 
     // ========== SERVICES ==========
-    private ServiceRendezVous serviceRdv;
-    private ScheduledExecutorService scheduler;
+    private final ServiceRendezVous serviceRdv;
+    private final ScheduledExecutorService scheduler;
 
     public SmartReminderService() {
         // Initialiser Twilio
@@ -284,6 +291,7 @@ public class SmartReminderService {
             e.printStackTrace();
         }
     }
+
     /**
      * 7. DÉTERMINER LE TYPE DE MESSAGE
      */
@@ -324,7 +332,96 @@ public class SmartReminderService {
     }
 
     /**
-     * 9. ARRÊTER LE PLANIFICATEUR
+     * 9. ENVOYER UN EMAIL (VERSION RÉELLE AVEC CONFIG)
+     */
+    public boolean sendEmail(String toEmail, String subject, String content) {
+        System.out.println("📧 sendEmail() - Destinataire: " + toEmail);
+
+        if (toEmail == null || toEmail.isEmpty()) {
+            System.err.println("❌ Email destination manquant");
+            return false;
+        }
+
+        try {
+            String host = EmailConfig.SMTP_HOST;
+            String port = EmailConfig.SMTP_PORT;
+            String username = EmailConfig.EMAIL_EXPEDITEUR;
+            String password = EmailConfig.MOT_DE_PASSE;
+
+            Properties props = new Properties();
+            props.put("mail.smtp.auth", "true");
+            props.put("mail.smtp.starttls.enable", "true");
+            props.put("mail.smtp.host", host);
+            props.put("mail.smtp.port", port);
+            props.put("mail.smtp.ssl.trust", host);  // ← SOLUTION 1
+
+            Session session = Session.getInstance(props, new Authenticator() {
+                protected PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication(username, password);
+                }
+            });
+
+            MimeMessage message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(username));
+            message.setRecipients(javax.mail.Message.RecipientType.TO, InternetAddress.parse(toEmail));
+            message.setSubject(subject);
+            message.setText(content);
+
+            Transport.send(message);
+            System.out.println("✅ VRAI EMAIL envoyé à " + toEmail);
+            return true;
+
+        } catch (MessagingException e) {
+            System.err.println("❌ Erreur envoi email: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * 10. ENVOYER UN RAPPEL PAR EMAIL
+     */
+    public void sendEmailReminder(RendezVous rdv) {
+        System.out.println("📧 sendEmailReminder appelé pour: " + rdv.getIdRdv());
+
+        if (rdv.getEmailPatient() == null || rdv.getEmailPatient().isEmpty()) {
+            System.err.println("❌ Pas d'email pour ce rendez-vous #" + rdv.getIdRdv());
+            return;
+        }
+
+        String sujet = "Rappel de rendez-vous - GrowMind";
+        String contenu = String.format(
+                "Bonjour %s %s,\n\n" +
+                        "Ceci est un rappel pour votre rendez-vous :\n\n" +
+                        "📅 Date: %s\n" +
+                        "⏰ Heure: %s\n" +
+                        "👨‍⚕️ Psychologue: Dr. %s %s\n" +
+                        "📍 Lieu: %s\n\n" +
+                        "Merci de votre confiance !\n" +
+                        "L'équipe GrowMind",
+                getSafe(rdv.getPrenomPatient(), "Patient"),
+                getSafe(rdv.getNomPatient(), ""),
+                formatDateSafe(rdv.getDateRdv()),
+                getSafe(rdv.getHeure(), "Heure inconnue"),
+                getSafe(rdv.getNomPsychologue(), "Psychologue"),
+                getSafe(rdv.getPrenomPsychologue(), ""),
+                getSafe(rdv.getNomCabinet(), "Cabinet")
+        );
+
+        System.out.println("📧 Envoi à: " + rdv.getEmailPatient());
+
+        // Envoyer l'email
+        boolean envoye = sendEmail(rdv.getEmailPatient(), sujet, contenu);
+
+        // Marquer comme envoyé
+        if (envoye) {
+            serviceRdv.marquerRappelEnvoye(rdv.getIdRdv(), new Date());
+            System.out.println("✅ Rappel EMAIL marqué comme envoyé pour rendez-vous #" + rdv.getIdRdv());
+        }
+    }
+
+    /**
+     * 11. ARRÊTER LE PLANIFICATEUR
      */
     public void shutdown() {
         scheduler.shutdown();

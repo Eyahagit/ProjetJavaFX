@@ -248,30 +248,69 @@ public class SuiviRappelsController {
         }
     }
 
+    // ========== ANCIENNE MÉTHODE handleEnvoyerRappel (RENOMMÉE pour SMS) ==========
     @FXML
-    private void handleEnvoyerRappel() {
+    private void handleEnvoyerSMS() {
         RendezVous selected = tableView.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showAlert("Sélection", "Veuillez sélectionner un rendez-vous");
+            showAlert("Erreur", "❌ Veuillez sélectionner un rendez-vous");
             return;
         }
 
         try {
             reminderService.scheduleSmartReminder(selected);
-            showAlert("Succès", "Rappel intelligent programmé !");
+            showAlert("Succès", "✅ Rappel SMS programmé !");
             loadData();
         } catch (Exception e) {
-            showAlert("Erreur", "Erreur lors de l'envoi du rappel: " + e.getMessage());
+            showAlert("Erreur", "❌ Erreur SMS: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
+    // ========== NOUVELLE MÉTHODE POUR EMAIL ==========
+    @FXML
+    private void handleEnvoyerEmail() {
+        RendezVous selected = tableView.getSelectionModel().getSelectedItem();
+
+        // DEBUG
+        System.out.println("=== DÉBUT ENVOI EMAIL ===");
+        System.out.println("Rendez-vous sélectionné: " + (selected != null ? selected.getIdRdv() : "null"));
+
+        if (selected == null) {
+            showAlert("Erreur", "❌ Veuillez sélectionner un rendez-vous");
+            return;
+        }
+
+        System.out.println("Email patient: " + selected.getEmailPatient());
+        System.out.println("Nom patient: " + selected.getNomCompletPatient());
+
+        if (selected.getEmailPatient() == null || selected.getEmailPatient().trim().isEmpty()) {
+            showAlert("Erreur", "❌ Ce rendez-vous n'a pas d'adresse email");
+            return;
+        }
+
+        try {
+            System.out.println("📧 Appel de sendEmailReminder...");
+            reminderService.sendEmailReminder(selected);
+            System.out.println("✅ Appel réussi");
+            showAlert("Succès", "✅ Email envoyé avec succès !");
+            loadData();
+        } catch (Exception e) {
+            System.err.println("❌ Exception: " + e.getMessage());
+            e.printStackTrace();
+            showAlert("Erreur", "❌ Erreur email: " + e.getMessage());
+        }
+        System.out.println("=== FIN ENVOI EMAIL ===\n");
+    }
+
+    // ========== MÉTHODE POUR RAFRAÎCHIR ==========
     @FXML
     private void handleActualiser() {
         loadData();
-        showAlert("Info", "Données actualisées");
+        showAlert("Info", "✅ Données actualisées");
     }
 
+    // ========== MÉTHODE D'AFFICHAGE D'ALERTE ==========
     private void showAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
