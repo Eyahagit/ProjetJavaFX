@@ -1,6 +1,6 @@
 package org.example;
 
-import org.example.Controller.*;
+import org.example.Controllers.*;
 import org.example.Models.*;
 
 import java.time.LocalDate;

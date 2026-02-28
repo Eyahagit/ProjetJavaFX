@@ -1,9 +1,9 @@
 package org.example;
 
-import org.example.Controller.EvaluationController;
-import org.example.Controller.FavoriController;
-import org.example.Controller.RessourceController;
-import org.example.Controller.UserController;
+import org.example.Controllers.EvaluationController;
+import org.example.Controllers.FavoriController;
+import org.example.Controllers.RessourceController;
+import org.example.Controllers.UserController;
 import org.example.Models.Evaluation;
 import org.example.Models.Favori;
 import org.example.Models.Ressource;
