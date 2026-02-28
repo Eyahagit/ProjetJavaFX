@@ -3,8 +3,8 @@ package org.example.Services;
 import org.example.Interface.favoriInterface;
 import org.example.Models.Favori;
 import org.example.Models.Ressource;
-import org.example.Models.User;
 import org.example.utils.MyDatabase;
+import org.example.utils.StaticUser;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -17,22 +17,23 @@ public class favoriService implements favoriInterface {
 
     @Override
     public Favori create(Favori favori) {
-        User u = favori.getUser();
-        if (u == null && org.example.utils.StaticUser.isSet()) {
-            favori.setUser(org.example.utils.StaticUser.get());
+        int userId = favori.getUserId();
+        if (userId <= 0 && StaticUser.isSet()) {
+            favori.setUserId(StaticUser.getId());
         }
-        if (favori.getUser() == null) {
-            throw new IllegalStateException("Favori requires a user. Set StaticUser or pass user on the favori.");
+        if (favori.getUserId() <= 0) {
+            throw new IllegalStateException("Favori requires a user ID. Set StaticUser or pass user ID on the favori.");
         }
         String sql = "INSERT INTO " + TABLE + " (userId, ressourceId, dateAjout) VALUES (?, ?, ?)";
         try (Connection conn = MyDatabase.getInstance().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setInt(1, favori.getUser().getId());
+                PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setInt(1, favori.getUserId());
             ps.setInt(2, favori.getRessource().getId());
             ps.setDate(3, favori.getDateAjout() != null ? Date.valueOf(favori.getDateAjout()) : null);
             ps.executeUpdate();
             try (ResultSet rs = ps.getGeneratedKeys()) {
-                if (rs.next()) favori.setId(rs.getInt(1));
+                if (rs.next())
+                    favori.setId(rs.getInt(1));
             }
             return favori;
         } catch (SQLException e) {
@@ -44,10 +45,11 @@ public class favoriService implements favoriInterface {
     public Optional<Favori> findById(int id) {
         String sql = "SELECT id, userId, ressourceId, dateAjout FROM " + TABLE + " WHERE id = ?";
         try (Connection conn = MyDatabase.getInstance().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return Optional.of(mapRow(rs));
+                if (rs.next())
+                    return Optional.of(mapRow(rs));
             }
         } catch (SQLException e) {
             throw new RuntimeException("Error finding favori by id", e);
@@ -60,9 +62,10 @@ public class favoriService implements favoriInterface {
         String sql = "SELECT id, userId, ressourceId, dateAjout FROM " + TABLE;
         List<Favori> list = new ArrayList<>();
         try (Connection conn = MyDatabase.getInstance().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) list.add(mapRow(rs));
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
+            while (rs.next())
+                list.add(mapRow(rs));
         } catch (SQLException e) {
             throw new RuntimeException("Error finding all favoris", e);
         }
@@ -73,8 +76,8 @@ public class favoriService implements favoriInterface {
     public Favori update(Favori favori) {
         String sql = "UPDATE " + TABLE + " SET userId=?, ressourceId=?, dateAjout=? WHERE id=?";
         try (Connection conn = MyDatabase.getInstance().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, favori.getUser().getId());
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, favori.getUserId());
             ps.setInt(2, favori.getRessource().getId());
             ps.setDate(3, favori.getDateAjout() != null ? Date.valueOf(favori.getDateAjout()) : null);
             ps.setInt(4, favori.getId());
@@ -89,7 +92,7 @@ public class favoriService implements favoriInterface {
     public boolean delete(int id) {
         String sql = "DELETE FROM " + TABLE + " WHERE id = ?";
         try (Connection conn = MyDatabase.getInstance().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -109,13 +112,15 @@ public class favoriService implements favoriInterface {
 
     @Override
     public Optional<Favori> findByUserIdAndRessourceId(int userId, int ressourceId) {
-        String sql = "SELECT id, userId, ressourceId, dateAjout FROM " + TABLE + " WHERE userId = ? AND ressourceId = ?";
+        String sql = "SELECT id, userId, ressourceId, dateAjout FROM " + TABLE
+                + " WHERE userId = ? AND ressourceId = ?";
         try (Connection conn = MyDatabase.getInstance().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, userId);
             ps.setInt(2, ressourceId);
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return Optional.of(mapRow(rs));
+                if (rs.next())
+                    return Optional.of(mapRow(rs));
             }
         } catch (SQLException e) {
             throw new RuntimeException("Error finding favori by user and ressource", e);
@@ -127,7 +132,7 @@ public class favoriService implements favoriInterface {
     public boolean deleteByUserIdAndRessourceId(int userId, int ressourceId) {
         String sql = "DELETE FROM " + TABLE + " WHERE userId = ? AND ressourceId = ?";
         try (Connection conn = MyDatabase.getInstance().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, userId);
             ps.setInt(2, ressourceId);
             return ps.executeUpdate() > 0;
@@ -140,10 +145,11 @@ public class favoriService implements favoriInterface {
         String sql = "SELECT id, userId, ressourceId, dateAjout FROM " + TABLE + " WHERE " + column + " = ?";
         List<Favori> list = new ArrayList<>();
         try (Connection conn = MyDatabase.getInstance().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, value);
             try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) list.add(mapRow(rs));
+                while (rs.next())
+                    list.add(mapRow(rs));
             }
         } catch (SQLException e) {
             throw new RuntimeException("Error finding favoris by " + column, e);
@@ -154,9 +160,7 @@ public class favoriService implements favoriInterface {
     private static Favori mapRow(ResultSet rs) throws SQLException {
         Favori f = new Favori();
         f.setId(rs.getInt("id"));
-        User u = new User();
-        u.setId(rs.getInt("userId"));
-        f.setUser(u);
+        f.setUserId(rs.getInt("userId"));
         Ressource r = new Ressource();
         r.setId(rs.getInt("ressourceId"));
         f.setRessource(r);

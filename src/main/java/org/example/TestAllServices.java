@@ -1,6 +1,6 @@
 package org.example;
 
-import org.example.Controller.*;
+import org.example.Controllers.*;
 import org.example.Models.*;
 
 import java.time.LocalDate;
@@ -9,12 +9,14 @@ import java.util.Optional;
 
 /**
  * Run this class to test all controllers (and thus all services).
- * Prerequisites: MySQL running, database eyaprojet exists, connection in MyDatabase is correct.
+ * Prerequisites: MySQL running, database eyaprojet exists, connection in
+ * MyDatabase is correct.
  *
  * How to run:
  * 1. From IDE: right-click TestAllServices.java → Run 'TestAllServices.main()'
- * 2. From terminal: mvn compile exec:java -Dexec.mainClass="org.example.TestAllServices"
- *    (or add exec-maven-plugin to pom.xml and use the above)
+ * 2. From terminal: mvn compile exec:java
+ * -Dexec.mainClass="org.example.TestAllServices"
+ * (or add exec-maven-plugin to pom.xml and use the above)
  * 3. Or run Main.main() once, then run TestAllServices.main()
  */
 public class TestAllServices {
@@ -27,7 +29,6 @@ public class TestAllServices {
             return;
         }
 
-        UserController userCtrl = new UserController();
         RessourceController ressourceCtrl = new RessourceController();
         EvaluationController evaluationCtrl = new EvaluationController();
         FavoriController favoriCtrl = new FavoriController();
@@ -35,28 +36,10 @@ public class TestAllServices {
         int staticUserId = org.example.utils.StaticUser.getId();
         System.out.println("Static user id = " + staticUserId + "\n");
 
-        // ---- 1) User controller ----
-        System.out.println("---------- 1) UserController ----------");
-        User newUser = new User("Test", "User", "test@test.com", "pass", "CLIENT", LocalDate.now(), true);
-        newUser = userCtrl.create(newUser);
-        System.out.println("Create: " + newUser);
-
-        Optional<User> found = userCtrl.findById(newUser.getId());
-        System.out.println("FindById: " + (found.isPresent() ? found.get() : "empty"));
-
-        Optional<User> byEmail = userCtrl.findByEmail("test@test.com");
-        System.out.println("FindByEmail: " + (byEmail.isPresent() ? byEmail.get().getEmail() : "empty"));
-
-        List<User> allUsers = userCtrl.findAll();
-        System.out.println("FindAll count: " + allUsers.size());
-
-        newUser.setNom("TestUpdated");
-        userCtrl.update(newUser);
-        System.out.println("Update: nom=" + userCtrl.findById(newUser.getId()).map(User::getNom).orElse("?"));
-
-        // ---- 2) Ressource controller ----
-        System.out.println("\n---------- 2) RessourceController ----------");
-        Ressource res = new Ressource("Test Article", "Description", "ARTICLE", "Santé", "Content here", "Author", LocalDate.now(), "PUBLISHED");
+        // ---- 1) Ressource controller ----
+        System.out.println("\n---------- 1) RessourceController ----------");
+        Ressource res = new Ressource("Test Article", "Description", "ARTICLE", "Santé", "Content here", "Author",
+                LocalDate.now(), "PUBLISHED");
         res = ressourceCtrl.create(res);
         System.out.println("Create: id=" + res.getId() + ", title=" + res.getTitle());
 
@@ -78,11 +61,9 @@ public class TestAllServices {
         ressourceCtrl.update(res);
         System.out.println("Update: title=" + ressourceCtrl.findById(res.getId()).map(Ressource::getTitle).orElse("?"));
 
-        // ---- 3) Evaluation controller (uses static user + ressource) ----------
-        System.out.println("\n---------- 3) EvaluationController ----------");
-        User refUser = new User();
-        refUser.setId(staticUserId);
-        Evaluation eval = new Evaluation(refUser, res, 5, "Great!", LocalDate.now());
+        // ---- 2) Evaluation controller (uses static user + ressource) ----------
+        System.out.println("\n---------- 2) EvaluationController ----------");
+        Evaluation eval = new Evaluation(staticUserId, res, 5, "Great!", LocalDate.now());
         eval = evaluationCtrl.create(eval);
         System.out.println("Create: id=" + eval.getId() + ", note=" + eval.getNote());
 
@@ -98,9 +79,9 @@ public class TestAllServices {
         evaluationCtrl.update(eval);
         System.out.println("Update: note=" + evaluationCtrl.findById(eval.getId()).map(Evaluation::getNote).orElse(0));
 
-        // ---- 4) Favori controller ----------
-        System.out.println("\n---------- 4) FavoriController ----------");
-        Favori fav = new Favori(refUser, res, LocalDate.now());
+        // ---- 3) Favori controller ----------
+        System.out.println("\n---------- 3) FavoriController ----------");
+        Favori fav = new Favori(staticUserId, res, LocalDate.now());
         fav = favoriCtrl.create(fav);
         System.out.println("Create: id=" + fav.getId());
 
@@ -118,11 +99,11 @@ public class TestAllServices {
         boolean removed = favoriCtrl.deleteByUserIdAndRessourceId(staticUserId, res.getId());
         System.out.println("DeleteByUserIdAndRessourceId: " + removed);
 
-        // Cleanup: delete evaluation (favori already removed above), ressource, then test user
+        // Cleanup: delete evaluation (favori already removed above), ressource, then
+        // test user
         evaluationCtrl.delete(eval.getId());
         ressourceCtrl.delete(res.getId());
-        userCtrl.delete(newUser.getId());
-        System.out.println("\n---------- Cleanup done (evaluation, ressource, test user deleted) ----------");
+        System.out.println("\n---------- Cleanup done (evaluation, ressource deleted) ----------");
         System.out.println("========== All services tested successfully ==========");
     }
 }

@@ -3,8 +3,8 @@ package org.example.Services;
 import org.example.Interface.evaluationInterface;
 import org.example.Models.Evaluation;
 import org.example.Models.Ressource;
-import org.example.Models.User;
 import org.example.utils.MyDatabase;
+import org.example.utils.StaticUser;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -17,19 +17,19 @@ public class evaluationService implements evaluationInterface {
 
     @Override
     public Evaluation create(Evaluation evaluation) {
-        User u = evaluation.getUser();
-        if (u == null && org.example.utils.StaticUser.isSet()) {
-            evaluation.setUser(org.example.utils.StaticUser.get());
+        int userId = evaluation.getUserId();
+        if (userId <= 0 && StaticUser.isSet()) {
+            evaluation.setUserId(StaticUser.getId());
         }
-        if (evaluation.getUser() == null) {
+        if (evaluation.getUserId() <= 0) {
             throw new IllegalStateException(
-                    "Evaluation requires a user. Set StaticUser or pass user on the evaluation.");
+                    "Evaluation requires a user ID. Set StaticUser or pass user ID on the evaluation.");
         }
         String sql = "INSERT INTO " + TABLE
                 + " (userId, ressourceId, note, commentaire, dateEvaluation) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = MyDatabase.getInstance().getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setInt(1, evaluation.getUser().getId());
+            ps.setInt(1, evaluation.getUserId());
             ps.setInt(2, evaluation.getRessource().getId());
             ps.setInt(3, evaluation.getNote());
             ps.setString(4, evaluation.getCommentaire());
@@ -63,7 +63,7 @@ public class evaluationService implements evaluationInterface {
     }
 
     @Override
-    public List<Evaluation> findAll() {   //create
+    public List<Evaluation> findAll() { // create
         String sql = "SELECT id, userId, ressourceId, note, commentaire, dateEvaluation FROM " + TABLE;
         List<Evaluation> list = new ArrayList<>();
         try (Connection conn = MyDatabase.getInstance().getConnection();
@@ -83,7 +83,7 @@ public class evaluationService implements evaluationInterface {
                 + " SET userId=?, ressourceId=?, note=?, commentaire=?, dateEvaluation=? WHERE id=?";
         try (Connection conn = MyDatabase.getInstance().getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, evaluation.getUser().getId());
+            ps.setInt(1, evaluation.getUserId());
             ps.setInt(2, evaluation.getRessource().getId());
             ps.setInt(3, evaluation.getNote());
             ps.setString(4, evaluation.getCommentaire());
@@ -97,12 +97,12 @@ public class evaluationService implements evaluationInterface {
     }
 
     @Override
-    public boolean delete(int id) {   //            Quand je clique sur supprimer, le Controller récupère l’id, puis appelle service.delete(i
+    public boolean delete(int id) {
         String sql = "DELETE FROM " + TABLE + " WHERE id = ?";
-        try (Connection conn = MyDatabase.getInstance().getConnection();   //MyDatabase.getInstance().getConnection() pour obtenir une connexion JDBC, ensuite j’exécute une requête SQL DELETE avec PreparedStatement.
+        try (Connection conn = MyDatabase.getInstance().getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
-            return ps.executeUpdate() > 0;    //renvoie le nombre de lignes supprimées, donc je sais si la suppression a réussi.
+            return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             throw new RuntimeException("Error deleting evaluation", e);
         }
@@ -139,18 +139,9 @@ public class evaluationService implements evaluationInterface {
         Evaluation e = new Evaluation();
         e.setId(rs.getInt("id"));
 
-        // Load full User object
         int userId = rs.getInt("userId");
-        userService userSvc = new userService();
-        User u = userSvc.findById(userId).orElse(new User());
-        if (u.getId() == 0) {
-            u.setId(userId);
-            u.setNom("Utilisateur");
-            u.setPrenom("Inconnu");
-        }
-        e.setUser(u);
+        e.setUserId(userId);
 
-        // Load full Ressource object
         int ressourceId = rs.getInt("ressourceId");
         ressourceService ressourceSvc = new ressourceService();
         Ressource r = ressourceSvc.findById(ressourceId).orElse(new Ressource());

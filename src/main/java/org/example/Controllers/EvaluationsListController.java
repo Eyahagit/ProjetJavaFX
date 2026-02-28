@@ -1,4 +1,4 @@
-package org.example.Controller;
+package org.example.Controllers;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -13,7 +13,6 @@ import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import org.example.Models.Evaluation;
 import org.example.Models.Ressource;
-import org.example.Models.User; // Assuming User model has meaningful toString or getters
 import org.example.Services.evaluationService;
 import org.example.utils.StaticUser;
 import org.example.utils.StarRatingHelper;
@@ -29,7 +28,7 @@ public class EvaluationsListController {
     @FXML
     private TableView<Evaluation> tableEvaluations;
     @FXML
-    private TableColumn<Evaluation, String> colUser; // Assuming we map user name
+    private TableColumn<Evaluation, String> colUser;
     @FXML
     private TableColumn<Evaluation, Integer> colNote;
     @FXML
@@ -72,12 +71,9 @@ public class EvaluationsListController {
         colComment.setCellValueFactory(new PropertyValueFactory<>("commentaire"));
         colDate.setCellValueFactory(new PropertyValueFactory<>("dateEvaluation"));
 
-        // For User column, we might need a custom cell value factory if User is an
-        // object
         colUser.setCellValueFactory(cellData -> {
-            User u = cellData.getValue().getUser();
-            return new javafx.beans.property.SimpleStringProperty(
-                    u != null ? u.getNom() + " " + u.getPrenom() : "Anonyme");
+            int userId = cellData.getValue().getUserId();
+            return new javafx.beans.property.SimpleStringProperty("Utilisateur " + userId);
         });
     }
 
@@ -108,8 +104,7 @@ public class EvaluationsListController {
             return;
         }
 
-        // Check permission: only delete own evaluation (or admin logic if implemented)
-        if (StaticUser.isSet() && selected.getUser().getId() != StaticUser.get().getId()) {
+        if (StaticUser.isSet() && selected.getUserId() != StaticUser.getId()) {
             showAlert("Non autorisé", "Vous ne pouvez supprimer que vos propres évaluations.");
             return;
         }
@@ -134,7 +129,7 @@ public class EvaluationsListController {
             return;
         }
 
-        if (StaticUser.isSet() && selected.getUser().getId() != StaticUser.get().getId()) {
+        if (StaticUser.isSet() && selected.getUserId() != StaticUser.getId()) {
             showAlert("Non autorisé", "Vous ne pouvez modifier que vos propres évaluations.");
             return;
         }
@@ -167,13 +162,16 @@ public class EvaluationsListController {
     }
 
     private void applyIcon(Button btn, String iconName, String tooltipText, double size) {
-        if (btn == null) return;
+        if (btn == null)
+            return;
         for (String path : new String[] { "/icons/" + iconName, "/" + iconName }) {
             try {
                 java.io.InputStream is = getClass().getResourceAsStream(path);
-                if (is == null) continue;
+                if (is == null)
+                    continue;
                 Image img = new Image(is);
-                if (img.isError()) continue;
+                if (img.isError())
+                    continue;
                 ImageView iv = new ImageView(img);
                 iv.setFitWidth(size);
                 iv.setFitHeight(size);
@@ -188,7 +186,8 @@ public class EvaluationsListController {
                 btn.setMinHeight(44);
                 btn.setMaxHeight(44);
                 return;
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
     }
 }

@@ -1,4 +1,4 @@
-package org.example.Controller;
+package org.example.Controllers;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -95,7 +95,10 @@ public class RessourceFXController {
     private final ressourceService service = new ressourceService();
     private CloudinaryService cloudinaryService; // lazy init so app runs without config
 
-    /** Mots interdits dans titre/description — avertissement admin, compte banni en cas de récidive */
+    /**
+     * Mots interdits dans titre/description — avertissement admin, compte banni en
+     * cas de récidive
+     */
     private static final String[] BAD_WORDS = { "bad1", "bad2", "bad3" };
 
     private ObservableList<Ressource> ressourceList = FXCollections.observableArrayList();
@@ -155,21 +158,31 @@ public class RessourceFXController {
     }
 
     private void showDetails(Ressource r) {
-        if (txtTitre != null) txtTitre.setText(r.getTitle());
-        if (txtDescription != null) txtDescription.setText(r.getDescription());
-        if (txtLocalisation != null) txtLocalisation.setText(r.getContent());
-        if (txtAuthor != null) txtAuthor.setText(r.getAuthor());
-        if (datePicker != null) datePicker.setValue(r.getDateCreation());
-        if (comboType != null) comboType.setValue(r.getType());
-        if (comboCategory != null) comboCategory.setValue(r.getCategory());
-        if (comboStatus != null) comboStatus.setValue(r.getStatus() != null ? r.getStatus() : "Active");
+        if (txtTitre != null)
+            txtTitre.setText(r.getTitle());
+        if (txtDescription != null)
+            txtDescription.setText(r.getDescription());
+        if (txtLocalisation != null)
+            txtLocalisation.setText(r.getContent());
+        if (txtAuthor != null)
+            txtAuthor.setText(r.getAuthor());
+        if (datePicker != null)
+            datePicker.setValue(r.getDateCreation());
+        if (comboType != null)
+            comboType.setValue(r.getType());
+        if (comboCategory != null)
+            comboCategory.setValue(r.getCategory());
+        if (comboStatus != null)
+            comboStatus.setValue(r.getStatus() != null ? r.getStatus() : "Active");
     }
 
     private boolean containsBadWord(String text) {
-        if (text == null || text.isBlank()) return false;
+        if (text == null || text.isBlank())
+            return false;
         String lower = text.toLowerCase();
         for (String bad : BAD_WORDS) {
-            if (lower.contains(bad.toLowerCase())) return true;
+            if (lower.contains(bad.toLowerCase()))
+                return true;
         }
         return false;
     }
@@ -201,13 +214,12 @@ public class RessourceFXController {
                         MailService.DEFAULT_TO_EMAIL,
                         "Nouvelle ressource ajoutée - GrowMind",
                         html,
-                        true
-                );
+                        true);
             } catch (Exception e) {
                 System.err.println("Email non envoyé : " + e.getMessage());
                 e.printStackTrace();
-                javafx.application.Platform.runLater(() ->
-                        showWarningNotification("Email", "Notification email non envoyée : " + e.getMessage()));
+                javafx.application.Platform.runLater(
+                        () -> showWarningNotification("Email", "Notification email non envoyée : " + e.getMessage()));
             }
         });
         mailThread.setDaemon(true);
@@ -218,30 +230,53 @@ public class RessourceFXController {
     private void ajouterEvenement() {
         String title = txtTitre.getText();
         String description = txtDescription.getText();
-        if (title == null || title.trim().isEmpty() || description == null || description.trim().isEmpty()) {
-            showAlert(Alert.AlertType.WARNING, "Champs requis", "Titre et Description sont obligatoires.");
+        String author = txtAuthor != null ? txtAuthor.getText() : "";
+        LocalDate date = datePicker != null ? datePicker.getValue() : null;
+
+        StringBuilder errors = new StringBuilder();
+
+        if (title == null || title.trim().isEmpty()) {
+            errors.append("- Le titre est obligatoire.\n");
+        }
+        if (description == null || description.trim().isEmpty()) {
+            errors.append("- La description est obligatoire.\n");
+        }
+        if (comboType.getValue() == null) {
+            errors.append("- Le type est obligatoire.\n");
+        }
+        if (comboCategory.getValue() == null) {
+            errors.append("- La catégorie est obligatoire.\n");
+        }
+        if (date == null) {
+            errors.append("- La date est obligatoire.\n");
+        }
+        if (txtAuthor != null && (author == null || author.trim().isEmpty())) {
+            errors.append("- L'auteur est obligatoire.\n");
+        }
+
+        if (errors.length() > 0) {
+            showAlert(Alert.AlertType.WARNING, "Erreurs de validation",
+                    "Veuillez corriger les erreurs suivantes :\n\n" + errors.toString());
             return;
         }
-        if (comboType.getValue() == null || comboCategory.getValue() == null) {
-            showAlert(Alert.AlertType.WARNING, "Champs requis", "Veuillez sélectionner Type et Catégorie.");
-            return;
-        }
+
         if (containsBadWord(title) || containsBadWord(description)) {
             showWarningNotification(
                     "⚠️ Avertissement — Contenu inapproprié",
-                    "Contenu inapproprié détecté. Ceci est un avertissement pour l'administrateur : votre compte sera banni en cas de récidive (infraction)."
-            );
+                    "Contenu inapproprié détecté. Ceci est un avertissement pour l'administrateur : votre compte sera banni en cas de récidive (infraction).");
             return;
         }
+
         Ressource r = new Ressource();
         r.setTitle(title.trim());
         r.setDescription(description.trim());
         r.setType(comboType.getValue());
         r.setCategory(comboCategory.getValue());
         r.setContent(txtLocalisation != null ? txtLocalisation.getText() : null);
-        r.setAuthor(txtAuthor != null && txtAuthor.getText() != null ? txtAuthor.getText().trim() : "Admin");
-        r.setDateCreation(datePicker.getValue() != null ? datePicker.getValue() : LocalDate.now());
+        r.setAuthor(author.trim());
+        r.setDateCreation(date);
         r.setStatus(comboStatus.getValue() != null ? comboStatus.getValue() : "Active");
+
         service.create(r);
         refreshList();
         clearForm();
@@ -253,7 +288,8 @@ public class RessourceFXController {
         txtTitre.setText("");
         txtDescription.setText("");
         txtLocalisation.setText("");
-        if (txtAuthor != null) txtAuthor.setText("Admin");
+        if (txtAuthor != null)
+            txtAuthor.setText("Admin");
         datePicker.setValue(LocalDate.now());
         comboType.setValue(null);
         comboCategory.setValue(null);
@@ -272,8 +308,7 @@ public class RessourceFXController {
         if (containsBadWord(title) || containsBadWord(description)) {
             showWarningNotification(
                     "⚠️ Avertissement — Contenu inapproprié",
-                    "Contenu inapproprié détecté. Ceci est un avertissement pour l'administrateur : votre compte sera banni en cas de récidive (infraction)."
-            );
+                    "Contenu inapproprié détecté. Ceci est un avertissement pour l'administrateur : votre compte sera banni en cas de récidive (infraction).");
             return;
         }
         selected.setTitle(title);
@@ -282,7 +317,8 @@ public class RessourceFXController {
         selected.setCategory(comboCategory.getValue());
         selected.setContent(txtLocalisation.getText());
         selected.setAuthor(txtAuthor != null ? txtAuthor.getText() : selected.getAuthor());
-        if (datePicker.getValue() != null) selected.setDateCreation(datePicker.getValue());
+        if (datePicker.getValue() != null)
+            selected.setDateCreation(datePicker.getValue());
         selected.setStatus(comboStatus.getValue() != null ? comboStatus.getValue() : "Active");
         service.update(selected);
         refreshList();
@@ -345,14 +381,15 @@ public class RessourceFXController {
         javafx.stage.FileChooser chooser = new javafx.stage.FileChooser();
         chooser.setTitle("Choisir une image ou vidéo");
         chooser.getExtensionFilters().addAll(
-            new javafx.stage.FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp"),
-            new javafx.stage.FileChooser.ExtensionFilter("Vidéos", "*.mp4", "*.webm"),
-            new javafx.stage.FileChooser.ExtensionFilter("Tous les fichiers", "*.*")
-        );
+                new javafx.stage.FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp"),
+                new javafx.stage.FileChooser.ExtensionFilter("Vidéos", "*.mp4", "*.webm"),
+                new javafx.stage.FileChooser.ExtensionFilter("Tous les fichiers", "*.*"));
         File file = chooser.showOpenDialog(txtLocalisation.getScene().getWindow());
-        if (file == null) return;
+        if (file == null)
+            return;
         try {
-            if (cloudinaryService == null) cloudinaryService = new CloudinaryService();
+            if (cloudinaryService == null)
+                cloudinaryService = new CloudinaryService();
             String url = cloudinaryService.upload(file);
             if (url != null && !url.isBlank()) {
                 txtLocalisation.setText(url);
@@ -363,7 +400,8 @@ public class RessourceFXController {
         } catch (IllegalStateException e) {
             showAlert(Alert.AlertType.WARNING, "Cloudinary non configuré", e.getMessage());
         } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Erreur upload", e.getMessage() != null ? e.getMessage() : "Upload échoué.");
+            showAlert(Alert.AlertType.ERROR, "Erreur upload",
+                    e.getMessage() != null ? e.getMessage() : "Upload échoué.");
         }
     }
 

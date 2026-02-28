@@ -1,4 +1,4 @@
-package org.example.Controller;
+package org.example.Controllers;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -11,7 +11,6 @@ import javafx.stage.Stage;
 import org.controlsfx.control.Rating;
 import org.example.Models.Evaluation;
 import org.example.Models.Ressource;
-import org.example.Models.User;
 import org.example.Services.evaluationService;
 import org.example.utils.StaticUser;
 
@@ -59,7 +58,8 @@ public class EvaluationModalController {
     public void setExistingEvaluation(Evaluation e) {
         this.existingEvaluation = e;
         if (e != null) {
-            if (ratingControl != null) ratingControl.setRating(e.getNote());
+            if (ratingControl != null)
+                ratingControl.setRating(e.getNote());
             txtCommentaire.setText(e.getCommentaire());
         }
     }
@@ -85,21 +85,21 @@ public class EvaluationModalController {
         if (!valid)
             return;
 
-        User user = StaticUser.get();
+        int userId = StaticUser.getId();
         if (existingEvaluation != null) {
             existingEvaluation.setNote(note);
             existingEvaluation.setCommentaire(txtCommentaire.getText());
             existingEvaluation.setDateEvaluation(LocalDate.now());
             service.update(existingEvaluation);
         } else {
-            Evaluation newEval = new Evaluation(user, ressource, note, txtCommentaire.getText(),
+            Evaluation newEval = new Evaluation(userId, ressource, note, txtCommentaire.getText(),
                     LocalDate.now());
             service.create(newEval);
         }
 
         closeWindow();
         if (parentController != null)
-            parentController.refreshList(); // Or just refresh specific card but refreshList is easier
+            parentController.refreshList();
     }
 
     @FXML
@@ -113,13 +113,16 @@ public class EvaluationModalController {
     }
 
     private void applyIcon(Button btn, String iconName, String tooltipText, double size) {
-        if (btn == null) return;
+        if (btn == null)
+            return;
         for (String path : new String[] { "/icons/" + iconName, "/" + iconName }) {
             try {
                 java.io.InputStream is = getClass().getResourceAsStream(path);
-                if (is == null) continue;
+                if (is == null)
+                    continue;
                 Image img = new Image(is);
-                if (img.isError()) continue;
+                if (img.isError())
+                    continue;
                 ImageView iv = new ImageView(img);
                 iv.setFitWidth(size);
                 iv.setFitHeight(size);
@@ -134,7 +137,8 @@ public class EvaluationModalController {
                 btn.setMinHeight(44);
                 btn.setMaxHeight(44);
                 return;
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
     }
 }

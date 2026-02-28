@@ -1,4 +1,4 @@
-package org.example.Controller;
+package org.example.Controllers;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -18,7 +18,6 @@ import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 import org.example.Models.Favori;
 import org.example.Models.Ressource;
-import org.example.Models.User;
 import org.example.Models.Evaluation;
 import org.example.Services.ressourceService;
 import org.example.Services.favoriService;
@@ -89,7 +88,10 @@ public class UserRessourceController {
         applyFilters();
     }
 
-    /** Load an icon from resources; tries /icons/ then root, and alternate filenames (rate, favourite). */
+    /**
+     * Load an icon from resources; tries /icons/ then root, and alternate filenames
+     * (rate, favourite).
+     */
     private ImageView loadIcon(String name, double size) {
         String[] paths;
         if ("star.png".equals(name)) {
@@ -102,9 +104,11 @@ public class UserRessourceController {
         for (String path : paths) {
             try {
                 java.io.InputStream is = getClass().getResourceAsStream(path);
-                if (is == null) continue;
+                if (is == null)
+                    continue;
                 Image img = new Image(is);
-                if (img.isError()) continue;
+                if (img.isError())
+                    continue;
                 ImageView iv = new ImageView(img);
                 iv.setFitWidth(size);
                 iv.setFitHeight(size);
@@ -141,7 +145,8 @@ public class UserRessourceController {
         java.util.List<Evaluation> evals = evaluationService.findByRessourceId(r.getId());
         if (!evals.isEmpty()) {
             double avg = evals.stream().mapToInt(Evaluation::getNote).average().orElse(0);
-            ratingStars.setText(StarRatingHelper.toStarStringFromAverage(avg) + " (" + String.format("%.1f", avg) + ")");
+            ratingStars
+                    .setText(StarRatingHelper.toStarStringFromAverage(avg) + " (" + String.format("%.1f", avg) + ")");
         } else {
             ratingStars.setText(StarRatingHelper.toStarString(0) + " (—)");
         }
@@ -172,7 +177,8 @@ public class UserRessourceController {
             btnAddEval.setText("+");
             btnAddEval.setTooltip(new Tooltip("Ajouter"));
         }
-        btnAddEval.setStyle(btnStyle + " -fx-background-color: #5FB49C; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 18px;");
+        btnAddEval.setStyle(btnStyle
+                + " -fx-background-color: #5FB49C; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 18px;");
         btnAddEval.setOnAction(e -> openEvaluationModal(r));
 
         Button btnEval = new Button();
@@ -185,7 +191,8 @@ public class UserRessourceController {
             btnEval.setText("☆");
             btnEval.setTooltip(new Tooltip("Évaluer"));
         }
-        btnEval.setStyle(btnStyle + " -fx-background-color: #F1C40F; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 18px;");
+        btnEval.setStyle(btnStyle
+                + " -fx-background-color: #F1C40F; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 18px;");
         btnEval.setOnAction(e -> openEvaluationList(r));
 
         Button btnFav = new Button();
@@ -208,7 +215,7 @@ public class UserRessourceController {
             btn.setStyle(baseStyle + " -fx-background-color: #e0e0e0; -fx-opacity: 0.7;");
             return;
         }
-        boolean isFav = favoriService.findByUserIdAndRessourceId(StaticUser.get().getId(), r.getId()).isPresent();
+        boolean isFav = favoriService.findByUserIdAndRessourceId(StaticUser.getId(), r.getId()).isPresent();
         ImageView heartIcon = loadIcon(isFav ? "heart.png" : "heart_empty.png", iconSize);
         if (heartIcon != null) {
             btn.setGraphic(heartIcon);
@@ -223,20 +230,21 @@ public class UserRessourceController {
         if (isFav) {
             btn.setStyle(baseStyle + " -fx-background-color: #E667AF; -fx-text-fill: white; -fx-font-weight: bold;");
         } else {
-            btn.setStyle(baseStyle + " -fx-background-color: transparent; -fx-border-color: #bdc3c7; -fx-border-radius: 12; -fx-border-width: 2;");
+            btn.setStyle(baseStyle
+                    + " -fx-background-color: transparent; -fx-border-color: #bdc3c7; -fx-border-radius: 12; -fx-border-width: 2;");
         }
     }
 
     private void toggleFavorite(Ressource r, Button btn) {
-        User user = StaticUser.get();
-        if (user == null)
+        if (!StaticUser.isSet())
             return;
 
-        Optional<Favori> existing = favoriService.findByUserIdAndRessourceId(user.getId(), r.getId());
+        int userId = StaticUser.getId();
+        Optional<Favori> existing = favoriService.findByUserIdAndRessourceId(userId, r.getId());
         if (existing.isPresent()) {
             favoriService.delete(existing.get().getId());
         } else {
-            favoriService.create(new Favori(user, r, LocalDate.now()));
+            favoriService.create(new Favori(userId, r, LocalDate.now()));
         }
         updateFavButton(btn, r);
     }
