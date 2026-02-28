@@ -12,7 +12,9 @@
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <javafx.version>22.0.1</javafx.version>
     </properties>
+
     <build>
         <plugins>
             <plugin>
@@ -21,101 +23,125 @@
                 <version>0.0.8</version>
                 <configuration>
                     <mainClass>org.example.Main</mainClass>
-                    <!-- AJOUT POUR SUPPRIMER LES WARNINGS -->
                     <options>
                         <option>--enable-native-access=javafx.graphics</option>
                         <option>--add-opens=java.base/java.lang=ALL-UNNAMED</option>
                     </options>
                 </configuration>
             </plugin>
+
+            <!-- Compilateur Java -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+            </plugin>
         </plugins>
     </build>
 
     <dependencies>
+        <!-- ===== TESTS ===== -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>5.10.0</version>
             <scope>test</scope>
         </dependency>
-        <!-- CORRECTION: Changement du groupId pour mysql-connector -->
+
+        <!-- ===== BASE DE DONNÉES ===== -->
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <version>8.0.33</version>
-            <scope>compile</scope>
         </dependency>
+
+        <!-- ===== JAVAFX ===== -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>22.0.1</version>
-            <scope>compile</scope>
+            <version>${javafx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>22.0.1</version>
-            <scope>compile</scope>
+            <version>${javafx.version}</version>
         </dependency>
-        <!-- JavaMail - AJOUTEZ CETTE DÉPENDANCE -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-base</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+
+        <!-- ===== EMAIL ===== -->
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>javax.mail</artifactId>
             <version>1.6.2</version>
         </dependency>
-
-        <!-- Activation (nécessaire pour JavaMail) -->
         <dependency>
             <groupId>javax.activation</groupId>
             <artifactId>activation</artifactId>
             <version>1.1.1</version>
         </dependency>
-        <!-- Twilio SDK -->
+
+        <!-- ===== TWILIO SMS ===== -->
         <dependency>
             <groupId>com.twilio.sdk</groupId>
             <artifactId>twilio</artifactId>
             <version>9.14.1</version>
         </dependency>
 
-        <!-- Pour gérer les variables d'environnement (optionnel) -->
+        <!-- ===== VARIABLES D'ENVIRONNEMENT ===== -->
         <dependency>
             <groupId>io.github.cdimascio</groupId>
             <artifactId>dotenv-java</artifactId>
             <version>3.0.0</version>
         </dependency>
-        <!-- Google API Client (authentification) -->
+
+        <!-- ===== GOOGLE AUTHENTIFICATION ===== -->
         <dependency>
             <groupId>com.google.api-client</groupId>
             <artifactId>google-api-client</artifactId>
             <version>2.2.0</version>
         </dependency>
-
-        <!-- Google OAuth Client Jetty (serveur local) -->
         <dependency>
             <groupId>com.google.oauth-client</groupId>
             <artifactId>google-oauth-client-jetty</artifactId>
             <version>1.34.1</version>
         </dependency>
-
-        <!-- Google HTTP Client avec Jackson (pour JSON) -->
         <dependency>
             <groupId>com.google.http-client</groupId>
             <artifactId>google-http-client-jackson2</artifactId>
             <version>1.43.3</version>
         </dependency>
-
-        <!-- Google OAuth2 API (pour récupérer les infos utilisateur) -->
         <dependency>
             <groupId>com.google.apis</groupId>
             <artifactId>google-api-services-oauth2</artifactId>
             <version>v2-rev20200213-2.0.0</version>
         </dependency>
-        <!-- BCrypt pour le hachage des mots de passe -->
+
+        <!-- ===== HASHAGE MOT DE PASSE ===== -->
         <dependency>
             <groupId>org.mindrot</groupId>
             <artifactId>jbcrypt</artifactId>
             <version>0.4</version>
         </dependency>
-    </dependencies>
 
+        <!-- ===== PARSING JSON (AJOUTÉS DU POM CAMARADE) ===== -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.15.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.11.0</version>
+        </dependency>
+    </dependencies>
 </project>

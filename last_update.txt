@@ -1,0 +1,1 @@
+echo "Dernier commit avant intégration – $(date)" > last_update.txt
