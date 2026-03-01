@@ -1,7 +1,7 @@
-package services;
+package Services;
 
-import Modele.Reservation;
-import utiles.mydb;
+import Models.Reservation;
+import utils.mydb;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;

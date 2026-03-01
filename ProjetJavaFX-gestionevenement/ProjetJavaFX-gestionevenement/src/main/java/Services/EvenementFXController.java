@@ -1,7 +1,7 @@
-package services;
+package Services;
 
-import Modele.Evenement;
-import utiles.mydb;
+import Models.Evenement;
+import utils.mydb;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -20,8 +20,6 @@ import java.sql.Connection;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 public class EvenementFXController {
 

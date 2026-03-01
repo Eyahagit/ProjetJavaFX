@@ -1,7 +1,7 @@
-package services;
+package Services;
 
-import Modele.Avis;
-import utiles.mydb;
+import Models.Avis;
+import utils.mydb;
 
 import java.sql.*;
 import java.util.*;

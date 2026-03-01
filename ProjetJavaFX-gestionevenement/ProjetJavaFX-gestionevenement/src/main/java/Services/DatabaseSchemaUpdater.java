@@ -1,6 +1,6 @@
-package services;
+package Services;
 
-import utiles.mydb;
+import utils.mydb;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.sql.SQLException;

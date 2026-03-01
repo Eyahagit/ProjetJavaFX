@@ -1,7 +1,7 @@
-package services;
+package Services;
 
-import Modele.Evenement;
-import utiles.mydb;
+import Models.Evenement;
+import utils.mydb;
 
 import java.sql.*;
 import java.time.LocalDate;

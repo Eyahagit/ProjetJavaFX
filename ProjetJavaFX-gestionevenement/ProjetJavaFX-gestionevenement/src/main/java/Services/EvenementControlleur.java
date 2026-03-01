@@ -1,8 +1,7 @@
-package services;
+package Services;
 
-import Modele.Evenement;
+import Models.Evenement;
 import java.sql.*;
-        import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 

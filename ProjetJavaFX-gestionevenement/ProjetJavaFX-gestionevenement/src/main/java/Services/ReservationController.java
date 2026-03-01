@@ -1,7 +1,7 @@
-package services;
+package Services;
 
-import Modele.Evenement;
-import utiles.mydb;
+import Models.Evenement;
+import utils.mydb;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;

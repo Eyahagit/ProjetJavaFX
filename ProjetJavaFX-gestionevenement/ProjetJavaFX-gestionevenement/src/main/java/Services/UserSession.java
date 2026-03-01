@@ -1,6 +1,6 @@
-package services;
+package Services;
 
-import Modele.Utilisateur;
+import Models.Utilisateur;
 
 public class UserSession {
     private static Utilisateur currentUser = null;

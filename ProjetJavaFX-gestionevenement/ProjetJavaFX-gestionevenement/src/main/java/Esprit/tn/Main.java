@@ -5,8 +5,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import java.sql.Connection;
-import utiles.mydb;              // ← AJOUTEZ CETTE LIGNE
-import services.EvenementControlleur; // ← AJOUTEZ CETTE LIGNE
+import utils.mydb;              // ← AJOUTEZ CETTE LIGNE
+import Services.EvenementControlleur; // ← AJOUTEZ CETTE LIGNE
 
 public class Main extends Application {
 

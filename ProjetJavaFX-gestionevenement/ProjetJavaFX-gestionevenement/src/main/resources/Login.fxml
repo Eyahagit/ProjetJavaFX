@@ -8,7 +8,7 @@
       style="-fx-background-color: linear-gradient(to bottom right, #667eea, #764ba2);"
       xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="services.LoginController">
+      fx:controller="Services.LoginController">
 
     <VBox spacing="15" maxWidth="400" style="-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 30;">
 

@@ -1,6 +1,6 @@
-package services;
+package Services;
 
-import Modele.Reservation;
+import Models.Reservation;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;

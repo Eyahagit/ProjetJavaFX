@@ -8,7 +8,7 @@
       style="-fx-background-color: linear-gradient(to bottom right, #667eea, #764ba2); -fx-padding: 15;"
       xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="services.ReservationController">
+      fx:controller="Services.ReservationController">
 
     <VBox spacing="8" maxWidth="350" style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 15;">
 

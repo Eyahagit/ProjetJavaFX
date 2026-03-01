@@ -1,13 +1,11 @@
-package services;
+package Services;
 
-import Modele.Reservation;
-import utiles.mydb;
+import Models.Reservation;
+import utils.mydb;
 
 import java.sql.*;
 import java.time.LocalDateTime;
-import java.time.Duration;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class ReservationAI {
     

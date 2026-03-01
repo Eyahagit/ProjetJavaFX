@@ -1,7 +1,7 @@
-package services;
+package Services;
 
-import Modele.Utilisateur;
-import utiles.mydb;
+import Models.Utilisateur;
+import utils.mydb;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
