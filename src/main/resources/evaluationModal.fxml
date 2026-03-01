@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import org.controlsfx.control.Rating?>
 
-<AnchorPane prefHeight="400.0" prefWidth="500.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.Controller.EvaluationModalController">
+<AnchorPane prefHeight="400.0" prefWidth="500.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.Controllers.EvaluationModalController">
     <VBox alignment="CENTER" spacing="15" layoutX="30.0" layoutY="30.0" prefWidth="440.0">
         <Label text="Évaluer la Ressource" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
 

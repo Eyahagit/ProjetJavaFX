@@ -40,6 +40,13 @@
             <version>${javafx.version}</version>
         </dependency>
 
+        <!-- JavaFX Media (Video playback) -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-media</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+
         <!-- Jakarta Mail (Mailing) -->
         <dependency>
             <groupId>com.sun.mail</groupId>

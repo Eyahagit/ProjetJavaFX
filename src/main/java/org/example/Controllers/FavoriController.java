@@ -1,4 +1,4 @@
-package org.example.Controller;
+package org.example.Controllers;
 
 import org.example.Models.Favori;
 import org.example.Services.favoriService;

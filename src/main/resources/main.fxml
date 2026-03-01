@@ -17,7 +17,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.shape.Rectangle?>
 
-<AnchorPane prefHeight="760.0" prefWidth="1200.0" style="-fx-background-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.Controller.RessourceFXController">
+<AnchorPane prefHeight="760.0" prefWidth="1200.0" style="-fx-background-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.Controllers.RessourceFXController">
 
     <!-- Background decorative elements -->
     <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#9B59B6" height="120.0" layoutX="-50.0" layoutY="0.0" opacity="0.15" rotate="45.0" width="300.0" />
@@ -145,6 +145,10 @@
                 <!-- Search Box -->
                 <TextField fx:id="searchField" onKeyReleased="#handleSearch" promptText="🔍 Rechercher un événement..." style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #d1e7f3; -fx-background-color: white; -fx-font-size: 13px; -fx-padding: 8 12; -fx-pref-width: 200;" />
                 <Button fx:id="btnStat" onAction="#openStats" text="Stat" style="-fx-background-color: #9B59B6; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-cursor: hand; -fx-padding: 8 20; -fx-font-size: 14px;" />
+                <!-- Switch to User view -->
+                <Button fx:id="btnSwitchToUser" onAction="#switchToUser"
+                        text="👤 Vue Utilisateur"
+                        style="-fx-background-color: linear-gradient(to right,#667eea,#764ba2); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-cursor: hand; -fx-padding: 8 20; -fx-font-size: 14px;" />
             </HBox>
 
             <!-- TABLEVIEW -->

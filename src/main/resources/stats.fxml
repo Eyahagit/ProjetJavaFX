@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Rectangle?>
 
-<AnchorPane prefHeight="750.0" prefWidth="1200.0" style="-fx-background-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.Controller.StatsController">
+<AnchorPane prefHeight="750.0" prefWidth="1200.0" style="-fx-background-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.Controllers.StatsController">
 
     <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#9B59B6" height="120.0" layoutX="-50.0" layoutY="0.0" opacity="0.15" rotate="45.0" width="300.0" />
     <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#E667AF" height="150.0" layoutX="1100.0" layoutY="650.0" opacity="0.15" rotate="-30.0" width="200.0" />

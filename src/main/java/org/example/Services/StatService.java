@@ -19,8 +19,8 @@ public class StatService {
                 "(SELECT COUNT(*) FROM Evaluation) AS evaluations, " +
                 "(SELECT COUNT(*) FROM Favori) AS favoris";
         try (Connection conn = MyDatabase.getInstance().getConnection();
-             Statement st = conn.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
+                Statement st = conn.createStatement();
+                ResultSet rs = st.executeQuery(sql)) {
             if (rs.next()) {
                 map.put("Utilisateurs", rs.getInt("users"));
                 map.put("Ressources", rs.getInt("ressources"));
@@ -48,8 +48,8 @@ public class StatService {
         Map<String, Number> map = new LinkedHashMap<>();
         String sql = "SELECT note, COUNT(*) AS cnt FROM Evaluation GROUP BY note ORDER BY note";
         try (Connection conn = MyDatabase.getInstance().getConnection();
-             Statement st = conn.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
+                Statement st = conn.createStatement();
+                ResultSet rs = st.executeQuery(sql)) {
             Set<Integer> seen = new HashSet<>();
             while (rs.next()) {
                 int note = rs.getInt("note");
@@ -57,7 +57,8 @@ public class StatService {
                 map.put("Note " + note, rs.getInt("cnt"));
             }
             for (int n = 1; n <= 5; n++)
-                if (!seen.contains(n)) map.put("Note " + n, 0);
+                if (!seen.contains(n))
+                    map.put("Note " + n, 0);
         } catch (SQLException e) {
             throw new RuntimeException("StatService getEvaluationsByNote", e);
         }
@@ -76,12 +77,13 @@ public class StatService {
                 "GROUP BY r.id, r.title ORDER BY nb DESC LIMIT ?";
         List<Map.Entry<String, Number>> list = new ArrayList<>();
         try (Connection conn = MyDatabase.getInstance().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, top);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     String title = rs.getString("title");
-                    if (title == null || title.length() > 30) title = (title != null ? title.substring(0, Math.min(30, title.length())) + "…" : "Ressource");
+                    if (title == null || title.length() > 30)
+                        title = (title != null ? title.substring(0, Math.min(30, title.length())) + "…" : "Ressource");
                     list.add(new AbstractMap.SimpleEntry<>(title, rs.getInt("nb")));
                 }
             }
@@ -97,8 +99,8 @@ public class StatService {
         String sql = "SELECT DATE_FORMAT(dateEvaluation, '%Y-%m') AS mois, COUNT(*) AS cnt " +
                 "FROM Evaluation GROUP BY mois ORDER BY mois";
         try (Connection conn = MyDatabase.getInstance().getConnection();
-             Statement st = conn.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
+                Statement st = conn.createStatement();
+                ResultSet rs = st.executeQuery(sql)) {
             while (rs.next())
                 map.put(rs.getString("mois"), rs.getInt("cnt"));
         } catch (SQLException e) {
@@ -114,13 +116,15 @@ public class StatService {
                 "GROUP BY r.id, r.title ORDER BY nb DESC LIMIT ?";
         List<Map.Entry<String, Number>> list = new ArrayList<>();
         try (Connection conn = MyDatabase.getInstance().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, top);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     String title = rs.getString("title");
-                    if (title != null && title.length() > 28) title = title.substring(0, 28) + "…";
-                    if (title == null) title = "Ressource";
+                    if (title != null && title.length() > 28)
+                        title = title.substring(0, 28) + "…";
+                    if (title == null)
+                        title = "Ressource";
                     list.add(new AbstractMap.SimpleEntry<>(title, rs.getInt("nb")));
                 }
             }
@@ -130,15 +134,42 @@ public class StatService {
         return list;
     }
 
+    /** Average evaluation per ressource (JOIN Evaluation + Ressource) - top N. */
+    public List<Map.Entry<String, Number>> getAverageEvaluationPerRessource(int top) {
+        String sql = "SELECT r.id, r.title, COALESCE(AVG(e.note), 0) AS moyenne " +
+                "FROM Ressource r LEFT JOIN Evaluation e ON r.id = e.ressourceId " +
+                "GROUP BY r.id, r.title ORDER BY moyenne DESC LIMIT ?";
+        List<Map.Entry<String, Number>> list = new ArrayList<>();
+        try (Connection conn = MyDatabase.getInstance().getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, top);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String title = rs.getString("title");
+                    if (title != null && title.length() > 28)
+                        title = title.substring(0, 28) + "…";
+                    if (title == null)
+                        title = "Ressource";
+                    list.add(new AbstractMap.SimpleEntry<>(title, rs.getDouble("moyenne")));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("StatService getAverageEvaluationPerRessource", e);
+        }
+        return list;
+    }
+
     private Map<String, Number> groupByCount(String table, String column) {
         Map<String, Number> map = new LinkedHashMap<>();
-        String sql = "SELECT " + column + ", COUNT(*) AS cnt FROM " + table + " GROUP BY " + column + " ORDER BY cnt DESC";
+        String sql = "SELECT " + column + ", COUNT(*) AS cnt FROM " + table + " GROUP BY " + column
+                + " ORDER BY cnt DESC";
         try (Connection conn = MyDatabase.getInstance().getConnection();
-             Statement st = conn.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
+                Statement st = conn.createStatement();
+                ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) {
                 String key = rs.getString(column);
-                if (key == null) key = "(vide)";
+                if (key == null)
+                    key = "(vide)";
                 map.put(key, rs.getInt("cnt"));
             }
         } catch (SQLException e) {

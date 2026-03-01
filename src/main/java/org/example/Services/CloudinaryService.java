@@ -13,24 +13,24 @@ import java.util.Map;
  */
 public class CloudinaryService {
 
-    private static final String CLOUD_NAME = "dcfb7nedc";
-    private static final String API_KEY = "381561793828754";
-    private static final String API_SECRET = "-i2VdylLRnptwGPo2Ve2x_TV0GI";
+    private static final String CLOUD_NAME = "dfz6pi8w5";
+    private static final String API_KEY = "359521773164174";
+    private static final String API_SECRET = "gTGL932OGoIACT1bsriKerFTxH4";
 
     private final Cloudinary cloudinary;
 
     public CloudinaryService() {
         @SuppressWarnings("unchecked")
         Map<String, Object> config = ObjectUtils.asMap(
-            "cloud_name", CLOUD_NAME,
-            "api_key", API_KEY,
-            "api_secret", API_SECRET
-        );
+                "cloud_name", CLOUD_NAME,
+                "api_key", API_KEY,
+                "api_secret", API_SECRET);
         this.cloudinary = new Cloudinary(config);
     }
 
     /**
      * Uploads a file to Cloudinary and returns the secure URL.
+     * 
      * @param file image or video file to upload
      * @return the public URL of the uploaded asset, or null on failure
      */
@@ -39,8 +39,9 @@ public class CloudinaryService {
             return null;
         }
         try {
-            @SuppressWarnings("unchecked")
-            Map<String, Object> result = cloudinary.uploader().upload(file, ObjectUtils.emptyMap());
+            Map<String, Object> params = ObjectUtils.asMap("resource_type", "auto");
+            @SuppressWarnings("rawtypes")
+            Map result = cloudinary.uploader().upload(file, params);
             Object url = result != null ? result.get("secure_url") : null;
             return url != null ? url.toString() : null;
         } catch (IOException e) {
@@ -52,7 +53,8 @@ public class CloudinaryService {
      * Uploads a file by path. Convenience for FileChooser path.
      */
     public String upload(String filePath) {
-        if (filePath == null || filePath.isBlank()) return null;
+        if (filePath == null || filePath.isBlank())
+            return null;
         return upload(new File(filePath));
     }
 }

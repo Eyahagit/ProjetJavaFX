@@ -1,4 +1,4 @@
-package org.example.Controller;
+package org.example.Controllers;
 
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -79,8 +79,7 @@ public class AddRessourceController {
                         MailService.DEFAULT_TO_EMAIL,
                         "Nouvelle ressource ajoutée - GrowMind",
                         html,
-                        true
-                );
+                        true);
             } catch (Exception e) {
                 System.out.println("⚠️ Email non envoyé : " + e.getMessage());
             }
@@ -104,25 +103,26 @@ public class AddRessourceController {
     }
 
     private boolean isValidInput() {
-        String errorMessage = "";
+        StringBuilder errorMessage = new StringBuilder();
 
-        if (titreField.getText() == null || titreField.getText().isEmpty()) {
-            errorMessage += "Titre invalide !\n";
+        if (titreField.getText() == null || titreField.getText().trim().isEmpty()) {
+            errorMessage.append("- Le titre est obligatoire.\n");
         }
-        if (descriptionArea.getText() == null || descriptionArea.getText().isEmpty()) {
-            errorMessage += "Description invalide !\n";
+        if (descriptionArea.getText() == null || descriptionArea.getText().trim().isEmpty()) {
+            errorMessage.append("- La description est obligatoire.\n");
         }
         if (typeComboBox.getValue() == null) {
-            errorMessage += "Type invalide !\n";
+            errorMessage.append("- Le type est obligatoire.\n");
         }
         if (categorieComboBox.getValue() == null) {
-            errorMessage += "Catégorie invalide !\n";
+            errorMessage.append("- La catégorie est obligatoire.\n");
         }
 
-        if (errorMessage.isEmpty()) {
+        if (errorMessage.length() == 0) {
             return true;
         } else {
-            showAlert(Alert.AlertType.ERROR, "Champs Invalides", errorMessage);
+            showAlert(Alert.AlertType.WARNING, "Erreurs de validation",
+                    "Veuillez corriger les erreurs suivantes :\n\n" + errorMessage.toString());
             return false;
         }
     }
@@ -136,13 +136,16 @@ public class AddRessourceController {
     }
 
     private void applyIcon(Button btn, String iconName, String tooltipText, double size) {
-        if (btn == null) return;
+        if (btn == null)
+            return;
         for (String path : new String[] { "/icons/" + iconName, "/" + iconName }) {
             try {
                 java.io.InputStream is = getClass().getResourceAsStream(path);
-                if (is == null) continue;
+                if (is == null)
+                    continue;
                 Image img = new Image(is);
-                if (img.isError()) continue;
+                if (img.isError())
+                    continue;
                 ImageView iv = new ImageView(img);
                 iv.setFitWidth(size);
                 iv.setFitHeight(size);
@@ -157,7 +160,8 @@ public class AddRessourceController {
                 btn.setMinHeight(44);
                 btn.setMaxHeight(44);
                 return;
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
     }
 }

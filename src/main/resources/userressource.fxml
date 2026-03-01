@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
@@ -7,11 +8,12 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="750.0" prefWidth="1200.0" style="-fx-background-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.Controller.UserRessourceController">
+<AnchorPane prefHeight="750.0" prefWidth="1200.0" style="-fx-background-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.Controllers.UserRessourceController">
     
     <!-- Background decorative elements -->
     <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#9B59B6" height="120.0" layoutX="-50.0" layoutY="0.0" opacity="0.15" rotate="45.0" width="300.0" />
@@ -51,12 +53,17 @@
             <Font size="24.0" />
          </font></Label>
         
-        <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS" />
+        <Region HBox.hgrow="ALWAYS" />
         
         <TextField fx:id="searchField" onKeyReleased="#handleSearch" prefWidth="250" promptText="🔍 Rechercher..." style="-fx-background-radius: 20; -fx-padding: 10; -fx-background-color: rgba(255,255,255,0.9);" />
         
         <ComboBox fx:id="filterType" prefWidth="150" promptText="Type" style="-fx-background-radius: 20; -fx-background-color: rgba(255,255,255,0.9);" />
         <ComboBox fx:id="filterCategory" prefWidth="150" promptText="Catégorie" style="-fx-background-radius: 20; -fx-background-color: rgba(255,255,255,0.9);" />
+
+        <!-- Switch button: go to Admin view -->
+        <Button fx:id="btnSwitchToAdmin" onAction="#switchToAdmin"
+                text="🔧 Admin"
+                style="-fx-background-color: rgba(255,255,255,0.25); -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px; -fx-background-radius: 20; -fx-border-color: white; -fx-border-radius: 20; -fx-border-width: 2; -fx-cursor: hand; -fx-padding: 8 18;" />
     </HBox>
 
     <!-- Scrollable Content -->
