@@ -318,7 +318,33 @@ public class HomeController implements Initializable {
     // ========== GESTION DES CARTES ==========
     @FXML
     private void goToCabinet() {
-        showModuleInfo("Psychologue & Cabinet", "cabinet");
+
+        try {
+            // Charger le fichier FXML du module Forum
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/MenuPrincipal.fxml"));
+            Parent root = loader.load();
+
+            // Créer une nouvelle fenêtre pour le module
+            Stage forumStage = new Stage();
+            forumStage.setTitle("Gestion Forum - GrowMind");
+            forumStage.setScene(new Scene(root));
+
+            // Optionnel : passer l'utilisateur connecté au contrôleur du forum
+            // Object controller = loader.getController();
+            // if (controller instanceof ForumController) {
+            //     ((ForumController) controller).setUser(currentUser);
+            // }
+
+            forumStage.show();
+
+            System.out.println("✅ Module Forum ouvert avec succès");
+
+        } catch (IOException e) {
+            System.err.println("❌ Erreur chargement module Forum: " + e.getMessage());
+            e.printStackTrace();
+            showAlert("Erreur", "Impossible de charger le module Forum.\n" + e.getMessage());
+        }
+
     }
 
     @FXML

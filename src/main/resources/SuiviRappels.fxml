@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane prefHeight="800.0" prefWidth="1200.0"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="Controllers.SuiviRappelsController"
+            style="-fx-background-color: linear-gradient(135deg, #667eea, #764ba2);">
+
+    <VBox spacing="20" AnchorPane.topAnchor="20" AnchorPane.leftAnchor="20"
+          AnchorPane.rightAnchor="20" AnchorPane.bottomAnchor="20">
+
+        <!-- Header -->
+        <HBox alignment="CENTER_LEFT" spacing="20">
+            <Label text="📊 SUIVI DES RAPPELS INTELLIGENTS"
+                   style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="lblDateDuJour" style="-fx-text-fill: white; -fx-font-size: 16px;"/>
+            <Button text="⟳ Actualiser" onAction="#handleActualiser"
+                    style="-fx-background-color: #4A6FA5; -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 8 15;"/>
+        </HBox>
+
+        <!-- Statistiques -->
+        <HBox spacing="20" alignment="CENTER">
+            <VBox spacing="10" alignment="CENTER" prefWidth="220" prefHeight="130"
+                  style="-fx-background-color: linear-gradient(to right, #4A6FA5, #5FB49C); -fx-background-radius: 15;">
+                <Label text="Total rendez-vous" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px;"/>
+                <Label fx:id="lblTotalRdv" text="0" style="-fx-font-size: 42px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+            </VBox>
+
+            <VBox spacing="10" alignment="CENTER" prefWidth="220" prefHeight="130"
+                  style="-fx-background-color: linear-gradient(to right, #9B59B6, #8E44AD); -fx-background-radius: 15;">
+                <Label text="Rappels envoyés" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px;"/>
+                <Label fx:id="lblRappelsEnvoyes" text="0" style="-fx-font-size: 42px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+            </VBox>
+
+            <VBox spacing="10" alignment="CENTER" prefWidth="220" prefHeight="130"
+                  style="-fx-background-color: linear-gradient(to right, #27ae60, #2ecc71); -fx-background-radius: 15;">
+                <Label text="Taux d'ouverture" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px;"/>
+                <Label fx:id="lblTauxOuverture" text="0%" style="-fx-font-size: 42px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+            </VBox>
+
+            <VBox spacing="10" alignment="CENTER" prefWidth="220" prefHeight="130"
+                  style="-fx-background-color: linear-gradient(to right, #e74c3c, #c0392b); -fx-background-radius: 15;">
+                <Label text="Taux absentéisme" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px;"/>
+                <Label fx:id="lblTauxAbsenteisme" text="0%" style="-fx-font-size: 42px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+            </VBox>
+        </HBox>
+
+        <!-- Filtres -->
+        <HBox spacing="15" alignment="CENTER_LEFT">
+            <Label text="Période:" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+            <ComboBox fx:id="comboFiltrePeriode" prefWidth="150"
+                      style="-fx-background-radius: 10; -fx-background-color: white;"/>
+        </HBox>
+
+        <!-- Tableau des rendez-vous -->
+        <VBox spacing="10" VBox.vgrow="ALWAYS"
+              style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 15;">
+
+            <Label text="📋 Rendez-vous"
+                   style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+
+            <TableView fx:id="tableView" VBox.vgrow="ALWAYS" prefHeight="300">
+                <columns>
+                    <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
+                    <TableColumn fx:id="colPatient" text="Patient" prefWidth="200"/>
+                    <TableColumn fx:id="colDate" text="Date" prefWidth="100"/>
+                    <TableColumn fx:id="colHeure" text="Heure" prefWidth="80"/>
+                    <TableColumn fx:id="colStatut" text="Statut" prefWidth="100"/>
+                    <TableColumn fx:id="colPsychologue" text="Psychologue" prefWidth="180"/>
+                    <TableColumn fx:id="colRappel" text="Rappel" prefWidth="80"/>
+                </columns>
+            </TableView>
+
+            <!-- ========== NOUVEAU : BOUTONS SMS ET EMAIL ========== -->
+            <HBox spacing="10" alignment="CENTER">
+                <Button text="📱 Envoyer SMS" onAction="#handleEnvoyerSMS"
+                        style="-fx-background-color: #5FB49C; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 25; -fx-background-radius: 5; -fx-cursor: hand;"/>
+                <Button text="📧 Envoyer Email" onAction="#handleEnvoyerEmail"
+                        style="-fx-background-color: #4A6FA5; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 25; -fx-background-radius: 5; -fx-cursor: hand;"/>
+            </HBox>
+        </VBox>
+
+        <!-- Graphiques -->
+        <HBox spacing="20" prefHeight="200">
+            <!-- Pie Chart -->
+            <VBox spacing="10" HBox.hgrow="ALWAYS"
+                  style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 15;">
+                <Label text="Statut des rendez-vous" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+                <PieChart fx:id="pieChartStatuts" prefHeight="150"/>
+            </VBox>
+
+            <!-- BarChart -->
+            <VBox spacing="10" HBox.hgrow="ALWAYS"
+                  style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 15;">
+                <Label text="Rappels par jour" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+                <BarChart fx:id="barChartRappels" prefHeight="150">
+                    <xAxis>
+                        <CategoryAxis label="Jour"/>
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis label="Nombre de rappels"/>
+                    </yAxis>
+                </BarChart>
+            </VBox>
+
+            <!-- LineChart -->
+            <VBox spacing="10" HBox.hgrow="ALWAYS"
+                  style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 15;">
+                <Label text="Tendance absentéisme" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+                <LineChart fx:id="lineChartTendance" prefHeight="150">
+                    <xAxis>
+                        <CategoryAxis label="Semaine"/>
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis label="Taux (%)"/>
+                    </yAxis>
+                </LineChart>
+            </VBox>
+        </HBox>
+    </VBox>
+</AnchorPane>
