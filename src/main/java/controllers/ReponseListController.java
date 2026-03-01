@@ -2,7 +2,7 @@ package Controllers;
 
 import entities.ForumPost;
 import entities.Reponse;
-import Services.ServiceReponse;
+import Services.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -106,7 +106,7 @@ public class ReponseListController {
             VBox page = loader.load();
 
             ReponseFormController controller = loader.getController();
-            controller.setService(service);
+            //controller.setService(service);
             controller.setPost(postCourant);
             controller.setReponseListController(this);  // ✅ Passe la référence
 

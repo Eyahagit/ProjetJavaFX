@@ -2,8 +2,8 @@ package Controllers;
 
 import entities.ForumPost;
 import Services.ServiceForumPost;
-import utils.BadWordsFilter;
-import utils.Translator;
+import utils.*;
+import utils.*  ;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;

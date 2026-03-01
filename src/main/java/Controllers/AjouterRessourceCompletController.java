@@ -11,6 +11,10 @@ import javafx.geometry.Pos;
 import org.controlsfx.control.Notifications;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 
 public class AjouterRessourceCompletController {
@@ -37,7 +41,7 @@ public class AjouterRessourceCompletController {
 
     @FXML
     public void initialize() {
-        comboType.getItems().addAll("formation", "article", "video", "image", "evenement");
+        comboType.getItems().addAll("formation", "article", "video", "image", "pdf", "evenement");
         comboCategory.getItems().addAll("santé", "bien-etre", "developement personel", "motivation");
         comboStatus.getItems().addAll("Active", "Draft");
         datePicker.setValue(LocalDate.now());
@@ -77,6 +81,7 @@ public class AjouterRessourceCompletController {
             return;
         }
 
+
         Ressource r = new Ressource();
         r.setTitle(title.trim());
         r.setDescription(description.trim());
@@ -109,8 +114,14 @@ public class AjouterRessourceCompletController {
         javafx.stage.FileChooser chooser = new javafx.stage.FileChooser();
         chooser.setTitle("Choisir une image ou vidéo");
         chooser.getExtensionFilters().addAll(
+                new javafx.stage.FileChooser.ExtensionFilter(
+                        "Tous médias (images, vidéos, PDF)",
+                        "*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp",
+                        "*.mp4", "*.webm", "*.mov", "*.avi",
+                        "*.pdf"),
                 new javafx.stage.FileChooser.ExtensionFilter("Images/Vidéos", "*.png", "*.jpg", "*.jpeg", "*.gif",
-                        "*.webp", "*.mp4", "*.webm"),
+                        "*.webp", "*.mp4", "*.webm", "*.mov", "*.avi"),
+                new javafx.stage.FileChooser.ExtensionFilter("PDF", "*.pdf"),
                 new javafx.stage.FileChooser.ExtensionFilter("Tous les fichiers", "*.*"));
         File file = chooser.showOpenDialog(txtTitre.getScene().getWindow());
         if (file == null)
@@ -120,8 +131,20 @@ public class AjouterRessourceCompletController {
                 cloudinaryService = new CloudinaryService();
             String url = cloudinaryService.upload(file);
             if (url != null && !url.isBlank()) {
+                // SAVE LOCALLY as well
+                try {
+                    Path uploadsDir = Paths.get("uploads");
+                    if (!Files.exists(uploadsDir)) {
+                        Files.createDirectories(uploadsDir);
+                    }
+                    Path destPath = uploadsDir.resolve(file.getName());
+                    Files.copy(file.toPath(), destPath, StandardCopyOption.REPLACE_EXISTING);
+                } catch (Exception e) {
+                    System.err.println("Erreur sauvegarde locale: " + e.getMessage());
+                }
+
                 txtLocalisation.setText(url);
-                showSuccessNotification("Upload", "Lien copié dans le champ.");
+                showSuccessNotification("Upload", "Lien copié ET sauvegarde locale dans /uploads effectuee.");
             } else {
                 showAlert(Alert.AlertType.WARNING, "Upload", "Aucune URL reçue.");
             }

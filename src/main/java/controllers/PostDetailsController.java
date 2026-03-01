@@ -1,7 +1,7 @@
 package Controllers;
 
 import entities.ForumPost;
-import Services.ServiceForumPost;
+import Services.*;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -29,7 +29,7 @@ public class PostDetailsController {
     @FXML private Button btnRepondre;
 
     private ForumPost post;
-    private ServiceForumPost service;
+    private ServiceForumPost servicefp;
     private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
     @FXML
@@ -45,7 +45,7 @@ public class PostDetailsController {
     }
 
     public void setService(ServiceForumPost service) {
-        this.service = service;
+        this.servicefp = service;
     }
 
     private void afficherDetails() {
@@ -126,8 +126,8 @@ public class PostDetailsController {
 
     @FXML
     private void handleLike() {
-        if (service != null && post != null) {
-            service.incrementerLike(post.getIdPost());
+        if (servicefp != null && post != null) {
+            servicefp.incrementerLike(post.getIdPost());
             post.setLikes(post.getLikes() + 1);
             lblLikes.setText("❤️ " + post.getLikes());
             if (btnLike != null) {
@@ -138,8 +138,8 @@ public class PostDetailsController {
 
     @FXML
     private void handleDislike() {
-        if (service != null && post != null) {
-            service.incrementerDislike(post.getIdPost());
+        if (servicefp != null && post != null) {
+            servicefp.incrementerDislike(post.getIdPost());
             post.setDislikes(post.getDislikes() + 1);
             lblDislikes.setText("👎 " + post.getDislikes());
             if (btnDislike != null) {
@@ -155,7 +155,10 @@ public class PostDetailsController {
             VBox page = loader.load();
 
             ReponseFormController controller = loader.getController();
-            controller.setService(new Services.ServiceReponse());
+
+            // CORRECTION ICI : utiliser ServiceReponse directement sans Services.
+            ServiceReponse serviceReponse = new ServiceReponse();
+            //controller.setService(serviceReponse); // Note: c'est setService (minuscule) et non setservice
             controller.setPost(post);
 
             Stage stage = new Stage();

@@ -1,9 +1,13 @@
 package Controllers;
 
-import Models.RendezVous;  // ← NOUVEL IMPORT
+import Models.RendezVous;
+import Models.users;
 import Services.ServiceCabinet;
 import Services.ServicePsychologue;
 import Services.ServiceRendezVous;
+import Services.ServicePatient;
+import Services.ServiceDoctor;
+import Services.ServiceAdmin;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -27,34 +31,54 @@ public class MenuPrincipalController {
     @FXML private StackPane contentArea;
     @FXML private Label statusLabel;
     @FXML private Label dateTimeLabel;
+    @FXML private Label userWelcomeLabel;
+    @FXML private Label userRoleLabel;
+    @FXML private Label userFullNameLabel;
 
+    // Labels pour les compteurs
     @FXML private Label lblCabinetCount;
     @FXML private Label lblPsychologueCount;
     @FXML private Label lblRendezVousCount;
-
-    // ========== NOUVEAU COMPTEUR POUR LES RAPPELS ==========
     @FXML private Label lblRappelsCount;
 
+    // Labels pour le dashboard
     @FXML private Label dashboardCabinetCount;
     @FXML private Label dashboardPsychologueCount;
     @FXML private Label dashboardRendezVousCount;
 
+    // Boutons de navigation
     @FXML private Button btnDashboard;
     @FXML private Button btnCabinet;
     @FXML private Button btnPsychologue;
     @FXML private Button btnRendezVous;
     @FXML private Button btnSuiviRappels;
-    @FXML private Button btnRetourAccueil;// ← DÉJÀ PRÉSENT
+    @FXML private Button btnStatistiques;
+    @FXML private Button btnExport;
+    @FXML private Button btnRetourAccueil;
+
+    // Boutons d'actions rapides (pour contrôle par rôle)
+    @FXML private Button btnQuickCabinet;
+    @FXML private Button btnQuickPsychologue;
+    @FXML private Button btnQuickRendezVous;
+    @FXML private Button btnQuickSuiviRappels;
 
     private Parent currentView = null;
 
-    // Services pour récupérer les compteurs
+    // Utilisateur connecté
+    private users currentUser;
+
+    // Services
     private ServiceCabinet serviceCabinet = new ServiceCabinet();
     private ServicePsychologue servicePsychologue = new ServicePsychologue();
     private ServiceRendezVous serviceRendezVous = new ServiceRendezVous();
+    private ServicePatient servicePatient = new ServicePatient();
+    private ServiceDoctor serviceDoctor = new ServiceDoctor();
+    private ServiceAdmin serviceAdmin = new ServiceAdmin();
 
     @FXML
     public void initialize() {
+        System.out.println("\n=== Initialisation MenuPrincipalController ===");
+
         // Mettre à jour l'horloge
         updateDateTime();
 
@@ -63,6 +87,155 @@ public class MenuPrincipalController {
 
         // Sélectionner le dashboard par défaut
         setActiveButton(btnDashboard);
+
+        // Initialiser l'affichage utilisateur
+        updateUserDisplay();
+
+        System.out.println("=== Initialisation terminée ===\n");
+    }
+
+    /**
+     * Met à jour l'affichage des informations utilisateur
+     */
+    private void updateUserDisplay() {
+        if (currentUser != null) {
+            // Message de bienvenue
+            if (userWelcomeLabel != null) {
+                userWelcomeLabel.setText("Bienvenue, " + currentUser.getName() + " !");
+            }
+
+            // Nom complet (prénom + nom)
+            if (userFullNameLabel != null) {
+                String fullName = currentUser.getName() + " " + currentUser.getSecond_name();
+                userFullNameLabel.setText(fullName.trim());
+            }
+
+            // Rôle avec icône
+            if (userRoleLabel != null) {
+                userRoleLabel.setText(getRoleDisplay(currentUser.getRole()));
+            }
+
+            // Mettre à jour la barre de statut
+            if (statusLabel != null) {
+                statusLabel.setText("Connecté en tant que " + currentUser.getName() + " (" + getRoleDisplay(currentUser.getRole()) + ")");
+            }
+
+            System.out.println("✅ Affichage utilisateur mis à jour: " + currentUser.getName() + " " + currentUser.getSecond_name());
+        } else {
+            if (userWelcomeLabel != null) {
+                userWelcomeLabel.setText("Bienvenue, Visiteur");
+            }
+            if (userFullNameLabel != null) {
+                userFullNameLabel.setText("Invité");
+            }
+            if (userRoleLabel != null) {
+                userRoleLabel.setText("👤 Invité");
+            }
+            if (statusLabel != null) {
+                statusLabel.setText("Non connecté - Mode consultation");
+            }
+        }
+    }
+
+    /**
+     * Convertit le rôle en texte affichable avec icône
+     */
+    private String getRoleDisplay(String role) {
+        if (role == null) return "👤 Invité";
+
+        switch(role.toLowerCase()) {
+            case "admin":
+                return "👑 Administrateur";
+            case "doctor":
+                return "👨‍⚕️ Médecin";
+            case "patient":
+                return "👤 Patient";
+            default:
+                return "👤 Utilisateur";
+        }
+    }
+
+    /**
+     * Définit l'utilisateur connecté
+     */
+    public void setCurrentUser(users user) {
+        if (user != null) {
+            this.currentUser = user;
+            System.out.println("✅ Utilisateur défini dans MenuPrincipalController: " + user.getName() + " " + user.getSecond_name());
+            updateUserDisplay();
+            configureInterfaceForRole(user.getRole());
+        } else {
+            System.err.println("❌ Tentative de définir un utilisateur null");
+        }
+    }
+
+    /**
+     * Alias pour setCurrentUser
+     */
+    public void setUser(users user) {
+        setCurrentUser(user);
+    }
+
+    /**
+     * Récupère l'utilisateur courant
+     */
+    public users getCurrentUser() {
+        return currentUser;
+    }
+
+    /**
+     * Configure l'interface selon le rôle de l'utilisateur
+     */
+    private void configureInterfaceForRole(String role) {
+        if (role == null) return;
+
+        boolean isAdmin = "admin".equals(role);
+        boolean isDoctor = "doctor".equals(role);
+        boolean isPatient = "patient".equals(role);
+
+        // Pour les patients : mode consultation uniquement
+        if (isPatient) {
+            // Cacher les boutons de gestion dans la barre latérale
+            if (btnCabinet != null) btnCabinet.setVisible(false);
+            if (btnPsychologue != null) btnPsychologue.setVisible(false);
+            if (btnSuiviRappels != null) btnSuiviRappels.setVisible(false);
+
+            // Cacher les boutons d'actions rapides (ajout)
+            if (btnQuickCabinet != null) btnQuickCabinet.setVisible(false);
+            if (btnQuickPsychologue != null) btnQuickPsychologue.setVisible(false);
+            if (btnQuickRendezVous != null) btnQuickRendezVous.setVisible(false);
+            if (btnQuickSuiviRappels != null) btnQuickSuiviRappels.setVisible(false);
+
+            System.out.println("🔄 Interface patient: mode consultation uniquement");
+        }
+
+        // Pour les médecins : accès complet sauf certaines fonctions admin
+        else if (isDoctor) {
+            // Les médecins voient tout
+            System.out.println("🔄 Interface médecin: accès complet");
+        }
+
+        // Pour les admins : accès complet
+        else if (isAdmin) {
+            System.out.println("🔄 Interface admin: accès complet");
+        }
+
+        // Pour les invités (utilisateurs non connectés)
+        else {
+            if (btnCabinet != null) btnCabinet.setVisible(false);
+            if (btnPsychologue != null) btnPsychologue.setVisible(false);
+            if (btnRendezVous != null) btnRendezVous.setVisible(false);
+            if (btnSuiviRappels != null) btnSuiviRappels.setVisible(false);
+            if (btnStatistiques != null) btnStatistiques.setVisible(false);
+            if (btnExport != null) btnExport.setVisible(false);
+
+            if (btnQuickCabinet != null) btnQuickCabinet.setVisible(false);
+            if (btnQuickPsychologue != null) btnQuickPsychologue.setVisible(false);
+            if (btnQuickRendezVous != null) btnQuickRendezVous.setVisible(false);
+            if (btnQuickSuiviRappels != null) btnQuickSuiviRappels.setVisible(false);
+
+            System.out.println("🔄 Interface invité: accès limité");
+        }
     }
 
     private void updateDateTime() {
@@ -76,7 +249,6 @@ public class MenuPrincipalController {
         timeline.play();
     }
 
-    // ========== METHODE MODIFIÉE POUR INCLURE LE COMPTEUR RAPPELS ==========
     private void updateCounters() {
         try {
             int cabinetCount = serviceCabinet.recuperer().size();
@@ -91,9 +263,7 @@ public class MenuPrincipalController {
             dashboardPsychologueCount.setText(String.valueOf(psychologueCount));
             dashboardRendezVousCount.setText(String.valueOf(rendezVousCount));
 
-            // ========== NOUVEAU : Mettre à jour le compteur de rappels ==========
             if (lblRappelsCount != null) {
-                // Compter les rendez-vous qui ont reçu un rappel
                 long rappelsEnvoyes = serviceRendezVous.recuperer().stream()
                         .filter(RendezVous::isRappelEnvoye)
                         .count();
@@ -101,11 +271,11 @@ public class MenuPrincipalController {
             }
 
         } catch (Exception e) {
-            System.err.println("Erreur chargement compteurs: " + e.getMessage());
+            System.err.println("❌ Erreur chargement compteurs: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
-    // ========== METHODE MODIFIÉE POUR INCLURE LE BOUTON SUIVI RAPPELS ==========
     private void setActiveButton(Button activeButton) {
         // Réinitialiser tous les boutons
         btnDashboard.setStyle("-fx-background-color: transparent; -fx-background-radius: 10; -fx-padding: 12 15;");
@@ -113,9 +283,14 @@ public class MenuPrincipalController {
         btnPsychologue.setStyle("-fx-background-color: transparent; -fx-background-radius: 10; -fx-padding: 12 15;");
         btnRendezVous.setStyle("-fx-background-color: transparent; -fx-background-radius: 10; -fx-padding: 12 15;");
 
-        // ========== NOUVEAU : Réinitialiser aussi le bouton suivi rappels ==========
         if (btnSuiviRappels != null) {
             btnSuiviRappels.setStyle("-fx-background-color: transparent; -fx-background-radius: 10; -fx-padding: 12 15;");
+        }
+        if (btnStatistiques != null) {
+            btnStatistiques.setStyle("-fx-background-color: transparent; -fx-background-radius: 10; -fx-padding: 12 15;");
+        }
+        if (btnExport != null) {
+            btnExport.setStyle("-fx-background-color: transparent; -fx-background-radius: 10; -fx-padding: 12 15;");
         }
 
         // Mettre en surbrillance le bouton actif
@@ -128,14 +303,26 @@ public class MenuPrincipalController {
     private void openDashboard() {
         setActiveButton(btnDashboard);
         try {
-            // Afficher le dashboard (contenu par défaut)
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Dashboard.fxml"));
             Parent dashboardView = loader.load();
+
+            // Essayer de passer l'utilisateur si le contrôleur a une méthode setCurrentUser
+            Object controller = loader.getController();
+            if (controller != null && currentUser != null) {
+                try {
+                    controller.getClass().getMethod("setCurrentUser", users.class).invoke(controller, currentUser);
+                    System.out.println("✅ Utilisateur passé au DashboardController");
+                } catch (Exception e) {
+                    System.out.println("ℹ️ DashboardController n'a pas de méthode setCurrentUser");
+                }
+            }
+
             contentArea.getChildren().setAll(dashboardView);
             statusLabel.setText("✅ Tableau de bord - " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
 
         } catch (IOException e) {
             showAlert("Erreur", "Impossible de charger le tableau de bord", Alert.AlertType.ERROR);
+            e.printStackTrace();
         }
     }
 
@@ -159,17 +346,31 @@ public class MenuPrincipalController {
 
     @FXML
     private void openStatistiques() {
+        setActiveButton(btnStatistiques);
         loadView("/Statistiques.fxml", "Statistiques");
     }
 
-    // ========== MÉTHODE POUR OUVRIR LE SUIVI DES RAPPELS (DÉJÀ PRÉSENTE) ==========
     @FXML
     private void openSuiviRappels() {
-        setActiveButton(btnSuiviRappels);  // ← AJOUTÉ pour la surbrillance
+        setActiveButton(btnSuiviRappels);
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/SuiviRappels.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/SuiviRappels.fxml"));
+            Parent root = loader.load();
+
+            // Essayer de passer l'utilisateur
+            Object controller = loader.getController();
+            if (controller != null && currentUser != null) {
+                try {
+                    controller.getClass().getMethod("setCurrentUser", users.class).invoke(controller, currentUser);
+                    System.out.println("✅ Utilisateur passé au SuiviRappelsController");
+                } catch (Exception e) {
+                    System.out.println("ℹ️ SuiviRappelsController n'a pas de méthode setCurrentUser");
+                }
+            }
+
             contentArea.getChildren().setAll(root);
-            statusLabel.setText("✅ Suivi des rappels intelligents");
+            statusLabel.setText("✅ Suivi des rappels intelligents - " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+
         } catch (Exception e) {
             showAlert("Erreur", "Impossible d'ouvrir le suivi des rappels", Alert.AlertType.ERROR);
             e.printStackTrace();
@@ -179,43 +380,49 @@ public class MenuPrincipalController {
     @FXML
     private void handleRetourAccueil() {
         try {
-            // Récupérer la fenêtre actuelle
-            Stage currentStage = (Stage) btnRetourAccueil.getScene().getWindow();
-
-            // Charger le FXML de l'accueil
+            // Retour à l'accueil dans la MÊME fenêtre
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/home.fxml"));
             Parent root = loader.load();
 
-            // Créer la nouvelle scène
-            Scene homeScene = new Scene(root);
+            HomeController homeController = loader.getController();
+            if (homeController != null && currentUser != null) {
+                homeController.setUser(currentUser);
+                System.out.println("✅ Utilisateur transmis au HomeController");
+            }
 
-            // Remplacer la scène actuelle
-            currentStage.setScene(homeScene);
-            currentStage.setTitle("Accueil - GrowMind");
+            Stage stage = (Stage) btnRetourAccueil.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Accueil - GrowMind");
+            stage.show();
 
-            // Optionnel : garder la taille actuelle au lieu de maximiser
-            // currentStage.sizeToScene(); // Ajuste à la taille de la nouvelle scène
-
-            // PAS DE currentStage.show() ! La fenêtre reste visible
-
-            System.out.println("✅ Retour à l'accueil réussi");
+            System.out.println("✅ Retour à l'accueil dans la même fenêtre");
 
         } catch (IOException e) {
-            System.err.println("❌ Erreur retour accueil: " + e.getMessage());
             e.printStackTrace();
-            showAlert("Erreur", "Impossible de retourner à l'accueil: " + e.getMessage(), Alert.AlertType.ERROR);
+            showAlert("Erreur", "Impossible de retourner à l'accueil", Alert.AlertType.ERROR);
         }
     }
+
     private void loadView(String fxmlPath, String titre) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent view = loader.load();
 
+            // Essayer de passer l'utilisateur
+            Object controller = loader.getController();
+            if (controller != null && currentUser != null) {
+                try {
+                    controller.getClass().getMethod("setCurrentUser", users.class).invoke(controller, currentUser);
+                    System.out.println("✅ Utilisateur passé au contrôleur de " + titre);
+                } catch (Exception e) {
+                    // Pas de méthode setCurrentUser, on ignore
+                }
+            }
+
             // Animation de transition
             view.setOpacity(0);
             contentArea.getChildren().setAll(view);
 
-            // Animation fade in
             javafx.animation.FadeTransition ft = new javafx.animation.FadeTransition(
                     javafx.util.Duration.millis(300), view
             );
@@ -234,11 +441,16 @@ public class MenuPrincipalController {
     @FXML
     private void exportDonnees() {
         try {
-            // Simulation d'export
+            // Vérifier si l'utilisateur a le droit d'exporter
+            if (currentUser == null || (!"admin".equals(currentUser.getRole()) && !"doctor".equals(currentUser.getRole()))) {
+                showAlert("Accès refusé", "Seuls les administrateurs et médecins peuvent exporter les données.", Alert.AlertType.WARNING);
+                return;
+            }
+
             showAlert("Export", "✅ Données exportées avec succès !", Alert.AlertType.INFORMATION);
             statusLabel.setText("✅ Export effectué - " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
         } catch (Exception e) {
-            showAlert("Erreur", "❌ Erreur lors de l'export", Alert.AlertType.ERROR);
+            showAlert("Erreur", "❌ Erreur lors de l'export: " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
@@ -251,13 +463,16 @@ public class MenuPrincipalController {
 
         if (confirmation.showAndWait().get() == javafx.scene.control.ButtonType.OK) {
             try {
-                // Retour à l'écran de login
                 Stage stage = (Stage) contentArea.getScene().getWindow();
                 Parent loginView = FXMLLoader.load(getClass().getResource("/Login.fxml"));
                 stage.setScene(new Scene(loginView));
                 stage.setTitle("GrowMind - Connexion");
+                stage.setMaximized(false);
+                stage.show();
+                System.out.println("✅ Déconnexion réussie");
             } catch (IOException e) {
                 e.printStackTrace();
+                showAlert("Erreur", "Impossible de charger la page de connexion", Alert.AlertType.ERROR);
             }
         }
     }

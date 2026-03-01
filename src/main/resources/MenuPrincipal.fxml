@@ -122,7 +122,7 @@
                 </graphic>
             </Button>
 
-            <!-- ========== NOUVEAU BOUTON RETOUR À L'ACCUEIL ========== -->
+            <!-- ========== BOUTON RETOUR À L'ACCUEIL ========== -->
             <Button fx:id="btnRetourAccueil" onAction="#handleRetourAccueil"
                     style="-fx-background-color: #4A6FA5; -fx-background-radius: 10; -fx-padding: 12 15; -fx-cursor: hand; -fx-margin: 10 0 0 0;">
                 <graphic>
@@ -135,13 +135,13 @@
 
             <Region VBox.vgrow="ALWAYS"/>
 
-            <!-- UTILISATEUR -->
+            <!-- UTILISATEUR - DYNAMIQUE -->
             <VBox style="-fx-padding: 20 10; -fx-background-color: #f8f9fa; -fx-background-radius: 10;">
                 <HBox spacing="10" alignment="CENTER_LEFT">
                     <Label text="👤" style="-fx-font-size: 24px;"/>
                     <VBox>
-                        <Label text="Dr. Martin" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
-                        <Label text="Administrateur" style="-fx-font-size: 11px; -fx-text-fill: #7f8c8d;"/>
+                        <Label fx:id="userFullNameLabel" text="Chargement..." style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                        <Label fx:id="userRoleLabel" text="..." style="-fx-font-size: 11px; -fx-text-fill: #7f8c8d;"/>
                     </VBox>
                 </HBox>
 
@@ -193,18 +193,18 @@
                 </VBox>
             </HBox>
 
-            <!-- ACTIONS RAPIDES (MODIFIÉ) -->
+            <!-- ACTIONS RAPIDES - SERONT CONTROLÉES PAR LE RÔLE DANS LE CONTROLLER -->
             <Label text="Actions rapides" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-padding: 20 0 0 0;"/>
 
             <HBox spacing="20" alignment="CENTER">
-                <Button text="➕ Nouveau cabinet" onAction="#openGestionCabinet"
+                <!-- Ces boutons seront cachés ou désactivés selon le rôle dans le controller -->
+                <Button fx:id="btnQuickCabinet" text="➕ Nouveau cabinet" onAction="#openGestionCabinet"
                         style="-fx-background-color: #4A6FA5; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 12 20;"/>
-                <Button text="➕ Nouveau psychologue" onAction="#openGestionPsychologue"
+                <Button fx:id="btnQuickPsychologue" text="➕ Nouveau psychologue" onAction="#openGestionPsychologue"
                         style="-fx-background-color: #E667AF; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 12 20;"/>
-                <Button text="➕ Nouveau rendez-vous" onAction="#openGestionRendezVous"
+                <Button fx:id="btnQuickRendezVous" text="➕ Nouveau rendez-vous" onAction="#openGestionRendezVous"
                         style="-fx-background-color: #5FB49C; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 12 20;"/>
-                <!-- Bouton Suivi rappels dans actions rapides -->
-                <Button text="📱 Suivi rappels" onAction="#openSuiviRappels"
+                <Button fx:id="btnQuickSuiviRappels" text="📱 Suivi rappels" onAction="#openSuiviRappels"
                         style="-fx-background-color: #9B59B6; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 12 20;"/>
             </HBox>
         </VBox>
@@ -213,7 +213,7 @@
     <!-- BARRE DE STATUT -->
     <HBox style="-fx-background-color: #2c3e50; -fx-padding: 8 20;"
           AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="280" AnchorPane.rightAnchor="0">
-        <Label fx:id="statusLabel" text="Prêt - Connecté en tant qu'Administrateur"
+        <Label fx:id="statusLabel" text="Prêt"
                style="-fx-text-fill: white; -fx-font-size: 11px;"/>
         <Region HBox.hgrow="ALWAYS"/>
         <Label fx:id="dateTimeLabel" style="-fx-text-fill: #bdc3c7; -fx-font-size: 11px;"/>

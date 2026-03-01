@@ -10,9 +10,9 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import utils.SessionManager;
 
 import java.io.IOException;
 import java.net.URL;
@@ -38,7 +38,6 @@ public class HomeController implements Initializable {
     @FXML private VBox santeCard;
     @FXML private VBox responsabiliteCard;
 
-
     // ========== SERVICES ==========
     private final ServiceUser serviceUser = new ServiceUser();
     private final ServiceAdmin serviceAdmin = new ServiceAdmin();
@@ -47,6 +46,7 @@ public class HomeController implements Initializable {
 
     // ========== VARIABLES ==========
     private users currentUser;
+    private Stage primaryStage; // Pour stocker la fenêtre principale
 
     // ========== INITIALISATION ==========
     @Override
@@ -63,10 +63,24 @@ public class HomeController implements Initializable {
             System.err.println("❌ Erreur date: " + e.getMessage());
         }
 
+        // Vérifier si un utilisateur est déjà en session
+        users sessionUser = SessionManager.getInstance().getCurrentUser();
+        if (sessionUser != null) {
+            setUser(sessionUser);
+            System.out.println("✅ Utilisateur récupéré depuis la session: " + sessionUser.getName());
+        }
+
         // Initialiser les cartes
         setupCards();
 
         System.out.println("=== Initialisation terminée ===\n");
+    }
+
+    /**
+     * Définit la fenêtre principale
+     */
+    public void setPrimaryStage(Stage stage) {
+        this.primaryStage = stage;
     }
 
     // ========== CONFIGURATION DES CARTES ==========
@@ -87,11 +101,9 @@ public class HomeController implements Initializable {
                 "Suivre les activités, conseils et programmes",
                 "#9B59B6", "sante");
 
-        setupCard(responsabiliteCard, "⚖️ Responsabilité & biblioteque",
+        setupCard(responsabiliteCard, "⚖️ Responsabilité & bibliothèque",
                 "Gérer les engagements et responsabilités",
                 "#F39C12", "responsabilite");
-
-
     }
 
     private void setupCard(VBox card, String title, String description, String color, String moduleName) {
@@ -129,6 +141,37 @@ public class HomeController implements Initializable {
                         "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5); " +
                         "-fx-padding: 20; -fx-cursor: hand;")
         );
+
+        // Ajouter l'événement de clic
+        card.setOnMouseClicked(e -> handleCardClick(moduleName));
+    }
+
+    // ========== GESTION DES CLICS SUR LES CARTES ==========
+    private void handleCardClick(String moduleName) {
+        if (currentUser == null) {
+            showAlert("Non connecté", "Veuillez vous connecter pour accéder à ce module.");
+            return;
+        }
+
+        switch(moduleName) {
+            case "cabinet":
+                goToCabinet();
+                break;
+            case "forum":
+                goToForum();
+                break;
+            case "event":
+                goToEvent();
+                break;
+            case "sante":
+                goToSante();
+                break;
+            case "responsabilite":
+                goToResponsabilite();
+                break;
+            default:
+                showModuleInfo(moduleName, moduleName);
+        }
     }
 
     // ========== GESTION DE L'UTILISATEUR ==========
@@ -137,65 +180,84 @@ public class HomeController implements Initializable {
 
         if (user == null) {
             System.err.println("❌ Utilisateur reçu est null!");
-            return;
+            user = createGuestUser();
         }
 
         this.currentUser = user;
-        System.out.println("✅ Utilisateur reçu: " + user.getEmail());
+        SessionManager.getInstance().setCurrentUser(user);
+
+        System.out.println("✅ Utilisateur défini: " + user.getEmail());
         System.out.println("   Rôle: " + user.getRole());
         System.out.println("   Nom: " + user.getName() + " " + user.getSecond_name());
 
-        // Mise à jour des labels avec vérification de nullité
+        updateUserDisplay();
+        System.out.println("=== Fin setUser ===\n");
+    }
+
+    private users createGuestUser() {
+        users guest = new users();
+        guest.setName("Invité");
+        guest.setSecond_name("");
+        guest.setRole("guest");
+        guest.setEmail("invite@growmind.com");
+        guest.setId(0);
+        return guest;
+    }
+
+    private void updateUserDisplay() {
         try {
-            if (userNameLabel != null) {
-                String fullName = user.getName() + " " + user.getSecond_name();
-                userNameLabel.setText(fullName);
-                System.out.println("✅ userNameLabel mis à jour");
-            } else {
-                System.err.println("❌ userNameLabel est null!");
-            }
-
-            if (welcomeLabel != null) {
-                welcomeLabel.setText("Bienvenue, " + user.getName() + " !");
-                System.out.println("✅ welcomeLabel mis à jour");
-            } else {
-                System.err.println("❌ welcomeLabel est null!");
-            }
-
-            if (userRoleLabel != null) {
-                String roleText = "";
-                String roleColor = "";
-
-                switch(user.getRole()) {
-                    case "admin":
-                        roleText = "👑 Administrateur";
-                        roleColor = "#9B59B6";
-                        break;
-                    case "doctor":
-                        roleText = "👨‍⚕️ Docteur";
-                        roleColor = "#E667AF";
-                        break;
-                    case "patient":
-                        roleText = "🩺 Patient";
-                        roleColor = "#5FB49C";
-                        break;
-                    default:
-                        roleText = "👤 Utilisateur";
-                        roleColor = "#666";
+            if (currentUser != null) {
+                if (userNameLabel != null) {
+                    String fullName = currentUser.getName() + " " + currentUser.getSecond_name();
+                    userNameLabel.setText(fullName.trim());
                 }
 
-                userRoleLabel.setText(roleText);
-                userRoleLabel.setStyle("-fx-text-fill:black " + roleColor + "; -fx-font-weight: bold;");
-            } else {
-                System.err.println("❌ userRoleLabel est null!");
-            }
+                if (welcomeLabel != null) {
+                    welcomeLabel.setText("Bienvenue, " + currentUser.getName() + " !");
+                }
 
+                if (userRoleLabel != null) {
+                    String roleText = "";
+                    String roleColor = "";
+
+                    switch(currentUser.getRole().toLowerCase()) {
+                        case "admin":
+                            roleText = "👑 Administrateur";
+                            roleColor = "#9B59B6";
+                            break;
+                        case "doctor":
+                            roleText = "👨‍⚕️ Docteur";
+                            roleColor = "#E667AF";
+                            break;
+                        case "patient":
+                            roleText = "🩺 Patient";
+                            roleColor = "#5FB49C";
+                            break;
+                        case "guest":
+                            roleText = "👤 Invité";
+                            roleColor = "#7F8C8D";
+                            break;
+                        default:
+                            roleText = "👤 Utilisateur";
+                            roleColor = "#666";
+                    }
+
+                    userRoleLabel.setText(roleText);
+                    userRoleLabel.setStyle("-fx-text-fill:black " + roleColor + "; -fx-font-weight: bold;");
+                }
+
+                if ("guest".equals(currentUser.getRole())) {
+                    if (profileButton != null) profileButton.setVisible(false);
+                    if (goToDashboardButton != null) goToDashboardButton.setVisible(false);
+                } else {
+                    if (profileButton != null) profileButton.setVisible(true);
+                    if (goToDashboardButton != null) goToDashboardButton.setVisible(true);
+                }
+            }
         } catch (Exception e) {
             System.err.println("❌ Erreur lors de la mise à jour des labels: " + e.getMessage());
             e.printStackTrace();
         }
-
-        System.out.println("=== Fin setUser ===\n");
     }
 
     // ========== REDIRECTION VERS LE DASHBOARD ==========
@@ -203,8 +265,8 @@ public class HomeController implements Initializable {
     private void goToDashboard() {
         System.out.println("\n=== Redirection vers dashboard ===");
 
-        if (currentUser == null) {
-            showAlert("Erreur", "Aucun utilisateur connecté");
+        if (currentUser == null || "guest".equals(currentUser.getRole())) {
+            showAlert("Accès refusé", "Veuillez vous connecter pour accéder au dashboard.");
             return;
         }
 
@@ -216,17 +278,14 @@ public class HomeController implements Initializable {
                 case "admin":
                     fxmlFile = "/admin_dashboard.fxml";
                     title = "Admin Dashboard";
-                    System.out.println("🔍 Redirection admin");
                     break;
                 case "doctor":
                     fxmlFile = "/doctor_dashboard.fxml";
                     title = "Doctor Dashboard";
-                    System.out.println("🔍 Redirection docteur");
                     break;
                 case "patient":
                     fxmlFile = "/patient_dashboard.fxml";
                     title = "Patient Dashboard";
-                    System.out.println("🔍 Redirection patient");
                     break;
                 default:
                     showAlert("Erreur", "Rôle non reconnu: " + currentUser.getRole());
@@ -236,38 +295,28 @@ public class HomeController implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
             Parent root = loader.load();
 
-            // Passer l'utilisateur au contrôleur approprié
             Object controller = loader.getController();
 
             if (controller instanceof AdminDashboardController && "admin".equals(currentUser.getRole())) {
                 admin adminUser = serviceAdmin.getById(currentUser.getId());
                 if (adminUser != null) {
                     ((AdminDashboardController) controller).setAdminData(adminUser);
-                    System.out.println("✅ Admin chargé: " + adminUser.getName());
-                } else {
-                    System.err.println("❌ Admin non trouvé pour ID: " + currentUser.getId());
                 }
-
             } else if (controller instanceof DoctorDashboardController && "doctor".equals(currentUser.getRole())) {
                 doctor doctorUser = serviceDoctor.getById(currentUser.getId());
                 if (doctorUser != null) {
                     ((DoctorDashboardController) controller).setDoctorData(doctorUser);
-                    System.out.println("✅ Docteur chargé: " + doctorUser.getName());
-                } else {
-                    System.err.println("❌ Docteur non trouvé pour ID: " + currentUser.getId());
                 }
-
             } else if (controller instanceof PatientDashboardController && "patient".equals(currentUser.getRole())) {
                 patient patientUser = servicePatient.getById(currentUser.getId());
                 if (patientUser != null) {
                     ((PatientDashboardController) controller).setPatientData(patientUser);
-                    System.out.println("✅ Patient chargé: " + patientUser.getName());
                 } else {
-                    System.out.println("⚠️ Patient non trouvé, utilisation de l'utilisateur générique");
                     ((PatientDashboardController) controller).setUser(currentUser);
                 }
             }
 
+            // Remplacer la scène actuelle au lieu de créer une nouvelle fenêtre
             Stage stage = (Stage) goToDashboardButton.getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.setTitle(title);
@@ -276,22 +325,21 @@ public class HomeController implements Initializable {
             System.out.println("✅ Redirection réussie vers " + title);
 
         } catch (IOException e) {
-            System.err.println("❌ Erreur IO: " + e.getMessage());
             e.printStackTrace();
             showAlert("Erreur", "Fichier FXML non trouvé: " + e.getMessage());
         } catch (Exception e) {
-            System.err.println("❌ Erreur inattendue: " + e.getMessage());
             e.printStackTrace();
             showAlert("Erreur", "Impossible d'accéder au dashboard: " + e.getMessage());
         }
     }
+
     // ========== GESTION DU PROFIL ==========
     @FXML
     private void goToProfile() {
         System.out.println("\n=== Accès au profil utilisateur ===");
 
-        if (currentUser == null) {
-            showAlert("Erreur", "Aucun utilisateur connecté");
+        if (currentUser == null || "guest".equals(currentUser.getRole())) {
+            showAlert("Accès refusé", "Veuillez vous connecter pour accéder à votre profil.");
             return;
         }
 
@@ -307,151 +355,165 @@ public class HomeController implements Initializable {
             stage.setScene(new Scene(root));
             stage.show();
 
-            System.out.println("✅ Fenêtre de profil ouverte");
-
         } catch (IOException e) {
-            System.err.println("❌ Erreur IO: " + e.getMessage());
             e.printStackTrace();
             showAlert("Erreur", "Impossible d'ouvrir le profil: " + e.getMessage());
         }
     }
-    // ========== GESTION DES CARTES ==========
+
+    // ========== GESTION DES MODULES ==========
     @FXML
     private void goToCabinet() {
+        if (currentUser == null) {
+            showAlert("Non connecté", "Veuillez vous connecter pour accéder au module Cabinet.");
+            return;
+        }
 
         try {
-            // Charger le fichier FXML du module Forum
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/MenuPrincipal.fxml"));
             Parent root = loader.load();
 
-            // Créer une nouvelle fenêtre pour le module
-            Stage forumStage = new Stage();
-            forumStage.setTitle("Gestion Forum - GrowMind");
-            forumStage.setScene(new Scene(root));
+            Object controller = loader.getController();
+            try {
+                controller.getClass().getMethod("setCurrentUser", users.class).invoke(controller, currentUser);
+            } catch (Exception e) {
+                System.out.println("ℹ️ Le contrôleur n'a pas de méthode setCurrentUser");
+            }
 
-            // Optionnel : passer l'utilisateur connecté au contrôleur du forum
-            // Object controller = loader.getController();
-            // if (controller instanceof ForumController) {
-            //     ((ForumController) controller).setUser(currentUser);
-            // }
+            // Remplacer la scène actuelle au lieu de créer une nouvelle fenêtre
+            Stage stage = (Stage) cabinetCard.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Gestion Cabinet - GrowMind");
+            stage.show();
 
-            forumStage.show();
-
-            System.out.println("✅ Module Forum ouvert avec succès");
+            System.out.println("✅ Module Cabinet ouvert dans la même fenêtre");
 
         } catch (IOException e) {
-            System.err.println("❌ Erreur chargement module Forum: " + e.getMessage());
             e.printStackTrace();
-            showAlert("Erreur", "Impossible de charger le module Forum.\n" + e.getMessage());
+            showAlert("Erreur", "Impossible de charger le module Cabinet.\n" + e.getMessage());
         }
-
     }
 
     @FXML
     private void goToForum() {
-        System.out.println("\n=== Accès au module Forum ===");
+        if (currentUser == null) {
+            showAlert("Non connecté", "Veuillez vous connecter pour accéder au Forum.");
+            return;
+        }
 
         try {
-            // Charger le fichier FXML du module Forum
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/main_forum.fxml"));
             Parent root = loader.load();
 
-            // Créer une nouvelle fenêtre pour le module
-            Stage forumStage = new Stage();
-            forumStage.setTitle("Gestion Forum - GrowMind");
-            forumStage.setScene(new Scene(root));
+            MainForumController controller = loader.getController();
+            controller.setCurrentUser(currentUser);
 
-            // Optionnel : passer l'utilisateur connecté au contrôleur du forum
-            // Object controller = loader.getController();
-            // if (controller instanceof ForumController) {
-            //     ((ForumController) controller).setUser(currentUser);
-            // }
+            // Remplacer la scène actuelle
+            Stage stage = (Stage) forumCard.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Forum - GrowMind");
+            stage.show();
 
-            forumStage.show();
-
-            System.out.println("✅ Module Forum ouvert avec succès");
+            System.out.println("✅ Module Forum ouvert dans la même fenêtre");
 
         } catch (IOException e) {
-            System.err.println("❌ Erreur chargement module Forum: " + e.getMessage());
             e.printStackTrace();
             showAlert("Erreur", "Impossible de charger le module Forum.\n" + e.getMessage());
         }
     }
+
     @FXML
     private void goToEvent() {
+        if (currentUser == null) {
+            showAlert("Non connecté", "Veuillez vous connecter pour accéder aux Événements.");
+            return;
+        }
         showModuleInfo("Événement", "event");
     }
 
     @FXML
     private void goToSante() {
+        if (currentUser == null) {
+            showAlert("Non connecté", "Veuillez vous connecter pour accéder à Santé & Bien-être.");
+            return;
+        }
         showModuleInfo("Santé & Bien-être", "sante");
     }
 
     @FXML
     private void goToResponsabilite() {
-
+        if (currentUser == null) {
+            showAlert("Non connecté", "Veuillez vous connecter pour accéder à Responsabilité.");
+            return;
+        }
 
         try {
-            // Charger le fichier FXML du module Forum
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/userressource.fxml"));
             Parent root = loader.load();
 
-            // Créer une nouvelle fenêtre pour le module
-            Stage forumStage = new Stage();
-            forumStage.setTitle("Gestion Forum - GrowMind");
-            forumStage.setScene(new Scene(root));
+            // Récupérer le contrôleur et le caster directement
+            UserRessourceController controller = loader.getController();
+            controller.setCurrentUser(currentUser); // Appel direct sans réflexion
 
-            // Optionnel : passer l'utilisateur connecté au contrôleur du forum
-            // Object controller = loader.getController();
-            // if (controller instanceof ForumController) {
-            //     ((ForumController) controller).setUser(currentUser);
-            // }
+            // Remplacer la scène actuelle
+            Stage stage = (Stage) responsabiliteCard.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Gestion Ressources - GrowMind");
+            stage.show();
 
-            forumStage.show();
-
-            System.out.println("✅ Module Forum ouvert avec succès");
+            System.out.println("✅ Module Ressources ouvert - Utilisateur: " + currentUser.getName());
 
         } catch (IOException e) {
-            System.err.println("❌ Erreur chargement module Forum: " + e.getMessage());
             e.printStackTrace();
-            showAlert("Erreur", "Impossible de charger le module Forum.\n" + e.getMessage());
+            showAlert("Erreur", "Impossible de charger le module Ressources.\n" + e.getMessage());
         }
     }
 
     private void showModuleInfo(String moduleName, String moduleId) {
-        System.out.println("🔍 Accès au module: " + moduleName);
-
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Module " + moduleName);
         alert.setHeaderText(null);
         alert.setContentText("Le module \"" + moduleName + "\" sera bientôt disponible !\n\n" +
-                "Cette fonctionnalité est en cours de développement.\n" +
-                "Revenez plus tard pour découvrir cette nouvelle fonctionnalité.");
+                "Cette fonctionnalité est en cours de développement.");
         alert.showAndWait();
     }
-
-    // ========== GESTION DU PROFIL ==========
 
     // ========== DÉCONNEXION ==========
     @FXML
     private void handleLogout(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/log_in.fxml"));
-            Parent root = loader.load();
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle("Login - GrowMind");
-            stage.show();
-            System.out.println("✅ Logout successful");
-        } catch (IOException e) {
-            e.printStackTrace();
-            showAlert("Erreur", "Impossible de charger la page de connexion: " + e.getMessage());
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Déconnexion");
+        confirm.setHeaderText("Confirmation de déconnexion");
+        confirm.setContentText("Êtes-vous sûr de vouloir vous déconnecter ?");
+
+        if (confirm.showAndWait().get() == ButtonType.OK) {
+            try {
+                // Vider la session
+                SessionManager.getInstance().logout();
+
+                // Retour à la page de login dans la MÊME fenêtre
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/log_in.fxml"));
+                Parent root = loader.load();
+
+                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                stage.setScene(new Scene(root));
+                stage.setTitle("GrowMind - Connexion");
+
+                // Garder la même taille/fenêtre
+                stage.show();
+
+                System.out.println("✅ Déconnexion réussie - Retour à la page de login");
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                showAlert("Erreur", "Impossible de charger la page de connexion: " + e.getMessage());
+            }
         }
     }
 
     // ========== UTILITAIRES ==========
     private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);

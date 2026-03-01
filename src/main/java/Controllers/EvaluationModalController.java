@@ -11,6 +11,7 @@ import javafx.stage.Stage;
 import org.controlsfx.control.Rating;
 import Models.Evaluation;
 import Models.Ressource;
+import Models.users;
 import Services.evaluationService;
 import utils.StaticUser;
 
@@ -39,6 +40,9 @@ public class EvaluationModalController {
     private final evaluationService service = new evaluationService();
     private UserRessourceController parentController;
 
+    // Utilisateur connecté
+    private users currentUser;
+
     @FXML
     public void initialize() {
         applyIcon(btnSubmit, "submit.png", "Soumettre", 20);
@@ -47,6 +51,13 @@ public class EvaluationModalController {
             ratingControl.setMax(5);
             ratingControl.setRating(0);
         }
+    }
+
+    /**
+     * Définit l'utilisateur connecté
+     */
+    public void setCurrentUser(users user) {
+        this.currentUser = user;
     }
 
     public void setRessource(Ressource r, UserRessourceController parent) {
@@ -85,14 +96,14 @@ public class EvaluationModalController {
         if (!valid)
             return;
 
-        int userId = StaticUser.getId();
+        int userId = StaticUser.isSet() ? StaticUser.getId() : 0;
         if (existingEvaluation != null) {
             existingEvaluation.setNote(note);
-            existingEvaluation.setCommentaire(txtCommentaire.getText());
+            existingEvaluation.setCommentaire(txtCommentaire.getText().trim());
             existingEvaluation.setDateEvaluation(LocalDate.now());
             service.update(existingEvaluation);
         } else {
-            Evaluation newEval = new Evaluation(userId, ressource, note, txtCommentaire.getText(),
+            Evaluation newEval = new Evaluation(userId, ressource, note, txtCommentaire.getText().trim(),
                     LocalDate.now());
             service.create(newEval);
         }

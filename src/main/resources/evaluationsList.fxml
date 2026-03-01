@@ -11,11 +11,7 @@
 <?import javafx.scene.shape.Rectangle?>
 
 <AnchorPane prefHeight="750.0" prefWidth="1200.0" style="-fx-background-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.EvaluationsListController">
-    
-    <!-- Background decorative elements -->
-    <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#9B59B6" height="120.0" layoutX="-50.0" layoutY="0.0" opacity="0.15" rotate="45.0" width="300.0" />
-    <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#E667AF" height="150.0" layoutX="1100.0" layoutY="650.0" opacity="0.15" rotate="-30.0" width="200.0" />
-    <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#F1C40F" height="100.0" layoutX="900.0" layoutY="-30.0" opacity="0.1" rotate="15.0" width="250.0" />
+
 
     <!-- HEADER SECTION -->
     <VBox alignment="CENTER" layoutX="0.0" layoutY="0.0" prefHeight="100.0" prefWidth="1200.0" style="-fx-background-color: linear-gradient(to right, #4A6FA5, #5FB49C); -fx-background-radius: 0 0 25 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0.5, 0, 3);">
@@ -27,7 +23,7 @@
 
     <!-- CONTENT -->
     <VBox layoutX="50.0" layoutY="130.0" prefHeight="550.0" prefWidth="1100.0" spacing="20" style="-fx-background-color: rgba(255,255,255,0.95); -fx-background-radius: 15; -fx-padding: 30; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);">
-        
+
         <HBox alignment="CENTER_LEFT" spacing="20">
             <Button fx:id="btnBack" onAction="#handleBack" text="⬅ Retour" style="-fx-background-color: #bdc3c7; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-cursor: hand;"/>
             <Label style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" text="Avis des utilisateurs" />

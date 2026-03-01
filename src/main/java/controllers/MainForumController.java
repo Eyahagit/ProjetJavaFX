@@ -2,7 +2,10 @@ package Controllers;
 
 import Models.users;
 import Services.ServiceForumPost;
-import Services.ServiceReponse;
+import Services.*;
+import Services.ServicePatient;
+import Services.ServiceDoctor;
+import Services.ServiceAdmin;
 import utils.TwilioUtil;
 import utils.GeolocationUtil;
 import javafx.fxml.FXML;
@@ -23,73 +26,270 @@ public class MainForumController {
     @FXML private AnchorPane rootPane;
     @FXML private Label lblDate;
     @FXML private Label lblUserRole;
+    @FXML private Label lblUserWelcome;
+    @FXML private Label lblUserFullName;  // Nouveau label pour nom complet
     @FXML private Label lblPatientsCount;
     @FXML private Label lblMedecinsCount;
     @FXML private Label lblPostsCount;
     @FXML private Label lblReponsesCount;
     @FXML private TextField searchField;
 
-    // ✅ Changé pour utiliser le modèle users
+    // Boutons de navigation
+    @FXML private Button btnForum;
+    @FXML private Button btnNouvelleDiscussion;
+    @FXML private Button btnEspacePatient;
+    @FXML private Button btnEspaceMedecin;
+    @FXML private Button btnRessources;
+    @FXML private Button btnAssistantIA;
+    @FXML private Button btnUrgence;
+    @FXML private Button btnSwitchRole;
+    @FXML private Button btnRetourAccueil;
+    @FXML private Button btnCommencerDiscussion;
+    @FXML private Button btnVoirForum;
+    @FXML private Button btnRechercher;
+
+    // Utilisateur connecté
     private users currentUser;
     private boolean isMedecin = false;
+    private boolean isAdmin = false;
+
+    // Services
     private ServiceForumPost servicePost;
     private ServiceReponse serviceReponse;
+    private ServicePatient servicePatient;
+    private ServiceDoctor serviceDoctor;
+    private ServiceAdmin serviceAdmin;
 
     @FXML
     public void initialize() {
+        System.out.println("\n=== Initialisation MainForumController ===");
+
+        // Initialiser les services
         servicePost = new ServiceForumPost();
         serviceReponse = new ServiceReponse();
+        servicePatient = new ServicePatient();
+        serviceDoctor = new ServiceDoctor();
+        serviceAdmin = new ServiceAdmin();
 
+        // Afficher la date
         lblDate.setText(LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
 
         // Initialiser avec un utilisateur par défaut si nécessaire
         if (currentUser == null) {
             currentUser = new users();
-            currentUser.setRole("patient");
+            currentUser.setRole("guest");
             currentUser.setName("Invité");
+            currentUser.setSecond_name("");
+            currentUser.setEmail("invite@growmind.com");
         }
 
-        updateRoleDisplay();
-
+        // Mettre à jour l'affichage
+        updateUserDisplay();
         updateStatistics();
+        configureInterfaceByRole();
+
+        System.out.println("=== Initialisation terminée ===\n");
     }
 
     /**
-     * Met à jour l'affichage du rôle
+     * Configure l'interface en fonction du rôle de l'utilisateur
      */
-    private void updateRoleDisplay() {
-        if (currentUser != null) {
-            String roleText = getRoleDisplay(currentUser.getRole());
-            lblUserRole.setText(roleText);
+    private void configureInterfaceByRole() {
+        if (currentUser == null) return;
+
+        String role = currentUser.getRole().toLowerCase();
+        isAdmin = "admin".equals(role);
+        isMedecin = "doctor".equals(role);
+
+        System.out.println("🔧 Configuration interface pour rôle: " + role);
+
+        // ADMIN : voit tous les boutons
+        if (isAdmin) {
+            setButtonsVisibility(true, true, true, true, true, true, true, true, true);
+            System.out.println("✅ Mode Admin: tous les boutons visibles");
+        }
+        // MEDECIN : voit presque tous les boutons
+        else if (isMedecin) {
+            setButtonsVisibility(true, true, true, true, true, true, true, true, true);
+            System.out.println("✅ Mode Médecin: accès complet");
+        }
+        // PATIENT : voit les boutons de base
+        else if ("patient".equals(role)) {
+            setButtonsVisibility(true, true, true, false, true, false, true, true, true);
+            System.out.println("✅ Mode Patient: accès limité");
+        }
+        // INVITE : voit le minimum (consultation uniquement)
+        else {
+            setButtonsVisibility(true, false, false, false, true, false, true, true, false);
+            System.out.println("✅ Mode Invité: consultation uniquement");
+        }
+
+        // Configurer le texte du bouton de switch
+        if (btnSwitchRole != null) {
+            if (isAdmin) {
+                btnSwitchRole.setText("👑 Admin");
+                btnSwitchRole.setVisible(true);
+            } else if (isMedecin) {
+                btnSwitchRole.setText("👨‍⚕️ Médecin");
+                btnSwitchRole.setVisible(true);
+            } else if ("patient".equals(role)) {
+                btnSwitchRole.setText("👤 Patient");
+                btnSwitchRole.setVisible(true);
+            } else {
+                btnSwitchRole.setVisible(false);
+            }
         }
     }
 
     /**
-     * Convertit le rôle en texte affichable
+     * Contrôle la visibilité de tous les boutons
+     */
+    private void setButtonsVisibility(boolean forum, boolean nouvelleDiscussion,
+                                      boolean espacePatient, boolean espaceMedecin,
+                                      boolean ressources, boolean assistantIA,
+                                      boolean urgence, boolean commencerDiscussion,
+                                      boolean voirForum) {
+        if (btnForum != null) btnForum.setVisible(forum);
+        if (btnNouvelleDiscussion != null) btnNouvelleDiscussion.setVisible(nouvelleDiscussion);
+        if (btnEspacePatient != null) btnEspacePatient.setVisible(espacePatient);
+        if (btnEspaceMedecin != null) btnEspaceMedecin.setVisible(espaceMedecin);
+        if (btnRessources != null) btnRessources.setVisible(ressources);
+        if (btnAssistantIA != null) btnAssistantIA.setVisible(assistantIA);
+        if (btnUrgence != null) btnUrgence.setVisible(urgence);
+        if (btnCommencerDiscussion != null) btnCommencerDiscussion.setVisible(commencerDiscussion);
+        if (btnVoirForum != null) btnVoirForum.setVisible(voirForum);
+        if (btnRechercher != null) btnRechercher.setVisible(true);
+    }
+
+    /**
+     * Met à jour l'affichage avec les informations de l'utilisateur
+     */
+    private void updateUserDisplay() {
+        if (currentUser != null) {
+            // Message de bienvenue
+            String welcomeText = "Bienvenue, " + currentUser.getName() + " !";
+            if (lblUserWelcome != null) {
+                lblUserWelcome.setText(welcomeText);
+            }
+
+            // Nom complet (prénom + nom)
+            if (lblUserFullName != null) {
+                String fullName = currentUser.getName() + " " + currentUser.getSecond_name();
+                lblUserFullName.setText(fullName.trim());
+            }
+
+            // Rôle avec icône
+            String roleText = getRoleDisplay(currentUser.getRole());
+            if (lblUserRole != null) {
+                lblUserRole.setText(roleText);
+            }
+
+            // Déterminer si c'est un médecin
+            isMedecin = "doctor".equals(currentUser.getRole());
+
+            System.out.println("✅ Affichage utilisateur mis à jour: " + currentUser.getName() + " " + currentUser.getSecond_name() + " (" + currentUser.getRole() + ")");
+        }
+    }
+
+    /**
+     * Convertit le rôle en texte affichable avec icône
      */
     private String getRoleDisplay(String role) {
         if (role == null) return "👤 Invité";
 
-        switch(role) {
-            case "admin": return "👑 Administrateur";
-            case "doctor": return "👨‍⚕️ Médecin";
-            case "patient": return "👤 Patient";
-            default: return "👤 Utilisateur";
+        switch(role.toLowerCase()) {
+            case "admin":
+                return "👑 Administrateur";
+            case "doctor":
+                return "👨‍⚕️ Médecin";
+            case "patient":
+                return "👤 Patient";
+            case "guest":
+                return "👤 Invité";
+            default:
+                return "👤 Utilisateur";
         }
     }
 
+    /**
+     * Méthode principale pour recevoir l'utilisateur connecté
+     */
+    public void setCurrentUser(users user) {
+        if (user != null) {
+            this.currentUser = user;
+            System.out.println("✅ Utilisateur défini dans MainForumController: " + user.getName() + " " + user.getSecond_name() + " (" + user.getEmail() + ")");
+
+            // Mettre à jour l'affichage
+            updateUserDisplay();
+
+            // Configurer l'interface selon le rôle
+            configureInterfaceByRole();
+
+            // Charger les données spécifiques au rôle
+            loadUserSpecificData();
+        } else {
+            System.err.println("❌ Tentative de définir un utilisateur null");
+        }
+    }
+
+    /**
+     * Alias pour setCurrentUser (pour compatibilité)
+     */
+    public void setUser(users user) {
+        setCurrentUser(user);
+    }
+
+    /**
+     * Récupère l'utilisateur courant
+     */
+    public users getCurrentUser() {
+        return currentUser;
+    }
+
+    /**
+     * Charge les données spécifiques au rôle de l'utilisateur
+     */
+    private void loadUserSpecificData() {
+        if (currentUser == null) return;
+
+        try {
+            switch(currentUser.getRole().toLowerCase()) {
+                case "patient":
+                    System.out.println("📋 Mode Patient activé");
+                    break;
+                case "doctor":
+                    System.out.println("📋 Mode Médecin activé");
+                    break;
+                case "admin":
+                    System.out.println("📋 Mode Administrateur activé");
+                    break;
+                case "guest":
+                    System.out.println("📋 Mode Invité activé");
+                    break;
+            }
+        } catch (Exception e) {
+            System.err.println("❌ Erreur chargement données spécifiques: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Met à jour les statistiques du forum
+     */
     private void updateStatistics() {
         try {
             int totalPosts = servicePost.compter();
             lblPostsCount.setText(String.valueOf(totalPosts));
-            lblPatientsCount.setText("1,254"); // À remplacer par des données réelles
-            lblMedecinsCount.setText("89");    // À remplacer par des données réelles
 
-            //int totalReponses = serviceReponse.compter();
-            //lblReponsesCount.setText(String.valueOf(totalReponses));
+            lblPatientsCount.setText("1,254");
+            lblMedecinsCount.setText("89");
+            lblReponsesCount.setText("3,421");
+
         } catch (Exception e) {
             lblPostsCount.setText("0");
             lblReponsesCount.setText("0");
+            lblPatientsCount.setText("0");
+            lblMedecinsCount.setText("0");
+            System.err.println("❌ Erreur mise à jour statistiques: " + e.getMessage());
         }
     }
 
@@ -99,26 +299,50 @@ public class MainForumController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/post_list.fxml"));
             VBox postView = loader.load();
 
-            Controllers.PostListController controller = loader.getController();
+            PostListController controller = loader.getController();
             controller.setMainController(this);
+
+            // Passer l'utilisateur
+            if (controller != null && currentUser != null) {
+                try {
+                    controller.getClass().getMethod("setCurrentUser", users.class).invoke(controller, currentUser);
+                } catch (Exception e) {
+                    System.out.println("ℹ️ PostListController n'a pas de méthode setCurrentUser");
+                }
+            }
 
             Stage stage = (Stage) rootPane.getScene().getWindow();
             stage.setScene(new Scene(postView, 1300, 750));
+
+            System.out.println("✅ Navigation vers la liste des posts");
+
         } catch (IOException e) {
-            showError("Erreur", "Impossible de charger le forum");
+            showError("Erreur", "Impossible de charger le forum: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
     @FXML
     public void handleNouvelleDiscussion() {
+        // Vérifier les droits
+        if (currentUser == null || "guest".equals(currentUser.getRole())) {
+            showError("Accès refusé", "Vous devez être connecté pour créer une discussion.");
+            return;
+        }
+
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/post_form.fxml"));
             VBox page = loader.load();
 
-            Controllers.PostFormController controller = loader.getController();
+            PostFormController controller = loader.getController();
             controller.setService(servicePost);
             controller.setMainController(this);
-            controller.setMode(Controllers.PostFormController.Mode.AJOUT);
+            controller.setMode(PostFormController.Mode.AJOUT);
+
+            // Passer l'utilisateur connecté pour pré-remplir le formulaire
+            if (controller != null && currentUser != null) {
+                controller.setCurrentUser(currentUser); // Cette méthode pré-remplira nom et rôle
+            }
 
             Stage stage = new Stage();
             stage.setTitle("Nouvelle discussion");
@@ -126,18 +350,16 @@ public class MainForumController {
             stage.showAndWait();
 
             updateStatistics();
+
         } catch (IOException e) {
-            showError("Erreur", "Impossible d'ouvrir le formulaire");
+            showError("Erreur", "Impossible d'ouvrir le formulaire: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
     @FXML
     public void handleEspacePatient() {
         if (currentUser != null) {
-            currentUser.setRole("patient");
-            isMedecin = false;
-            updateRoleDisplay();
-
             showInfo("Espace Patient",
                     "👥 Bienvenue dans votre espace personnel\n\n" +
                             "Fonctionnalités disponibles :\n" +
@@ -150,11 +372,7 @@ public class MainForumController {
 
     @FXML
     public void handleEspaceMedecin() {
-        if (currentUser != null) {
-            currentUser.setRole("doctor");
-            isMedecin = true;
-            updateRoleDisplay();
-
+        if (currentUser != null && ("doctor".equals(currentUser.getRole()) || "admin".equals(currentUser.getRole()))) {
             showInfo("Espace Médecin",
                     "👨‍⚕️ Bienvenue dans votre espace professionnel\n\n" +
                             "Fonctionnalités disponibles :\n" +
@@ -162,15 +380,19 @@ public class MainForumController {
                             "• 💬 Répondre aux patients\n" +
                             "• 🛡️ Modérer les contenus signalés\n" +
                             "• 🗑️ Supprimer les publications inappropriées");
+        } else {
+            showError("Accès refusé", "Seuls les médecins et administrateurs peuvent accéder à cet espace.");
         }
     }
 
     @FXML
     public void handleSwitchRole() {
-        if (isMedecin) {
-            handleEspacePatient();
-        } else {
-            handleEspaceMedecin();
+        if (currentUser != null) {
+            if ("doctor".equals(currentUser.getRole())) {
+                showInfo("Information", "Vous êtes en mode Médecin. Pour changer de rôle, veuillez vous reconnecter avec un compte différent.");
+            } else if ("patient".equals(currentUser.getRole())) {
+                showInfo("Information", "Vous êtes en mode Patient. Pour accéder à l'espace médecin, vous devez avoir un compte professionnel.");
+            }
         }
     }
 
@@ -292,6 +514,11 @@ public class MainForumController {
 
     @FXML
     public void handleAssistantIA() {
+        if (currentUser == null || "guest".equals(currentUser.getRole())) {
+            showError("Accès refusé", "Vous devez être connecté pour utiliser l'assistant IA.");
+            return;
+        }
+
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/gemini_chat.fxml"));
             VBox chatView = loader.load();
@@ -300,18 +527,15 @@ public class MainForumController {
             stage.setTitle("Assistant IA - GrowMind");
             stage.setScene(new Scene(chatView, 450, 700));
             stage.show();
+
         } catch (IOException e) {
             showError("Erreur", "Impossible d'ouvrir l'assistant IA");
             e.printStackTrace();
         }
     }
 
-    // ========== RETOUR À L'ACCUEIL ==========
-
     @FXML
-    public void handleRetourAccueil() {
-        System.out.println("\n=== Retour à l'accueil depuis le forum ===");
-
+    private void handleRetourAccueil() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/home.fxml"));
             Parent root = loader.load();
@@ -319,36 +543,18 @@ public class MainForumController {
             HomeController homeController = loader.getController();
             if (homeController != null && currentUser != null) {
                 homeController.setUser(currentUser);
-                System.out.println("✅ Utilisateur transmis au HomeController");
             }
 
-            Stage stage = (Stage) rootPane.getScene().getWindow();
+            Stage stage = (Stage) btnRetourAccueil.getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.setTitle("Accueil - GrowMind");
-            stage.setMaximized(true);
             stage.show();
 
-            System.out.println("✅ Retour à l'accueil réussi");
+            System.out.println("✅ Retour à l'accueil dans la même fenêtre");
 
         } catch (IOException e) {
-            System.err.println("❌ Erreur retour accueil: " + e.getMessage());
             e.printStackTrace();
-            showError("Erreur", "Impossible de retourner à l'accueil.\n" + e.getMessage());
-        } catch (Exception e) {
-            System.err.println("❌ Erreur inattendue: " + e.getMessage());
-            e.printStackTrace();
-            showError("Erreur", "Erreur inattendue: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Reçoit l'utilisateur connecté depuis HomeController
-     */
-    public void setUser(users user) {
-        this.currentUser = user;
-        if (user != null) {
-            updateRoleDisplay();
-            System.out.println("✅ Utilisateur reçu dans MainForumController: " + user.getEmail());
+            showError("Erreur", "Impossible de retourner à l'accueil");
         }
     }
 

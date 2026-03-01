@@ -12,7 +12,7 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="760.0" prefWidth="1200.0" style="-fx-background-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.AjouterRessourceCompletController">
+<AnchorPane prefHeight="760.0" prefWidth="1200.0" style="-fx-background-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.Controllers.AjouterRessourceCompletController">
 
     <!-- Background decorative elements -->
     <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#9B59B6" height="120.0" layoutX="-50.0" layoutY="0.0" opacity="0.15" rotate="45.0" width="300.0" />
@@ -46,11 +46,11 @@
     <HBox alignment="CENTER" AnchorPane.bottomAnchor="40.0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="150.0">
         <!-- FORMULAIRE COMPLET -->
         <VBox alignment="CENTER" maxWidth="800.0" prefWidth="700.0" spacing="25" style="-fx-background-color: rgba(255,255,255,0.98); -fx-background-radius: 20; -fx-padding: 40 50; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 20, 0.5, 0, 8); -fx-border-color: #5FB49C; -fx-border-radius: 20; -fx-border-width: 2;">
-            
+
             <HBox alignment="CENTER" spacing="15" style="-fx-padding: 0 0 10 0; -fx-border-width: 0 0 1 0; -fx-border-color: #ecf0f1;">
                 <Label style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" text="✨ Ajouter une Nouvelle Ressource" />
             </HBox>
-            
+
             <VBox spacing="20">
                 <!-- Row 1: Titre -->
                 <VBox spacing="6">

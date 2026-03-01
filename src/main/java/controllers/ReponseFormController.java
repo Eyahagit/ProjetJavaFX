@@ -2,8 +2,8 @@ package Controllers;
 
 import entities.ForumPost;
 import entities.Reponse;
-import Services.ServiceReponse;
-import utils.BadWordsFilter;
+import Services.*;
+import utils.*;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
@@ -25,9 +25,6 @@ public class ReponseFormController {
         txtContenu.setPromptText("Écrivez votre réponse ici...");
     }
 
-    public void setService(ServiceReponse service) {
-        this.service = service;
-    }
 
     public void setPost(ForumPost post) {
         this.postCourant = post;
