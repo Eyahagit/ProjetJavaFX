@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="650.0" prefWidth="850.0" style="-fx-background-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="services.MesReservationsController">
+
+    <!-- Éléments décoratifs -->
+    <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#9B59B6" height="120.0" layoutX="-30.0" layoutY="-20.0" opacity="0.2" rotate="30.0" width="250.0" />
+    <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#E667AF" height="150.0" layoutX="750.0" layoutY="550.0" opacity="0.2" rotate="-25.0" width="200.0" />
+    <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#F1C40F" height="80.0" layoutX="600.0" layoutY="-20.0" opacity="0.1" rotate="15.0" width="200.0" />
+
+    <!-- Conteneur principal avec marge -->
+    <VBox layoutX="30.0" layoutY="30.0" prefWidth="790.0" prefHeight="590.0" spacing="25">
+
+        <!-- Header avec titre et compteur -->
+        <HBox alignment="CENTER_LEFT" spacing="20">
+            <Label style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 5, 0.3, 1, 1);" text="📋 Mes Réservations" />
+            <Label fx:id="lblCountReservations" style="-fx-font-size: 16px; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-color: rgba(255,255,255,0.2); -fx-background-radius: 25; -fx-padding: 6 20; -fx-border-color: rgba(255,255,255,0.5); -fx-border-radius: 25; -fx-border-width: 1.5;" text="0 réservation(s)" />
+        </HBox>
+
+        <!-- Carte principale avec design moderne -->
+        <VBox style="-fx-background-color: rgba(255,255,255,0.95); -fx-background-radius: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 20, 0.3, 0, 8); -fx-border-color: #4A6FA5; -fx-border-radius: 25; -fx-border-width: 2;" spacing="20">
+
+            <!-- En-tête de la carte -->
+            <HBox alignment="CENTER_LEFT" style="-fx-background-color: linear-gradient(to right, #f8f9fa, #ffffff); -fx-background-radius: 25 25 0 0; -fx-padding: 15 20;" spacing="10">
+                <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #4A6FA5;" text="📅 Historique de vos réservations" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Label style="-fx-font-size: 13px; -fx-text-fill: #7f8c8d; -fx-font-style: italic;" text="Cliquez sur une réservation pour plus de détails" />
+            </HBox>
+
+            <!-- Liste des réservations avec design amélioré -->
+            <ListView fx:id="listViewReservations" prefHeight="380.0" style="-fx-background-color: transparent; -fx-background-radius: 0; -fx-border-color: #e0e0e0; -fx-border-width: 1 0 1 0; -fx-padding: 10;">
+                <padding>
+                    <Insets left="10" right="10" top="5" bottom="5" />
+                </padding>
+            </ListView>
+
+            <!-- Barre de boutons améliorée -->
+            <HBox alignment="CENTER" spacing="20" style="-fx-padding: 20 20 25 20;">
+
+                <!-- Bouton Donner mon avis (pour plus tard) -->
+                <Button fx:id="btnDonnerAvis" onAction="#handleDonnerAvis"
+                        style="-fx-background-color: linear-gradient(to right, #5FB49C, #4AA189); -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 15px; -fx-background-radius: 15; -fx-padding: 12 30; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(95,180,156,0.4), 8, 0.3, 0, 2);"
+                        text="⭐ Donner mon avis" />
+
+                <!-- Bouton Fermer -->
+                <Button fx:id="btnFermer" onAction="#handleFermer"
+                        style="-fx-background-color: linear-gradient(to right, #E667AF, #D3549C); -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 15px; -fx-background-radius: 15; -fx-padding: 12 30; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(230,103,175,0.4), 8, 0.3, 0, 2);"
+                        text="❌ Fermer" />
+            </HBox>
+        </VBox>
+
+        <!-- Pied de page décoratif -->
+        <HBox alignment="CENTER">
+            <Label style="-fx-font-size: 12px; -fx-text-fill: rgba(255,255,255,0.7); -fx-font-style: italic;" text="GrowMind • Vos moments de bien-être" />
+        </HBox>
+    </VBox>
+</AnchorPane>
