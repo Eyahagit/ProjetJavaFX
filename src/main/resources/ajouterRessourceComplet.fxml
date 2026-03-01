@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="760.0" prefWidth="1200.0" style="-fx-background-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.AjouterRessourceCompletController">
+
+    <!-- Background decorative elements -->
+    <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#9B59B6" height="120.0" layoutX="-50.0" layoutY="0.0" opacity="0.15" rotate="45.0" width="300.0" />
+    <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#E667AF" height="150.0" layoutX="1100.0" layoutY="650.0" opacity="0.15" rotate="-30.0" width="200.0" />
+    <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#F1C40F" height="100.0" layoutX="900.0" layoutY="-30.0" opacity="0.1" rotate="15.0" width="250.0" />
+
+    <!-- HEADER SECTION -->
+    <VBox alignment="CENTER" prefHeight="140.0" style="-fx-background-color: linear-gradient(to right, #4A6FA5, #5FB49C); -fx-background-radius: 0 0 25 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0.5, 0, 3);" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+        <HBox alignment="CENTER" spacing="20">
+            <VBox spacing="3">
+                <Label style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 6, 0.4, 2, 2);" text="GrowMind">
+                    <font>
+                        <Font name="System Bold" size="32.0" />
+                    </font>
+                </Label>
+                <Label style="-fx-font-size: 16px; -fx-text-fill: rgba(255,255,255,0.95); -fx-font-weight: 500;" text="Cultivez votre bien-être mental" />
+            </VBox>
+        </HBox>
+        <Label style="-fx-font-size: 15px; -fx-text-fill: rgba(255,255,255,0.85); -fx-font-style: italic; -fx-padding: 8 0 0 0;" text="Plateforme complète de santé mentale et développement personnel" />
+        <HBox alignment="CENTER" spacing="25" style="-fx-padding: 12 0 0 0;">
+            <Label style="-fx-font-size: 13px; -fx-text-fill: rgba(255,255,255,0.7);" text="🎯 Événements" />
+            <Label style="-fx-font-size: 13px; -fx-text-fill: rgba(255,255,255,0.7);" text="👥 Utilisateurs" />
+            <Label style="-fx-font-size: 13px; -fx-text-fill: rgba(255,255,255,0.7);" text="🏥 Cabinets" />
+            <Label style="-fx-font-size: 13px; -fx-text-fill: rgba(255,255,255,0.7);" text="💬 Forums" />
+            <Label style="-fx-font-size: 13px; -fx-text-fill: rgba(255,255,255,0.7);" text="🧘 Bien-Être" />
+            <Label style="-fx-font-size: 13px; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-color: rgba(255,255,255,0.2); -fx-background-radius: 15; -fx-padding: 6 15;" text="➕ Ajout Ressource" />
+        </HBox>
+    </VBox>
+
+    <!-- MAIN CONTENT WRAPPER FOR DYNAMIC CENTERING -->
+    <HBox alignment="CENTER" AnchorPane.bottomAnchor="40.0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="150.0">
+        <!-- FORMULAIRE COMPLET -->
+        <VBox alignment="CENTER" maxWidth="800.0" prefWidth="700.0" spacing="25" style="-fx-background-color: rgba(255,255,255,0.98); -fx-background-radius: 20; -fx-padding: 40 50; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 20, 0.5, 0, 8); -fx-border-color: #5FB49C; -fx-border-radius: 20; -fx-border-width: 2;">
+            
+            <HBox alignment="CENTER" spacing="15" style="-fx-padding: 0 0 10 0; -fx-border-width: 0 0 1 0; -fx-border-color: #ecf0f1;">
+                <Label style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" text="✨ Ajouter une Nouvelle Ressource" />
+            </HBox>
+            
+            <VBox spacing="20">
+                <!-- Row 1: Titre -->
+                <VBox spacing="6">
+                    <Label style="-fx-font-weight: bold; -fx-text-fill: #4A6FA5; -fx-font-size: 14px;" text="Titre *" />
+                    <TextField fx:id="txtTitre" prefHeight="45.0" style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #d1e7f3; -fx-background-color: #f8fdff; -fx-font-size: 14px; -fx-padding: 10;" promptText="Saisissez le titre public de la ressource" />
+                </VBox>
+
+                <!-- Row 2: Description -->
+                <VBox spacing="6">
+                    <Label style="-fx-font-weight: bold; -fx-text-fill: #4A6FA5; -fx-font-size: 14px;" text="Description *" />
+                    <TextArea fx:id="txtDescription" prefHeight="110.0" style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #d1e7f3; -fx-background-color: #f8fdff; -fx-font-size: 14px; -fx-padding: 10;" promptText="Détaillez le contenu, les objectifs ou le contexte de la ressource..." wrapText="true" />
+                </VBox>
+
+                <!-- Row 3: Type & Category -->
+                <HBox spacing="30">
+                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                        <Label style="-fx-font-weight: bold; -fx-text-fill: #4A6FA5; -fx-font-size: 14px;" text="Type *" />
+                        <ComboBox fx:id="comboType" prefHeight="45.0" maxWidth="Infinity" style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #d1e7f3; -fx-background-color: #f8fdff; -fx-font-size: 14px;" promptText="Sélectionner le format" />
+                    </VBox>
+                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                        <Label style="-fx-font-weight: bold; -fx-text-fill: #4A6FA5; -fx-font-size: 14px;" text="Catégorie *" />
+                        <ComboBox fx:id="comboCategory" prefHeight="45.0" maxWidth="Infinity" style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #d1e7f3; -fx-background-color: #f8fdff; -fx-font-size: 14px;" promptText="Sélectionner le thème" />
+                    </VBox>
+                </HBox>
+
+                <!-- Row 4: Auteur & Date -->
+                <HBox spacing="30">
+                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                        <Label style="-fx-font-weight: bold; -fx-text-fill: #4A6FA5; -fx-font-size: 14px;" text="Auteur *" />
+                        <TextField fx:id="txtAuthor" prefHeight="45.0" style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #d1e7f3; -fx-background-color: #f8fdff; -fx-font-size: 14px; -fx-padding: 10;" promptText="Nom du créateur/auteur" />
+                    </VBox>
+                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                        <Label style="-fx-font-weight: bold; -fx-text-fill: #4A6FA5; -fx-font-size: 14px;" text="Date de publication *" />
+                        <DatePicker fx:id="datePicker" prefHeight="45.0" maxWidth="Infinity" style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #d1e7f3; -fx-background-color: #f8fdff; -fx-font-size: 14px;" />
+                    </VBox>
+                </HBox>
+
+                <!-- Row 5: Localisation & Statut -->
+                <VBox spacing="6">
+                    <HBox spacing="30">
+                        <VBox spacing="6" HBox.hgrow="ALWAYS">
+                            <Label style="-fx-font-weight: bold; -fx-text-fill: #4A6FA5; -fx-font-size: 14px;" text="Média / Lien" />
+                            <HBox spacing="10">
+                                <TextField fx:id="txtLocalisation" prefHeight="45.0" HBox.hgrow="ALWAYS" style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #d1e7f3; -fx-background-color: #f8fdff; -fx-font-size: 14px; -fx-padding: 10;" promptText="Saisir une URL ou parcourir..." />
+                                <Button onAction="#uploadImageToCloudinary" prefHeight="45.0" prefWidth="120.0" style="-fx-background-color: linear-gradient(to right, #9B59B6, #8E44AD); -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-background-radius: 10; -fx-cursor: hand;" text="☁️ Upload" />
+                            </HBox>
+                        </VBox>
+                        <VBox spacing="6" prefWidth="160.0">
+                            <Label style="-fx-font-weight: bold; -fx-text-fill: #4A6FA5; -fx-font-size: 14px;" text="État" />
+                            <ComboBox fx:id="comboStatus" prefHeight="45.0" maxWidth="Infinity" style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #d1e7f3; -fx-background-color: #f8fdff; -fx-font-size: 14px;" promptText="Actif / Brouillon" />
+                        </VBox>
+                    </HBox>
+                </VBox>
+
+            </VBox>
+
+            <!-- Buttons at the bottom -->
+            <HBox alignment="CENTER" spacing="30" style="-fx-padding: 30 0 0 0;">
+                <Button onAction="#ajouterRessource" prefHeight="55.0" prefWidth="240.0" style="-fx-background-color: linear-gradient(to right, #5FB49C, #3d8f78); -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 18px; -fx-background-radius: 30; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(95,180,156,0.6), 10, 0.4, 0, 4);" text="✅ Finaliser la Création" />
+                <Button onAction="#handleAnnuler" prefHeight="55.0" prefWidth="160.0" style="-fx-background-color: transparent; -fx-text-fill: #e74c3c; -fx-font-weight: bold; -fx-font-size: 16px; -fx-background-radius: 30; -fx-border-color: #e74c3c; -fx-border-radius: 30; -fx-border-width: 2; -fx-cursor: hand;" text="❌ Annuler" />
+            </HBox>
+        </VBox>
+    </HBox>
+
+    <!-- FOOTER -->
+    <HBox alignment="CENTER" prefHeight="30.0" style="-fx-background-color: #2c3e50;" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+        <Label style="-fx-font-size: 12px; -fx-text-fill: #bdc3c7;" text="©️ 2024 GrowMind - Plateforme de Santé Mentale  et Développement Personnel | Version 2.0 | Tous droits réservés" />
+    </HBox>
+
+</AnchorPane>
