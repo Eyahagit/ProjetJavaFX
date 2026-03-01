@@ -26,12 +26,20 @@ public class App extends Application {
         Parent root = FXMLLoader.load(Objects.requireNonNull(
                 getClass().getResource("/fxml/GestionSanteBienEtre.fxml")));
 
-        Scene scene = new Scene(root, 900, 750);
-        stage.setTitle("Application Santé & Bien-être - Gestion Santé & Bien-être");
+        Scene scene = new Scene(root, 1200, 900);
+        stage.setTitle("🌿 GrowMind - Santé & Bien-être");
         stage.setScene(scene);
-        stage.setMinWidth(800);
-        stage.setMinHeight(600);
+        stage.setMinWidth(1000);
+        stage.setMinHeight(800);
+        
+        // Forcer l'affichage au premier plan
+        stage.setIconified(false);
+        stage.toFront();
         stage.show();
+        stage.requestFocus();
+        
+        System.out.println("✅ GrowMind - Santé & Bien-être lancé avec succès!");
+        System.out.println("🌿 Design moderne avec logo et navigation activés");
     }
 
     public static void main(String[] args) {

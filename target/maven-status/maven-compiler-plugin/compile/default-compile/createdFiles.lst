@@ -1,7 +1,0 @@
-com/santebienetre/service/SanteBienEtreService.class
-com/santebienetre/controller/GestionSanteBienEtreController.class
-com/santebienetre/dao/SanteBienEtreDAO.class
-com/santebienetre/App.class
-com/santebienetre/util/DatabaseInit.class
-com/santebienetre/util/DatabaseConnection.class
-com/santebienetre/model/SanteBienEtre.class

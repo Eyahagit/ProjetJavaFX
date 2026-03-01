@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+
+<ScrollPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.santebienetre.controller.WellnessChatbotController"
+            fitToWidth="true" prefViewportHeight="750">
+   <VBox spacing="0" style="-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #667eea 0%, #764ba2 100%);">
+      <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+
+   <!-- HEADER SECTION -->
+   <VBox alignment="CENTER" prefHeight="180.0" style="-fx-background-color: linear-gradient(to right, #4A6FA5, #5FB49C); -fx-background-radius: 0 0 25 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0.5, 0, 3);">
+      <HBox alignment="CENTER_LEFT" spacing="10">
+         <!-- LOGO GrowMind -->
+         <ImageView fx:id="logoImageView" fitWidth="600" fitHeight="140" preserveRatio="true" />
+         
+         <Region HBox.hgrow="ALWAYS"/>
+         
+         <Button fx:id="backButton" text="🏠 Retour" />
+         <Button fx:id="clearButton" text="🗑️ Vider" />
+      </HBox>
+      
+      <!-- Titre centré -->
+      <HBox alignment="CENTER" style="-fx-padding: 5 0 0 0;">
+         <Label fx:id="titleLabel" text="🤖 Assistant Bien-être IA" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 4, 0.3, 1, 1);"/>
+      </HBox>
+
+      <Label style="-fx-font-size: 15px; -fx-text-fill: rgba(255,255,255,0.85); -fx-font-style: italic; -fx-padding: 8 0 0 0;" text="Votre compagnon de santé mentale disponible 24/7" />
+   </VBox>
+
+   <!-- CHAT CONTAINER -->
+   <VBox VBox.vgrow="ALWAYS" spacing="10" style="-fx-background-color: #F5F5F5; -fx-background-radius: 15; -fx-padding: 10;">
+      
+      <!-- Chat Messages Area -->
+      <ScrollPane fx:id="chatScrollPane" VBox.vgrow="ALWAYS" fitToWidth="true" style="-fx-background-color: transparent; -fx-border-color: transparent;">
+         <VBox fx:id="chatContainer" spacing="10">
+            <!-- Messages will be added dynamically here -->
+         </VBox>
+      </ScrollPane>
+
+      <!-- Typing Indicator -->
+      <HBox alignment="CENTER_LEFT">
+         <Label fx:id="typingLabel" visible="false" />
+      </HBox>
+
+   </VBox>
+
+   <!-- INPUT AREA -->
+   <VBox spacing="10" style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);">
+      
+      <!-- Message Input -->
+      <TextArea fx:id="messageInput" 
+                prefHeight="60" 
+                wrapText="true"
+                promptText="Tapez votre message ici... (Shift+Entrée pour envoyer)"
+                style="-fx-background-color: #FAFAFA; -fx-border-color: #E0E0E0; -fx-border-radius: 10; -fx-padding: 10; -fx-font-size: 14px;" />
+
+      <!-- Action Buttons -->
+      <HBox spacing="10" alignment="CENTER_RIGHT">
+         <Label text="💬 Je suis là pour vous écouter anonymement et confidentiellement" 
+                style="-fx-font-size: 12px; -fx-text-fill: #666; -fx-font-style: italic;" 
+                HBox.hgrow="ALWAYS" />
+         <Button fx:id="sendButton" text="📤 Envoyer" />
+      </HBox>
+
+   </VBox>
+
+   <!-- Footer Info -->
+   <VBox alignment="CENTER" style="-fx-padding: 15 0 0 0;">
+      <Label text="🔒 100% anonyme et confidentiel • 🚨 En cas de crise, appelez le 3114" 
+             style="-fx-font-size: 12px; -fx-text-fill: rgba(255,255,255,0.8);"/>
+      <Label text="⚠️ Cet assistant ne remplace pas un avis médical professionnel" 
+             style="-fx-font-size: 11px; -fx-text-fill: rgba(255,255,255,0.6);"/>
+   </VBox>
+
+</VBox>
+
+</ScrollPane>

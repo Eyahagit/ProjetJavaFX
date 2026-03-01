@@ -6,13 +6,14 @@ import java.sql.SQLException;
 
 /**
  * Utility class for managing database connections.
- * Uses H2 embedded database for standalone application.
  */
 public final class DatabaseConnection {
 
-    private static final String URL = "jdbc:h2:./data/santebienetre;DB_CLOSE_DELAY=-1;AUTO_SERVER=TRUE";
-    private static final String USER = "sa";
-    private static final String PASSWORD = "";
+    private static final String DEFAULT_HOST = "127.0.0.1";
+    private static final String DEFAULT_PORT = "3307";
+    private static final String DEFAULT_DB = "grownmind";
+    private static final String DEFAULT_USER = "root";
+    private static final String DEFAULT_PASSWORD = "";
 
     private DatabaseConnection() {
         // Prevent instantiation
@@ -24,6 +25,17 @@ public final class DatabaseConnection {
      * @throws SQLException if connection fails
      */
     public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL, USER, PASSWORD);
+        String host = System.getProperty("db.host", DEFAULT_HOST);
+        String port = System.getProperty("db.port", DEFAULT_PORT);
+        String db = System.getProperty("db.name", DEFAULT_DB);
+        String user = System.getProperty("db.user", DEFAULT_USER);
+        String password = System.getProperty("db.password", DEFAULT_PASSWORD);
+
+        String url = "jdbc:mysql://" + host + ":" + port + "/" + db +
+                "?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
+        System.err.println("[DEBUG] Attempting DB connection to: " + url + " as " + user);
+        Connection conn = DriverManager.getConnection(url, user, password);
+        System.err.println("[DEBUG] DB connection established.");
+        return conn;
     }
 }

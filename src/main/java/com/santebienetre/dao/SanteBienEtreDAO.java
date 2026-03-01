@@ -60,15 +60,33 @@ public class SanteBienEtreDAO {
      * @return The generated id, or -1 on failure
      */
     public int addSanteBienEtre(SanteBienEtre s) {
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS)) {
+        // Use a single connection so we can check/create user and insert record atomically
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            // Ensure the utilisateur exists for the provided user_id. If not, create a minimal user.
+            try (PreparedStatement checkUser = conn.prepareStatement("SELECT id FROM utilisateur WHERE id=?")) {
+                checkUser.setInt(1, s.getUserId());
+                try (ResultSet rs = checkUser.executeQuery()) {
+                    if (!rs.next()) {
+                        try (PreparedStatement insertUser = conn.prepareStatement(
+                                "INSERT IGNORE INTO utilisateur (id, nom, email) VALUES (?, ?, ?)")) {
+                            insertUser.setInt(1, s.getUserId());
+                            insertUser.setString(2, "Utilisateur " + s.getUserId());
+                            insertUser.setString(3, "user" + s.getUserId() + "@local");
+                            insertUser.executeUpdate();
+                        }
+                    }
+                }
+            }
 
-            setStatementParams(ps, s, false);
-            int rows = ps.executeUpdate();
-            if (rows > 0) {
-                ResultSet rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    return rs.getInt(1);
+            try (PreparedStatement ps = conn.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS)) {
+                setStatementParams(ps, s, false);
+                int rows = ps.executeUpdate();
+                if (rows > 0) {
+                    try (ResultSet rs = ps.getGeneratedKeys()) {
+                        if (rs.next()) {
+                            return rs.getInt(1);
+                        }
+                    }
                 }
             }
         } catch (SQLException e) {
@@ -87,7 +105,7 @@ public class SanteBienEtreDAO {
              PreparedStatement ps = conn.prepareStatement(UPDATE_SQL)) {
 
             setStatementParams(ps, s, false);
-            ps.setInt(9, s.getId());
+            ps.setInt(10, s.getId());
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -112,6 +130,26 @@ public class SanteBienEtreDAO {
     }
 
     /**
+     * Retrieves all distinct user IDs.
+     * @return List of user IDs
+     */
+    public List<Integer> getAllUserIds() {
+        List<Integer> list = new ArrayList<>();
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement("SELECT DISTINCT user_id FROM sante_bien_etre ORDER BY user_id");
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                list.add(rs.getInt("user_id"));
+            }
+        } catch (SQLException e) {
+            System.err.println("[ERROR] getAllUserIds failed: " + e.getMessage());
+            e.printStackTrace();
+        }
+        System.err.println("[DEBUG] DAO getAllUserIds returning " + list.size() + " items.");
+        return list;
+    }
+
+    /**
      * Retrieves all SanteBienEtre records.
      * @return List of all records
      */
@@ -124,8 +162,10 @@ public class SanteBienEtreDAO {
                 list.add(mapResultSet(rs));
             }
         } catch (SQLException e) {
+            System.err.println("[ERROR] getAllSanteBienEtre failed: " + e.getMessage());
             e.printStackTrace();
         }
+        System.err.println("[DEBUG] DAO getAllSanteBienEtre returning " + list.size() + " items.");
         return list;
     }
 

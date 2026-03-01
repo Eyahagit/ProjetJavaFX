@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<ScrollPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.santebienetre.controller.AIDashboardController"
+            fitToWidth="true" prefViewportHeight="800">
+   <VBox spacing="15" style="-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #667eea 0%, #764ba2 100%);">
+      <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+
+   <!-- HEADER -->
+   <VBox alignment="CENTER" prefHeight="160" style="-fx-background-color: linear-gradient(to right, #4A6FA5, #5FB49C); -fx-background-radius: 0 0 25 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0.5, 0, 3);">
+      <HBox alignment="CENTER_LEFT" spacing="15">
+         <ImageView fx:id="logoImageView" fitWidth="500" fitHeight="120" preserveRatio="true" />
+         <Region HBox.hgrow="ALWAYS"/>
+         <Button fx:id="btnBack" text="🔙 Retour" style="-fx-background-color: rgba(255,255,255,0.22); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 8 16;"/>
+      </HBox>
+      <Label text="🤖 Dashboard IA Avancé" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white; -fx-padding: 10 0 0 0;"/>
+   </VBox>
+
+   <!-- USER SELECTOR & ACTIONS -->
+   <HBox spacing="15" alignment="CENTER_LEFT" style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);">
+      <Label text="Utilisateur :" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #4A6FA5;"/>
+      <ComboBox fx:id="cbUserId" prefWidth="120"/>
+      <Region HBox.hgrow="ALWAYS"/>
+      <Button fx:id="btnRefresh" text="🔄 Actualiser" style="-fx-background-color: linear-gradient(to right, #5FB49C, #4AA189); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 8 15;"/>
+      <Button fx:id="btnExport" text="📥 Exporter" style="-fx-background-color: linear-gradient(to right, #4A6FA5, #3A5F8A); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 8 15;"/>
+      <Label fx:id="lblLastUpdate" text="Dernière mise à jour : -" style="-fx-text-fill: #666; -fx-font-size: 12px;"/>
+   </HBox>
+
+   <!-- KEY METRICS -->
+   <HBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);">
+      <VBox spacing="5" alignment="CENTER" style="-fx-background-color: #f8f9fa; -fx-background-radius: 10; -fx-padding: 15;">
+         <Label text="📊 Total Records" style="-fx-font-size: 12px; -fx-text-fill: #666;"/>
+         <Label fx:id="lblTotalRecords" text="0" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #4A6FA5;"/>
+      </VBox>
+      <VBox spacing="5" alignment="CENTER" style="-fx-background-color: #f8f9fa; -fx-background-radius: 10; -fx-padding: 15;">
+         <Label text="😰 Stress Moyen" style="-fx-font-size: 12px; -fx-text-fill: #666;"/>
+         <Label fx:id="lblAvgStress" text="-" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #E667AF;"/>
+      </VBox>
+      <VBox spacing="5" alignment="CENTER" style="-fx-background-color: #f8f9fa; -fx-background-radius: 10; -fx-padding: 15;">
+         <Label text="🌙 Sommeil Moyen" style="-fx-font-size: 12px; -fx-text-fill: #666;"/>
+         <Label fx:id="lblAvgSleep" text="-" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #5FB49C;"/>
+      </VBox>
+      <VBox spacing="5" alignment="CENTER" style="-fx-background-color: #f8f9fa; -fx-background-radius: 10; -fx-padding: 15;">
+         <Label text="⚠️ Niveau de Risque" style="-fx-font-size: 12px; -fx-text-fill: #666;"/>
+         <Label fx:id="lblRiskLevel" text="-" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+      </VBox>
+   </HBox>
+
+   <!-- CHARTS ROW -->
+   <HBox spacing="15">
+      <VBox spacing="10" style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);" HBox.hgrow="ALWAYS">
+         <LineChart fx:id="chartStressTrend" prefHeight="250" HBox.hgrow="ALWAYS">
+            <xAxis>
+               <CategoryAxis />
+            </xAxis>
+            <yAxis>
+               <NumberAxis />
+            </yAxis>
+         </LineChart>
+      </VBox>
+      <VBox spacing="10" style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);" HBox.hgrow="ALWAYS">
+         <BarChart fx:id="chartSleepQuality" prefHeight="250" HBox.hgrow="ALWAYS">
+            <xAxis>
+               <CategoryAxis />
+            </xAxis>
+            <yAxis>
+               <NumberAxis />
+            </yAxis>
+         </BarChart>
+      </VBox>
+   </HBox>
+
+   <!-- MOOD & INSIGHTS -->
+   <HBox spacing="15">
+      <VBox spacing="10" style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);" HBox.hgrow="ALWAYS">
+         <Label text="😊 Distribution des Humeurs" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #4A6FA5;"/>
+         <PieChart fx:id="chartMoodDistribution" prefHeight="200" HBox.hgrow="ALWAYS"/>
+      </VBox>
+      <VBox spacing="10" style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);" HBox.hgrow="ALWAYS">
+         <Label text="💡 Recommandation IA" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #4A6FA5;"/>
+         <Label fx:id="lblRecommendation" text="Chargement..." wrapText="true" style="-fx-text-fill: #333; -fx-font-size: 14px; -fx-background-color: #f8fdff; -fx-background-radius: 8; -fx-padding: 10;"/>
+      </VBox>
+   </HBox>
+
+   <!-- API INTEGRATIONS -->
+   <HBox spacing="15">
+      <!-- NUTRITION API -->
+      <VBox spacing="10" style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);" HBox.hgrow="ALWAYS">
+         <Label text="🍽️ Analyse Nutritionnelle" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #4A6FA5;"/>
+         <HBox spacing="10" alignment="CENTER_LEFT">
+            <TextField fx:id="tfFoodSearch" promptText="Ex: sandwich poulet" prefWidth="200" style="-fx-background-radius: 8; -fx-border-radius: 8;"/>
+            <Button fx:id="btnSearchFood" text="🔍 Rechercher" style="-fx-background-color: linear-gradient(to right, #5FB49C, #4AA189); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 8 15;"/>
+         </HBox>
+         <VBox fx:id="vbNutritionResult" spacing="5" style="-fx-min-height: 150;"/>
+      </VBox>
+      
+      <!-- FITBIT API -->
+      <VBox spacing="10" style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);" prefWidth="300">
+         <Label text="⌚ Intégration Fitbit" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #4A6FA5;"/>
+         <VBox spacing="5" style="-fx-background-color: #f8f9fa; -fx-background-radius: 8; -fx-padding: 10;">
+            <HBox spacing="10" alignment="CENTER_LEFT">
+               <Label fx:id="lblFitbitStatus" text="❌ Non connecté" style="-fx-font-weight: bold;"/>
+               <Button fx:id="btnConnectFitbit" text="🔌 Connexion Fitbit" style="-fx-background-color: linear-gradient(to right, #4A6FA5, #3A5F8A); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 6; -fx-padding: 6 12; -fx-font-size: 12px;"/>
+            </HBox>
+            <Label fx:id="lblFitbitSteps" text="Pas: -" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #E667AF;"/>
+         </VBox>
+         <Label text="Connectez votre Fitbit pour synchroniser automatiquement vos données d'activité (pas, calories, sommeil) avec le dashboard." style="-fx-text-fill: #666; -fx-font-size: 11px; -fx-wrap-text: true;" prefWidth="250"/>
+      </VBox>
+   </HBox>
+
+   <!-- AI INSIGHTS & ALERTS -->
+   <HBox spacing="15">
+      <VBox spacing="10" style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);" HBox.hgrow="ALWAYS">
+         <Label text="🤖 Analyses IA Détaillées" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #4A6FA5;"/>
+         <TextArea fx:id="taInsights" editable="false" wrapText="true" prefHeight="200" style="-fx-font-size: 12px; -fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #d1e7f3; -fx-background-color: #f8fdff;"/>
+      </VBox>
+      <VBox spacing="10" style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);" prefWidth="300">
+         <Label text="⚠️ Alertes Prédictives" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #4A6FA5;"/>
+         <ScrollPane fitToWidth="true" prefHeight="200">
+            <VBox fx:id="vbAlerts" spacing="5"/>
+         </ScrollPane>
+      </VBox>
+   </HBox>
+</VBox>
+</ScrollPane>

@@ -62,7 +62,7 @@ L'application respecte l'architecture MVC (Model-View-Controller) avec une couch
        ↓
 [DAO] ← PreparedStatement
        ↓
-[H2 Database]
+[MySQL/MariaDB Database (grownmind:3307)]
        ↓
 [ObservableList] → [TableView] (affichage)
 ```

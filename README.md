@@ -71,9 +71,11 @@ mvn exec:java
 ```
 
 ### Base de données
-- H2 embarquée (fichier `./data/santebienetre.mv.db`)
-- Création automatique des tables au démarrage
-- Utilisateur par défaut : ID 1 ("Utilisateur Demo")
+- MariaDB/MySQL : base `grownmind` sur `127.0.0.1:3307`
+- Config par défaut dans `src/main/java/com/santebienetre/util/DatabaseConnection.java` (surcharge possible via `-Ddb.host`, `-Ddb.port`, `-Ddb.name`, `-Ddb.user`, `-Ddb.password`)
+- Tables utilisées : `utilisateur`, `sante_bien_etre`, `sleep_tracking` (créées au démarrage si absentes)
+- Utilisateur démo : ID 1 ("Utilisateur Demo") si absent
+- Test rapide : lancer `com.santebienetre.QueryDB` et vérifier `DATABASE() = grownmind`
 
 ### Structure du projet
 

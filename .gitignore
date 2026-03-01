@@ -1,0 +1,13 @@
+# Maven build output
+/target/
+
+# Local DB files (H2 leftovers)
+/data/*.mv.db
+/data/*.trace.db
+/data/*.lock.db
+
+# Local API keys (keep this file local, commit the example instead)
+/src/main/resources/api-config.properties
+
+# Logs
+*.log

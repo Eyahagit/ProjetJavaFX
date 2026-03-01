@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.text.Font?>
+
+<ScrollPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.santebienetre.controller.AnonymousWellnessResultsController"
+            fitToWidth="true" prefViewportHeight="750">
+   <VBox spacing="20" style="-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #667eea 0%, #764ba2 100%);">
+      <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+
+   <!-- HEADER SECTION -->
+   <VBox alignment="CENTER" prefHeight="180.0" style="-fx-background-color: linear-gradient(to right, #4A6FA5, #5FB49C); -fx-background-radius: 0 0 25 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0.5, 0, 3);">
+      <HBox alignment="CENTER_LEFT" spacing="10">
+         <!-- LOGO GrowMind -->
+         <ImageView fx:id="logoImageView" fitWidth="600" fitHeight="140" preserveRatio="true" />
+         
+         <Region HBox.hgrow="ALWAYS"/>
+         
+         <Button fx:id="backButton" text="🏠 Retour" />
+      </HBox>
+      
+      <!-- Titre centré -->
+      <HBox alignment="CENTER" style="-fx-padding: 5 0 0 0;">
+         <Label fx:id="titleLabel" text="📊 Vos Résultats de Bien-être" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 4, 0.3, 1, 1);"/>
+      </HBox>
+
+      <Label style="-fx-font-size: 15px; -fx-text-fill: rgba(255,255,255,0.85); -fx-font-style: italic; -fx-padding: 8 0 0 0;" text="Analyse personnalisée basée sur vos réponses" />
+   </VBox>
+
+   <!-- CONTENT SECTION -->
+   <VBox spacing="20" alignment="CENTER">
+      
+      <!-- Score Global -->
+      <VBox style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5); -fx-alignment: center;">
+         <Label text="🎯 Score Global de Bien-être" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #4A6FA5;"/>
+         <Label fx:id="overallScoreLabel" text="75/100" style="-fx-font-size: 36px; -fx-font-weight: bold;"/>
+      </VBox>
+
+      <!-- Scores Détaillés -->
+      <HBox spacing="15" alignment="CENTER">
+         <!-- Stress -->
+         <VBox style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5); -fx-alignment: center; -fx-min-width: 150;">
+            <Label text="😰" style="-fx-font-size: 24px;"/>
+            <Label text="Stress" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #666;"/>
+            <Label fx:id="stressLabel" text="MODÉRÉ (45/100)" style="-fx-font-size: 14px;"/>
+         </VBox>
+         
+         <!-- Sommeil -->
+         <VBox style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5); -fx-alignment: center; -fx-min-width: 150;">
+            <Label text="😴" style="-fx-font-size: 24px;"/>
+            <Label text="Sommeil" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #666;"/>
+            <Label fx:id="sleepLabel" text="BON (70/100)" style="-fx-font-size: 14px;"/>
+         </VBox>
+         
+         <!-- Santé Mentale -->
+         <VBox style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5); -fx-alignment: center; -fx-min-width: 150;">
+            <Label text="🧠" style="-fx-font-size: 24px;"/>
+            <Label text="Santé Mentale" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #666;"/>
+            <Label fx:id="mentalLabel" text="BON (75/100)" style="-fx-font-size: 14px;"/>
+         </VBox>
+      </HBox>
+
+      <!-- Graphique -->
+      <VBox style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);">
+         <BarChart fx:id="resultsChart" prefWidth="600" prefHeight="300">
+            <xAxis>
+               <CategoryAxis label="Catégories"/>
+            </xAxis>
+            <yAxis>
+               <NumberAxis label="Score" lowerBound="0" upperBound="100" tickUnit="20"/>
+            </yAxis>
+         </BarChart>
+      </VBox>
+
+      <!-- Recommandations -->
+      <VBox fx:id="recommendationsContainer" spacing="10" style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);">
+         <!-- Les recommandations seront ajoutées dynamiquement -->
+      </VBox>
+
+      <!-- Action Buttons -->
+      <HBox spacing="20" alignment="CENTER">
+         <Button fx:id="shareButton" text="📤 Partager mes résultats" />
+         <Button fx:id="backButton" text="🔄 Nouvelle évaluation" />
+      </HBox>
+
+   </VBox>
+
+   <!-- Footer -->
+   <VBox alignment="CENTER" style="-fx-padding: 20 0 0 0;">
+      <Label text="💡 Ces résultats sont indicatifs et ne remplacent pas un avis médical" 
+             style="-fx-font-size: 12px; -fx-text-fill: rgba(255,255,255,0.7);"/>
+      <Label text="🔒 Vos données restent anonymes et confidentielles" 
+             style="-fx-font-size: 12px; -fx-text-fill: rgba(255,255,255,0.7);"/>
+   </VBox>
+
+</ScrollPane>

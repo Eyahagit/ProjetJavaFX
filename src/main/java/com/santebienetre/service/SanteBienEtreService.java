@@ -50,6 +50,14 @@ public class SanteBienEtreService {
     }
 
     /**
+     * Retrieves all distinct user IDs.
+     * @return List of user IDs
+     */
+    public List<Integer> getAllUserIds() {
+        return dao.getAllUserIds();
+    }
+
+    /**
      * Retrieves all records.
      */
     public List<SanteBienEtre> getAllSanteBienEtre() {

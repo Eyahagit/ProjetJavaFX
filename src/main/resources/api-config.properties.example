@@ -1,0 +1,19 @@
+# Configuration des API - GrowMind Sante & Bien-etre
+# Copiez ce fichier en "api-config.properties" et remplacez les valeurs.
+
+# API USDA FoodData Central (GRATUIT - Base de donnees officielle US)
+USDA_API_KEY=VOTRE_USDA_API_KEY_ICI
+
+# API Strava (GRATUIT - Alternative a Fitbit)
+STRAVA_CLIENT_ID=VOTRE_STRAVA_CLIENT_ID_ICI
+STRAVA_CLIENT_SECRET=VOTRE_STRAVA_CLIENT_SECRET_ICI
+
+# API Edamam Nutrition (Optionnel - pour de meilleurs resultats)
+EDAMAM_APP_ID=VOTRE_EDAMAM_APP_ID_ICI
+EDAMAM_APP_KEY=VOTRE_EDAMAM_APP_KEY_ICI
+
+# API Fitbit (Optionnel - plus complexe)
+FITBIT_CLIENT_ID=VOTRE_FITBIT_CLIENT_ID_ICI
+FITBIT_CLIENT_SECRET=VOTRE_FITBIT_CLIENT_SECRET_ICI
+FITBIT_REDIRECT_URI=http://localhost:8080/callback
+
