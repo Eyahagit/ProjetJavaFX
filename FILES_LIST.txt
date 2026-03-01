@@ -1,0 +1,18 @@
+# 📂 Liste des fichiers à transférer
+
+## Fichiers à copier pour WeTransfer :
+
+### 1️⃣ GestionSommeilController.java
+- **Type :** Contrôleur Java
+- **Taille :** ~15 KB
+- **Fonction :** Logique de l'écran sommeil
+
+### 2️⃣ GestionSommeil.fxml  
+- **Type :** Interface FXML
+- **Taille :** ~8 KB
+- **Fonction :** Design de l'écran sommeil
+
+**Total :** 2 fichiers | ~23 KB
+
+---
+✅ Prêt pour WeTransfer !

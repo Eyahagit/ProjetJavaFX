@@ -437,7 +437,47 @@ public class HomeController implements Initializable {
             showAlert("Non connecté", "Veuillez vous connecter pour accéder à Santé & Bien-être.");
             return;
         }
-        showModuleInfo("Santé & Bien-être", "sante");
+
+        System.out.println("\n=== Navigation vers Gestion Santé & Bien-être ===");
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/GestionSanteBienEtre.fxml"));
+            Parent root = loader.load();
+
+            // Remplacer "GestionSanteBienEtreController" par le nom réel de votre contrôleur
+            Object controller = loader.getController();
+
+            // Si vous connaissez le type exact du contrôleur, faites un cast direct
+            GestionSanteBienEtreController santeController = (GestionSanteBienEtreController) controller;
+             santeController.setCurrentUser(currentUser);
+
+            // Méthode générique par réflexion (plus sûre)
+            if (controller != null && currentUser != null) {
+                try {
+                    controller.getClass().getMethod("setCurrentUser", users.class).invoke(controller, currentUser);
+                } catch (NoSuchMethodException e) {
+                    try {
+                        controller.getClass().getMethod("setUser", users.class).invoke(controller, currentUser);
+                    } catch (Exception ex) {
+                        // Ignorer si pas de méthode
+                    }
+                } catch (Exception e) {
+                    // Ignorer
+                }
+            }
+
+            Stage stage = (Stage) santeCard.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Gestion Santé & Bien-être - GrowMind");
+            stage.show();
+
+            System.out.println("✅ Navigation réussie");
+
+        } catch (IOException e) {
+            System.err.println("❌ Erreur: " + e.getMessage());
+            e.printStackTrace();
+            showAlert("Erreur", "Impossible de charger le module Santé & Bien-être.\n" + e.getMessage());
+        }
     }
 
     @FXML

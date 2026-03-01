@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<?import javafx.scene.image.ImageView?>
+<ScrollPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="Controllers.AnonymousWellnessController"
+            fitToWidth="true" prefViewportHeight="750">
+   <VBox spacing="20" style="-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #667eea 0%, #764ba2 100%);">
+      <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+   </VBox>
+   <!-- HEADER SECTION -->
+   <VBox alignment="CENTER" prefHeight="180.0" style="-fx-background-color: linear-gradient(to right, #4A6FA5, #5FB49C); -fx-background-radius: 0 0 25 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0.5, 0, 3);">
+      <HBox alignment="CENTER_LEFT" spacing="10">
+         <!-- LOGO GrowMind -->
+         <ImageView fx:id="logoImageView" fitWidth="600" fitHeight="140" preserveRatio="true" />
+         
+         <Region HBox.hgrow="ALWAYS"/>
+         
+         <Button fx:id="backButton" text="🏠 Retour" />
+      </HBox>
+      
+      <!-- Titre centré -->
+      <HBox alignment="CENTER" style="-fx-padding: 5 0 0 0;">
+         <Label fx:id="titleLabel" text="🧠 Évaluation de Bien-être Anonyme" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 4, 0.3, 1, 1);"/>
+      </HBox>
+
+      <Label style="-fx-font-size: 15px; -fx-text-fill: rgba(255,255,255,0.85); -fx-font-style: italic; -fx-padding: 8 0 0 0;" text="Évaluez votre bien-être de manière confidentielle et sans inscription" />
+   </VBox>
+
+   <!-- CONTENT SECTION -->
+   <VBox spacing="20" alignment="CENTER">
+      
+      <!-- Instructions -->
+      <VBox style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);">
+         <Label text="📋 Instructions" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #4A6FA5;"/>
+         <Label text="Répondez aux questions ci-dessous en déplaçant les curseurs. Soyez honnête pour obtenir des recommandations personnalisées." 
+                style="-fx-font-size: 14px; -fx-text-fill: #666; -fx-wrap-text: true;" wrapText="true"/>
+      </VBox>
+
+      <!-- Questions Container -->
+      <ScrollPane fitToWidth="true" prefHeight="400">
+         <VBox fx:id="questionsContainer" spacing="15">
+            <!-- Les questions seront ajoutées dynamiquement -->
+         </VBox>
+      </ScrollPane>
+
+      <!-- Action Buttons -->
+      <HBox spacing="20" alignment="CENTER">
+         <ProgressIndicator fx:id="progressIndicator" visible="false" style="-fx-progress-color: #5FB49C;"/>
+         <Button fx:id="submitButton" text="🎯 Obtenir mes résultats" />
+      </HBox>
+
+   </VBox>
+
+   <!-- Footer -->
+   <VBox alignment="CENTER" style="-fx-padding: 20 0 0 0;">
+      <Label text="💡 Vos réponses sont anonymes et confidentielles" 
+             style="-fx-font-size: 12px; -fx-text-fill: rgba(255,255,255,0.7);"/>
+      <Label text="🔒 Aucune donnée personnelle n'est stockée" 
+             style="-fx-font-size: 12px; -fx-text-fill: rgba(255,255,255,0.7);"/>
+   </VBox>
+
+</ScrollPane>
