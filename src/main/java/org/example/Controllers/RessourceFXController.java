@@ -101,12 +101,6 @@ public class RessourceFXController {
     private final ressourceService service = new ressourceService();
     private CloudinaryService cloudinaryService; // lazy init so app runs without config
 
-    /**
-     * Mots interdits dans titre/description — avertissement admin, compte banni en
-     * cas de récidive
-     */
-    private static final String[] BAD_WORDS = { "bad1", "bad2", "bad3" };
-
     private ObservableList<Ressource> ressourceList = FXCollections.observableArrayList();
     private ObservableList<Ressource> filteredList = FXCollections.observableArrayList();
 
@@ -183,14 +177,7 @@ public class RessourceFXController {
     }
 
     private boolean containsBadWord(String text) {
-        if (text == null || text.isBlank())
-            return false;
-        String lower = text.toLowerCase();
-        for (String bad : BAD_WORDS) {
-            if (lower.contains(bad.toLowerCase()))
-                return true;
-        }
-        return false;
+        return org.example.utils.BadWordFilter.containsBadWord(text);
     }
 
     private void showSuccessNotification(String title, String text) {
@@ -267,9 +254,7 @@ public class RessourceFXController {
         }
 
         if (containsBadWord(title) || containsBadWord(description)) {
-            showWarningNotification(
-                    "⚠️ Avertissement — Contenu inapproprié",
-                    "Contenu inapproprié détecté. Ceci est un avertissement pour l'administrateur : votre compte sera banni en cas de récidive (infraction).");
+            org.example.utils.BadWordFilter.showBadWordNotifications();
             return;
         }
 
@@ -312,9 +297,7 @@ public class RessourceFXController {
         String title = txtTitre.getText();
         String description = txtDescription.getText();
         if (containsBadWord(title) || containsBadWord(description)) {
-            showWarningNotification(
-                    "⚠️ Avertissement — Contenu inapproprié",
-                    "Contenu inapproprié détecté. Ceci est un avertissement pour l'administrateur : votre compte sera banni en cas de récidive (infraction).");
+            org.example.utils.BadWordFilter.showBadWordNotifications();
             return;
         }
         selected.setTitle(title);
@@ -380,6 +363,17 @@ public class RessourceFXController {
 
     @FXML
     private void handleListClick() {
+        Ressource r = listEvenements.getSelectionModel().getSelectedItem();
+        if (r != null) {
+            txtTitre.setText(r.getTitle());
+            txtDescription.setText(r.getDescription());
+            comboType.setValue(r.getType());
+            comboCategory.setValue(r.getCategory());
+            datePicker.setValue(r.getDateCreation());
+            txtLocalisation.setText(r.getContent());
+            txtAuthor.setText(r.getAuthor());
+            comboStatus.setValue(r.getStatus());
+        }
     }
 
     @FXML

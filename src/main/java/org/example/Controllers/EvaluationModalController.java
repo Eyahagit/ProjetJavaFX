@@ -85,6 +85,11 @@ public class EvaluationModalController {
         if (!valid)
             return;
 
+        if (org.example.utils.BadWordFilter.containsBadWord(txtCommentaire.getText())) {
+            org.example.utils.BadWordFilter.showBadWordNotifications();
+            return;
+        }
+
         int userId = StaticUser.getId();
         if (existingEvaluation != null) {
             existingEvaluation.setNote(note);

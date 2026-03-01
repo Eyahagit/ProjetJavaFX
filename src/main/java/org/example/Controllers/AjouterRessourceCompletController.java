@@ -81,6 +81,12 @@ public class AjouterRessourceCompletController {
             return;
         }
 
+        if (org.example.utils.BadWordFilter.containsBadWord(title)
+                || org.example.utils.BadWordFilter.containsBadWord(description)) {
+            org.example.utils.BadWordFilter.showBadWordNotifications();
+            return;
+        }
+
         Ressource r = new Ressource();
         r.setTitle(title.trim());
         r.setDescription(description.trim());

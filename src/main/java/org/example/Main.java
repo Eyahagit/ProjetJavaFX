@@ -3,7 +3,7 @@ package org.example;
 import org.example.Controllers.EvaluationController;
 import org.example.Controllers.FavoriController;
 import org.example.Controllers.RessourceController;
-import org.example.Controllers.UserController;
+
 import org.example.Models.Evaluation;
 import org.example.Models.Favori;
 import org.example.Models.Ressource;

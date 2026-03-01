@@ -39,11 +39,11 @@ public class CloudinaryService {
             return null;
         }
         try {
-            Map<String, Object> params = ObjectUtils.asMap("resource_type", "auto");
-            @SuppressWarnings("rawtypes")
-            Map result = cloudinary.uploader().upload(file, params);
-            Object url = result != null ? result.get("secure_url") : null;
-            return url != null ? url.toString() : null;
+            @SuppressWarnings("unchecked")
+            Map<String, Object> params = (Map<String, Object>) ObjectUtils.asMap("resource_type", "auto");
+            Map<?, ?> result = cloudinary.uploader().upload(file, params);
+            Object url = (result != null) ? result.get("secure_url") : null;
+            return (url != null) ? url.toString() : null;
         } catch (IOException e) {
             throw new RuntimeException("Cloudinary upload failed: " + e.getMessage(), e);
         }
