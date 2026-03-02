@@ -14,6 +14,7 @@ import javafx.scene.layout.VBox;
 import javafx.geometry.Pos;
 
 import java.sql.SQLDataException;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -48,6 +49,9 @@ public class AjouterPsychologueController {
     private static final String NOM_REGEX = "^[A-Za-z\\s\\-]{2,50}$";
     private static final String SPECIALITE_REGEX = "^[A-Za-z\\s\\-]{3,100}$";
     private static final String DIPLOME_REGEX = "^[A-Za-z0-9\\s\\-]{3,100}$";
+
+    public AjouterPsychologueController() throws SQLException {
+    }
 
     @FXML
     public void initialize() {
@@ -115,11 +119,13 @@ public class AjouterPsychologueController {
         } catch (SQLDataException e) {
             showAlert("Erreur", "❌ Erreur de chargement des données: " + e.getMessage(), AlertType.ERROR);
             e.printStackTrace();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
     // NOUVELLE MÉTHODE
-    private void chargerCabinets() {
+    private void chargerCabinets() throws SQLException {
         ServiceCabinet serviceCabinet = new ServiceCabinet();
         List<Cabinet> cabinets = serviceCabinet.recuperer();
 

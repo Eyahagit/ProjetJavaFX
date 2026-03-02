@@ -5,6 +5,7 @@ import com.twilio.Twilio;
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.type.PhoneNumber;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -34,7 +35,7 @@ public class SmartReminderService {
     private final ServiceRendezVous serviceRdv;
     private final ScheduledExecutorService scheduler;
 
-    public SmartReminderService() {
+    public SmartReminderService() throws SQLException {
         // Initialiser Twilio
         Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
 

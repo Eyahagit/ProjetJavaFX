@@ -16,6 +16,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.geometry.Pos;
 
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -62,6 +63,9 @@ public class AjouterRendezVousController {
     );
     private static final String TELEPHONE_REGEX = "^[0-9]{8}$";
     private static final String EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@(.+)$";
+
+    public AjouterRendezVousController() throws SQLException {
+    }
 
     @FXML
     public void initialize() {

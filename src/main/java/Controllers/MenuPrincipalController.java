@@ -23,6 +23,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -74,6 +75,9 @@ public class MenuPrincipalController {
     private ServicePatient servicePatient = new ServicePatient();
     private ServiceDoctor serviceDoctor = new ServiceDoctor();
     private ServiceAdmin serviceAdmin = new ServiceAdmin();
+
+    public MenuPrincipalController() throws SQLException {
+    }
 
     @FXML
     public void initialize() {

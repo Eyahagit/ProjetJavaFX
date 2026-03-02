@@ -71,27 +71,44 @@ public class SanteBienEtreDAO {
             return -1;
         }
 
-        try (Connection conn = Database.getInstance().getConnection()) {
-            // Ensure the utilisateur exists
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            // Obtenir la connexion
+            conn = Database.getInstance().getConnection();
+
+            // ⭐ Vérifier si la connexion est valide
+            if (conn == null || conn.isClosed()) {
+                System.err.println("[ERROR] Connection is null or closed");
+                return -1;
+            }
+
+            // Créer l'utilisateur si nécessaire
             ensureUserExists(conn, s.getUserId());
 
-            try (PreparedStatement ps = conn.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS)) {
-                setStatementParams(ps, s);
+            // Préparer et exécuter l'insertion
+            ps = conn.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS);
+            setStatementParams(ps, s);
 
-                int rows = ps.executeUpdate();
-                if (rows > 0) {
-                    try (ResultSet rs = ps.getGeneratedKeys()) {
-                        if (rs.next()) {
-                            int generatedId = rs.getInt(1);
-                            System.out.println("[INFO] Enregistrement ajouté avec succès, ID: " + generatedId);
-                            return generatedId;
-                        }
-                    }
+            int rows = ps.executeUpdate();
+            if (rows > 0) {
+                rs = ps.getGeneratedKeys();
+                if (rs.next()) {
+                    int generatedId = rs.getInt(1);
+                    System.out.println("[INFO] Enregistrement ajouté avec succès, ID: " + generatedId);
+                    return generatedId;
                 }
             }
         } catch (SQLException e) {
             System.err.println("[ERROR] addSanteBienEtre failed: " + e.getMessage());
             e.printStackTrace();
+        } finally {
+            // ⭐ Fermer uniquement les ressources, PAS la connexion !
+            try { if (rs != null) rs.close(); } catch (SQLException e) {}
+            try { if (ps != null) ps.close(); } catch (SQLException e) {}
+            // ⭐ NE PAS fermer conn - elle sera réutilisée
         }
         return -1;
     }
@@ -100,19 +117,28 @@ public class SanteBienEtreDAO {
      * Ensures a user exists in the database, creates a minimal one if not.
      */
     private void ensureUserExists(Connection conn, int userId) throws SQLException {
-        try (PreparedStatement checkUser = conn.prepareStatement(CHECK_USER_SQL)) {
+        PreparedStatement checkUser = null;
+        ResultSet rs = null;
+        PreparedStatement insertUser = null;
+
+        try {
+            checkUser = conn.prepareStatement(CHECK_USER_SQL);
             checkUser.setInt(1, userId);
-            try (ResultSet rs = checkUser.executeQuery()) {
-                if (!rs.next()) {
-                    try (PreparedStatement insertUser = conn.prepareStatement(INSERT_USER_SQL)) {
-                        insertUser.setInt(1, userId);
-                        insertUser.setString(2, "Utilisateur " + userId);
-                        insertUser.setString(3, "user" + userId + "@local");
-                        insertUser.executeUpdate();
-                        System.out.println("[INFO] Utilisateur " + userId + " créé automatiquement");
-                    }
-                }
+            rs = checkUser.executeQuery();
+
+            if (!rs.next()) {
+                insertUser = conn.prepareStatement(INSERT_USER_SQL);
+                insertUser.setInt(1, userId);
+                insertUser.setString(2, "Utilisateur " + userId);
+                insertUser.setString(3, "user" + userId + "@local");
+                insertUser.executeUpdate();
+                System.out.println("[INFO] Utilisateur " + userId + " créé automatiquement");
             }
+        } finally {
+            // Fermer uniquement les statements, PAS la connexion
+            try { if (rs != null) rs.close(); } catch (SQLException e) {}
+            try { if (checkUser != null) checkUser.close(); } catch (SQLException e) {}
+            try { if (insertUser != null) insertUser.close(); } catch (SQLException e) {}
         }
     }
 
@@ -127,9 +153,14 @@ public class SanteBienEtreDAO {
             return false;
         }
 
-        try (Connection conn = Database.getInstance().getConnection();
-             PreparedStatement ps = conn.prepareStatement(UPDATE_SQL)) {
+        Connection conn = null;
+        PreparedStatement ps = null;
 
+        try {
+            conn = Database.getInstance().getConnection();
+            if (conn == null || conn.isClosed()) return false;
+
+            ps = conn.prepareStatement(UPDATE_SQL);
             setStatementParams(ps, s);
             ps.setInt(10, s.getId());
 
@@ -141,6 +172,8 @@ public class SanteBienEtreDAO {
         } catch (SQLException e) {
             System.err.println("[ERROR] updateSanteBienEtre failed: " + e.getMessage());
             e.printStackTrace();
+        } finally {
+            try { if (ps != null) ps.close(); } catch (SQLException e) {}
         }
         return false;
     }
@@ -156,8 +189,14 @@ public class SanteBienEtreDAO {
             return false;
         }
 
-        try (Connection conn = Database.getInstance().getConnection();
-             PreparedStatement ps = conn.prepareStatement(DELETE_SQL)) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+
+        try {
+            conn = Database.getInstance().getConnection();
+            if (conn == null || conn.isClosed()) return false;
+
+            ps = conn.prepareStatement(DELETE_SQL);
             ps.setInt(1, id);
             int rows = ps.executeUpdate();
             if (rows > 0) {
@@ -167,6 +206,8 @@ public class SanteBienEtreDAO {
         } catch (SQLException e) {
             System.err.println("[ERROR] deleteSanteBienEtre failed: " + e.getMessage());
             e.printStackTrace();
+        } finally {
+            try { if (ps != null) ps.close(); } catch (SQLException e) {}
         }
         return false;
     }
@@ -177,9 +218,16 @@ public class SanteBienEtreDAO {
      */
     public List<Integer> getAllUserIds() {
         List<Integer> list = new ArrayList<>();
-        try (Connection conn = Database.getInstance().getConnection();
-             PreparedStatement ps = conn.prepareStatement(SELECT_DISTINCT_USERS_SQL);
-             ResultSet rs = ps.executeQuery()) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = Database.getInstance().getConnection();
+            if (conn == null || conn.isClosed()) return list;
+
+            ps = conn.prepareStatement(SELECT_DISTINCT_USERS_SQL);
+            rs = ps.executeQuery();
 
             while (rs.next()) {
                 list.add(rs.getInt("user_id"));
@@ -188,6 +236,9 @@ public class SanteBienEtreDAO {
         } catch (SQLException e) {
             System.err.println("[ERROR] getAllUserIds failed: " + e.getMessage());
             e.printStackTrace();
+        } finally {
+            try { if (rs != null) rs.close(); } catch (SQLException e) {}
+            try { if (ps != null) ps.close(); } catch (SQLException e) {}
         }
         return list;
     }
@@ -198,9 +249,16 @@ public class SanteBienEtreDAO {
      */
     public List<SanteBienEtre> getAllSanteBienEtre() {
         List<SanteBienEtre> list = new ArrayList<>();
-        try (Connection conn = Database.getInstance().getConnection();
-             PreparedStatement ps = conn.prepareStatement(SELECT_ALL_SQL);
-             ResultSet rs = ps.executeQuery()) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = Database.getInstance().getConnection();
+            if (conn == null || conn.isClosed()) return list;
+
+            ps = conn.prepareStatement(SELECT_ALL_SQL);
+            rs = ps.executeQuery();
 
             while (rs.next()) {
                 list.add(mapResultSet(rs));
@@ -209,6 +267,9 @@ public class SanteBienEtreDAO {
         } catch (SQLException e) {
             System.err.println("[ERROR] getAllSanteBienEtre failed: " + e.getMessage());
             e.printStackTrace();
+        } finally {
+            try { if (rs != null) rs.close(); } catch (SQLException e) {}
+            try { if (ps != null) ps.close(); } catch (SQLException e) {}
         }
         return list;
     }
@@ -220,18 +281,28 @@ public class SanteBienEtreDAO {
      */
     public List<SanteBienEtre> getSanteBienEtreByUser(int userId) {
         List<SanteBienEtre> list = new ArrayList<>();
-        try (Connection conn = Database.getInstance().getConnection();
-             PreparedStatement ps = conn.prepareStatement(SELECT_BY_USER_SQL)) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = Database.getInstance().getConnection();
+            if (conn == null || conn.isClosed()) return list;
+
+            ps = conn.prepareStatement(SELECT_BY_USER_SQL);
             ps.setInt(1, userId);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    list.add(mapResultSet(rs));
-                }
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                list.add(mapResultSet(rs));
             }
             System.out.println("[DEBUG] " + list.size() + " enregistrements pour user " + userId);
         } catch (SQLException e) {
             System.err.println("[ERROR] getSanteBienEtreByUser failed: " + e.getMessage());
             e.printStackTrace();
+        } finally {
+            try { if (rs != null) rs.close(); } catch (SQLException e) {}
+            try { if (ps != null) ps.close(); } catch (SQLException e) {}
         }
         return list;
     }
@@ -242,17 +313,27 @@ public class SanteBienEtreDAO {
      * @return The record or null if not found
      */
     public SanteBienEtre getSanteBienEtreById(int id) {
-        try (Connection conn = Database.getInstance().getConnection();
-             PreparedStatement ps = conn.prepareStatement(SELECT_BY_ID_SQL)) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = Database.getInstance().getConnection();
+            if (conn == null || conn.isClosed()) return null;
+
+            ps = conn.prepareStatement(SELECT_BY_ID_SQL);
             ps.setInt(1, id);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return mapResultSet(rs);
-                }
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return mapResultSet(rs);
             }
         } catch (SQLException e) {
             System.err.println("[ERROR] getSanteBienEtreById failed: " + e.getMessage());
             e.printStackTrace();
+        } finally {
+            try { if (rs != null) rs.close(); } catch (SQLException e) {}
+            try { if (ps != null) ps.close(); } catch (SQLException e) {}
         }
         return null;
     }
@@ -272,21 +353,31 @@ public class SanteBienEtreDAO {
             return list;
         }
 
-        try (Connection conn = Database.getInstance().getConnection();
-             PreparedStatement ps = conn.prepareStatement(SELECT_BY_DATE_RANGE_SQL)) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = Database.getInstance().getConnection();
+            if (conn == null || conn.isClosed()) return list;
+
+            ps = conn.prepareStatement(SELECT_BY_DATE_RANGE_SQL);
             ps.setInt(1, userId);
             ps.setDate(2, Date.valueOf(startDate));
             ps.setDate(3, Date.valueOf(endDate));
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    list.add(mapResultSet(rs));
-                }
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                list.add(mapResultSet(rs));
             }
             System.out.println("[DEBUG] " + list.size() + " enregistrements pour user " + userId +
                     " entre " + startDate + " et " + endDate);
         } catch (SQLException e) {
             System.err.println("[ERROR] getSanteBienEtreByDateRange failed: " + e.getMessage());
             e.printStackTrace();
+        } finally {
+            try { if (rs != null) rs.close(); } catch (SQLException e) {}
+            try { if (ps != null) ps.close(); } catch (SQLException e) {}
         }
         return list;
     }

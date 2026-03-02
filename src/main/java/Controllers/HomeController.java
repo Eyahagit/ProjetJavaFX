@@ -428,7 +428,41 @@ public class HomeController implements Initializable {
             showAlert("Non connecté", "Veuillez vous connecter pour accéder aux Événements.");
             return;
         }
-        showModuleInfo("Événement", "event");
+
+        System.out.println("\n=== Navigation vers Gestion des Événements ===");
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/MainView.fxml"));
+            Parent root = loader.load();
+
+            // Récupérer le contrôleur - remplacez "MainViewController" par le nom réel
+            Object controller = loader.getController();
+
+            // Si vous connaissez le type exact, faites un cast direct
+            EvenementFXController eventController = (EvenementFXController) controller;
+             eventController.setCurrentUser(currentUser);
+
+            // Méthode générique (fonctionne quel que soit le type)
+            if (controller != null && currentUser != null) {
+                try {
+                    controller.getClass().getMethod("setCurrentUser", users.class).invoke(controller, currentUser);
+                } catch (Exception e) {
+                    System.out.println("⚠️ Impossible de passer l'utilisateur: " + e.getMessage());
+                }
+            }
+
+            Stage stage = (Stage) eventCard.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Gestion des Événements - GrowMind");
+            stage.show();
+
+            System.out.println("✅ Navigation réussie");
+
+        } catch (IOException e) {
+            System.err.println("❌ Erreur: " + e.getMessage());
+            e.printStackTrace();
+            showAlert("Erreur", "Impossible de charger le module Événements.\n" + e.getMessage());
+        }
     }
 
     @FXML

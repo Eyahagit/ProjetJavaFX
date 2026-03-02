@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="10" alignment="CENTER" 
+      style="-fx-background-color: linear-gradient(to bottom right, #667eea, #764ba2); -fx-padding: 15;"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controllers.ReservationController">
+
+    <VBox spacing="8" maxWidth="350" style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 15;">
+
+        <Label text="🎟️ Réserver" 
+               style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #4A6FA5;" 
+               alignment="CENTER"/>
+
+        <Label fx:id="lblEventInfo" 
+               style="-fx-font-size: 12px; -fx-text-fill: #2c3e50; -fx-wrap-text: true;" 
+               alignment="CENTER"/>
+
+        <GridPane hgap="8" vgap="6">
+            <Label text="👤 Nom" style="-fx-font-weight: bold; -fx-text-fill: #4A6FA5; -fx-font-size: 12px;" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+            <TextField fx:id="txtNom" promptText="Nom complet" 
+                       style="-fx-background-radius: 6; -fx-border-radius: 6; -fx-border-color: #d1e7f3; -fx-background-color: #f8fdff; -fx-font-size: 12px; -fx-padding: 6;" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+            <Label text="📧 Email" style="-fx-font-weight: bold; -fx-text-fill: #4A6FA5; -fx-font-size: 12px;" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+            <TextField fx:id="txtEmail" promptText="email@exemple.com" 
+                       style="-fx-background-radius: 6; -fx-border-radius: 6; -fx-border-color: #d1e7f3; -fx-background-color: #f8fdff; -fx-font-size: 12px; -fx-padding: 6;" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+            <Label text="📱 Téléphone" style="-fx-font-weight: bold; -fx-text-fill: #4A6FA5; -fx-font-size: 12px;" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+            <TextField fx:id="txtTelephone" promptText="06 12 34 56 78" 
+                       style="-fx-background-radius: 6; -fx-border-radius: 6; -fx-border-color: #d1e7f3; -fx-background-color: #f8fdff; -fx-font-size: 12px; -fx-padding: 6;" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+            <Label text="🎯 Places" style="-fx-font-weight: bold; -fx-text-fill: #4A6FA5; -fx-font-size: 12px;" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+            <TextField fx:id="txtNbPlaces" promptText="1" prefWidth="60"
+                       style="-fx-background-radius: 6; -fx-border-radius: 6; -fx-border-color: #d1e7f3; -fx-background-color: #f8fdff; -fx-font-size: 12px; -fx-padding: 6;" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+        </GridPane>
+
+        <Label fx:id="lblMessage" 
+               style="-fx-text-fill: red; -fx-font-size: 11px; -fx-wrap-text: true;" />
+
+        <HBox spacing="8" alignment="CENTER">
+            <Button text="✅ Confirmer" onAction="#handleReservation"
+                    style="-fx-background-color: #5FB49C; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12px; -fx-padding: 8 15; -fx-background-radius: 6; -fx-cursor: hand;"/>
+            <Button text="❌ Annuler" onAction="#handleAnnuler"
+                    style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12px; -fx-padding: 8 15; -fx-background-radius: 6; -fx-cursor: hand;"/>
+        </HBox>
+
+    </VBox>
+</VBox>

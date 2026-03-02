@@ -10,6 +10,7 @@ import javafx.scene.chart.*;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -42,7 +43,7 @@ public class SuiviRappelsController {
     private ObservableList<RendezVous> rendezVousList;
 
     @FXML
-    public void initialize() {
+    public void initialize() throws SQLException {
         serviceRdv = new ServiceRendezVous();
         reminderService = new SmartReminderService();
         rendezVousList = FXCollections.observableArrayList();
