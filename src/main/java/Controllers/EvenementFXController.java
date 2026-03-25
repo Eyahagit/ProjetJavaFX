@@ -170,7 +170,7 @@ public class EvenementFXController {
             case "admin": return "👑 Administrateur";
             case "doctor": return "👨‍⚕️ Médecin";
             case "patient": return "👤 Patient";
-            default: return "👤 Utilisateur";
+            default: return "";
         }
     }
 

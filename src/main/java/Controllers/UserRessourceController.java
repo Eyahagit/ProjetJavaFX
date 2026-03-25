@@ -147,30 +147,19 @@ public class UserRessourceController {
             }
 
             System.out.println("✅ Utilisateur connecté: " + currentUser.getName() + " " + currentUser.getSecond_name() + " (" + currentUser.getRole() + ")");
-        } else {
-            if (lblUserWelcome != null) {
-                lblUserWelcome.setText("Bienvenue, Invité !");
-            }
-            if (lblUserName != null) {
-                lblUserName.setText("Invité");
-            }
-            if (lblUserRole != null) {
-                lblUserRole.setText("👤 Invité");
-                lblUserRole.setStyle("-fx-background-color: #95a5a6; -fx-padding: 5 15; -fx-background-radius: 20; -fx-text-fill: white; -fx-font-weight: bold;");
-            }
         }
     }
 
     /**
-     * Convertit le rôle en texte affichable
+     * Convertit le rôle en texte affichable avec icône
      */
     private String getRoleDisplay(String role) {
-        if (role == null) return "👤 Invité";
+        if (role == null) return "";
         switch(role.toLowerCase()) {
             case "admin": return "👑 Administrateur";
-            case "doctor": return "👨‍⚕️ Médecin";
-            case "patient": return "👤 Patient";
-            default: return "👤 Utilisateur";
+            case "medecin": return "👨‍⚕️ Médecin";
+            case "patient": return "🩺 Patient";
+            default: return "";
         }
     }
 
@@ -181,8 +170,8 @@ public class UserRessourceController {
         if (role == null) return "#95a5a6";
         switch(role.toLowerCase()) {
             case "admin": return "#9b59b6";
-            case "doctor": return "#3498db";
-            case "patient": return "#2ecc71";
+            case "medecin": return "#27AE60";
+            case "patient": return "#5FB49C";
             default: return "#95a5a6";
         }
     }
@@ -195,7 +184,9 @@ public class UserRessourceController {
             this.currentUser = user;
             SessionManager.getInstance().setCurrentUser(user);
             configureUserDisplay();
-            System.out.println("✅ Utilisateur défini dans UserRessourceController: " + user.getName() + " " + user.getSecond_name());
+            System.out.println("✅ Utilisateur défini dans UserRessourceController: " + user.getName() + " " + user.getSecond_name() + " (" + user.getEmail() + ")");
+        } else {
+            System.err.println("❌ Tentative de définir un utilisateur null");
         }
     }
 
@@ -205,7 +196,6 @@ public class UserRessourceController {
     public void setUser(users user) {
         setCurrentUser(user);
     }
-
     /**
      * Gère le retour à l'accueil
      */

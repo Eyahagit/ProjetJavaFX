@@ -74,21 +74,8 @@ public class MainForumController {
         // Afficher la date
         lblDate.setText(LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
 
-        // Initialiser avec un utilisateur par défaut si nécessaire
-        if (currentUser == null) {
-            currentUser = new users();
-            currentUser.setRole("guest");
-            currentUser.setName("Invité");
-            currentUser.setSecond_name("");
-            currentUser.setEmail("invite@growmind.com");
-        }
-
-        // Mettre à jour l'affichage
-        updateUserDisplay();
-        updateStatistics();
-        configureInterfaceByRole();
-
-        System.out.println("=== Initialisation terminée ===\n");
+        // NE PAS créer d'utilisateur par défaut - attendre setUser()
+        System.out.println("=== En attente de l'utilisateur depuis la page de login ===\n");
     }
 
     /**
@@ -99,7 +86,7 @@ public class MainForumController {
 
         String role = currentUser.getRole().toLowerCase();
         isAdmin = "admin".equals(role);
-        isMedecin = "doctor".equals(role);
+        isMedecin = "medecin".equals(role);
 
         System.out.println("🔧 Configuration interface pour rôle: " + role);
 
@@ -108,7 +95,7 @@ public class MainForumController {
             setButtonsVisibility(true, true, true, true, true, true, true, true, true);
             System.out.println("✅ Mode Admin: tous les boutons visibles");
         }
-        // MEDECIN : voit presque tous les boutons
+        // MEDECIN : voit tous les boutons
         else if (isMedecin) {
             setButtonsVisibility(true, true, true, true, true, true, true, true, true);
             System.out.println("✅ Mode Médecin: accès complet");
@@ -117,27 +104,6 @@ public class MainForumController {
         else if ("patient".equals(role)) {
             setButtonsVisibility(true, true, true, false, true, false, true, true, true);
             System.out.println("✅ Mode Patient: accès limité");
-        }
-        // INVITE : voit le minimum (consultation uniquement)
-        else {
-            setButtonsVisibility(true, false, false, false, true, false, true, true, false);
-            System.out.println("✅ Mode Invité: consultation uniquement");
-        }
-
-        // Configurer le texte du bouton de switch
-        if (btnSwitchRole != null) {
-            if (isAdmin) {
-                btnSwitchRole.setText("👑 Admin");
-                btnSwitchRole.setVisible(true);
-            } else if (isMedecin) {
-                btnSwitchRole.setText("👨‍⚕️ Médecin");
-                btnSwitchRole.setVisible(true);
-            } else if ("patient".equals(role)) {
-                btnSwitchRole.setText("👤 Patient");
-                btnSwitchRole.setVisible(true);
-            } else {
-                btnSwitchRole.setVisible(false);
-            }
         }
     }
 
@@ -185,7 +151,7 @@ public class MainForumController {
             }
 
             // Déterminer si c'est un médecin
-            isMedecin = "doctor".equals(currentUser.getRole());
+            isMedecin = "medecin".equals(currentUser.getRole());
 
             System.out.println("✅ Affichage utilisateur mis à jour: " + currentUser.getName() + " " + currentUser.getSecond_name() + " (" + currentUser.getRole() + ")");
         }
@@ -195,19 +161,17 @@ public class MainForumController {
      * Convertit le rôle en texte affichable avec icône
      */
     private String getRoleDisplay(String role) {
-        if (role == null) return "👤 Invité";
+        if (role == null) return "";
 
         switch(role.toLowerCase()) {
             case "admin":
                 return "👑 Administrateur";
-            case "doctor":
+            case "medecin":
                 return "👨‍⚕️ Médecin";
             case "patient":
-                return "👤 Patient";
-            case "guest":
-                return "👤 Invité";
+                return "🩺 Patient";
             default:
-                return "👤 Utilisateur";
+                return "";
         }
     }
 
@@ -227,6 +191,9 @@ public class MainForumController {
 
             // Charger les données spécifiques au rôle
             loadUserSpecificData();
+
+            // Mettre à jour les statistiques
+            updateStatistics();
         } else {
             System.err.println("❌ Tentative de définir un utilisateur null");
         }
@@ -257,14 +224,11 @@ public class MainForumController {
                 case "patient":
                     System.out.println("📋 Mode Patient activé");
                     break;
-                case "doctor":
+                case "medecin":
                     System.out.println("📋 Mode Médecin activé");
                     break;
                 case "admin":
                     System.out.println("📋 Mode Administrateur activé");
-                    break;
-                case "guest":
-                    System.out.println("📋 Mode Invité activé");
                     break;
             }
         } catch (Exception e) {
@@ -325,7 +289,7 @@ public class MainForumController {
     @FXML
     public void handleNouvelleDiscussion() {
         // Vérifier les droits
-        if (currentUser == null || "guest".equals(currentUser.getRole())) {
+        if (currentUser == null) {
             showError("Accès refusé", "Vous devez être connecté pour créer une discussion.");
             return;
         }
@@ -341,7 +305,7 @@ public class MainForumController {
 
             // Passer l'utilisateur connecté pour pré-remplir le formulaire
             if (controller != null && currentUser != null) {
-                controller.setCurrentUser(currentUser); // Cette méthode pré-remplira nom et rôle
+                controller.setCurrentUser(currentUser);
             }
 
             Stage stage = new Stage();
@@ -372,7 +336,7 @@ public class MainForumController {
 
     @FXML
     public void handleEspaceMedecin() {
-        if (currentUser != null && ("doctor".equals(currentUser.getRole()) || "admin".equals(currentUser.getRole()))) {
+        if (currentUser != null && ("medecin".equals(currentUser.getRole()) || "admin".equals(currentUser.getRole()))) {
             showInfo("Espace Médecin",
                     "👨‍⚕️ Bienvenue dans votre espace professionnel\n\n" +
                             "Fonctionnalités disponibles :\n" +
@@ -385,16 +349,7 @@ public class MainForumController {
         }
     }
 
-    @FXML
-    public void handleSwitchRole() {
-        if (currentUser != null) {
-            if ("doctor".equals(currentUser.getRole())) {
-                showInfo("Information", "Vous êtes en mode Médecin. Pour changer de rôle, veuillez vous reconnecter avec un compte différent.");
-            } else if ("patient".equals(currentUser.getRole())) {
-                showInfo("Information", "Vous êtes en mode Patient. Pour accéder à l'espace médecin, vous devez avoir un compte professionnel.");
-            }
-        }
-    }
+// SUPPRIMÉ: handleSwitchRole() - plus nécessaire
 
     @FXML
     public void handleRessources() {

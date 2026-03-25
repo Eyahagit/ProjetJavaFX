@@ -67,16 +67,14 @@ public class PostFormController {
             if (role != null) {
                 switch(role.toLowerCase()) {
                     case "patient":
-                        cmbRole.setValue("🧑 Patient");
+                        cmbRole.setValue("🩺 Patient");
                         break;
-                    case "doctor":
+                    case "medecin":
                         cmbRole.setValue("👨‍⚕️ Médecin");
                         break;
                     case "admin":
                         cmbRole.setValue("👑 Administrateur");
                         break;
-                    default:
-                        cmbRole.setValue("🧑 Patient");
                 }
             }
 
@@ -90,12 +88,12 @@ public class PostFormController {
     }
 
     private String getRoleDisplay(String role) {
-        if (role == null) return "Invité";
+        if (role == null) return "";
         switch(role.toLowerCase()) {
             case "patient": return "Patient";
-            case "doctor": return "Médecin";
+            case "medecin": return "Médecin";
             case "admin": return "Administrateur";
-            default: return role;
+            default: return "";
         }
     }
 

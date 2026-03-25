@@ -178,10 +178,6 @@ public class HomeController implements Initializable {
     public void setUser(users user) {
         System.out.println("\n=== HomeController.setUser ===");
 
-        if (user == null) {
-            System.err.println("❌ Utilisateur reçu est null!");
-            user = createGuestUser();
-        }
 
         this.currentUser = user;
         SessionManager.getInstance().setCurrentUser(user);
@@ -192,16 +188,6 @@ public class HomeController implements Initializable {
 
         updateUserDisplay();
         System.out.println("=== Fin setUser ===\n");
-    }
-
-    private users createGuestUser() {
-        users guest = new users();
-        guest.setName("Invité");
-        guest.setSecond_name("");
-        guest.setRole("guest");
-        guest.setEmail("invite@growmind.com");
-        guest.setId(0);
-        return guest;
     }
 
     private void updateUserDisplay() {
@@ -225,34 +211,22 @@ public class HomeController implements Initializable {
                             roleText = "👑 Administrateur";
                             roleColor = "#9B59B6";
                             break;
-                        case "doctor":
-                            roleText = "👨‍⚕️ Docteur";
+                        case "medecin":
+                            roleText = "👨‍⚕️ Médecin";
                             roleColor = "#E667AF";
                             break;
                         case "patient":
                             roleText = "🩺 Patient";
                             roleColor = "#5FB49C";
                             break;
-                        case "guest":
-                            roleText = "👤 Invité";
-                            roleColor = "#7F8C8D";
-                            break;
-                        default:
-                            roleText = "👤 Utilisateur";
-                            roleColor = "#666";
                     }
 
                     userRoleLabel.setText(roleText);
-                    userRoleLabel.setStyle("-fx-text-fill:black " + roleColor + "; -fx-font-weight: bold;");
+                    userRoleLabel.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
                 }
 
-                if ("guest".equals(currentUser.getRole())) {
-                    if (profileButton != null) profileButton.setVisible(false);
-                    if (goToDashboardButton != null) goToDashboardButton.setVisible(false);
-                } else {
-                    if (profileButton != null) profileButton.setVisible(true);
-                    if (goToDashboardButton != null) goToDashboardButton.setVisible(true);
-                }
+                if (profileButton != null) profileButton.setVisible(true);
+                if (goToDashboardButton != null) goToDashboardButton.setVisible(true);
             }
         } catch (Exception e) {
             System.err.println("❌ Erreur lors de la mise à jour des labels: " + e.getMessage());

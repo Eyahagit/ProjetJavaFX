@@ -56,6 +56,9 @@
                             style="-fx-background-color: rgba(255,255,255,0.2); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 25; -fx-padding: 10 20; -fx-cursor: hand; -fx-border-color: rgba(255,255,255,0.3); -fx-border-width: 1; -fx-border-radius: 25;"/>
                     <Button text="🌙 Sommeil" onAction="#handleOpenSommeil"
                             style="-fx-background-color: rgba(255,255,255,0.2); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 25; -fx-padding: 10 20; -fx-cursor: hand; -fx-border-color: rgba(255,255,255,0.3); -fx-border-width: 1; -fx-border-radius: 25;"/>
+                    <Button text="chatbot AI" onAction="#handleOpenChatbot"
+                            style="-fx-background-color: rgba(255,255,255,0.2); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 25; -fx-padding: 10 20; -fx-cursor: hand; -fx-border-color: rgba(255,255,255,0.3); -fx-border-width: 1; -fx-border-radius: 25;"/>
+
                     <!-- Ajoutez ce bouton dans l'en-tête, à côté des autres boutons -->
                     <Button fx:id="btnHome" onAction="#handleHome" text="🏠 Accueil"
                             style="-fx-background-color: rgba(255,255,255,0.2); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 25; -fx-padding: 10 20; -fx-cursor: hand; -fx-border-color: rgba(255,255,255,0.3); -fx-border-width: 1; -fx-border-radius: 25;"/>

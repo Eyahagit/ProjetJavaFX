@@ -125,19 +125,6 @@ public class MenuPrincipalController {
             }
 
             System.out.println("✅ Affichage utilisateur mis à jour: " + currentUser.getName() + " " + currentUser.getSecond_name());
-        } else {
-            if (userWelcomeLabel != null) {
-                userWelcomeLabel.setText("Bienvenue, Visiteur");
-            }
-            if (userFullNameLabel != null) {
-                userFullNameLabel.setText("Invité");
-            }
-            if (userRoleLabel != null) {
-                userRoleLabel.setText("👤 Invité");
-            }
-            if (statusLabel != null) {
-                statusLabel.setText("Non connecté - Mode consultation");
-            }
         }
     }
 
@@ -145,17 +132,17 @@ public class MenuPrincipalController {
      * Convertit le rôle en texte affichable avec icône
      */
     private String getRoleDisplay(String role) {
-        if (role == null) return "👤 Invité";
+        if (role == null) return "";
 
         switch(role.toLowerCase()) {
             case "admin":
                 return "👑 Administrateur";
-            case "doctor":
+            case "medecin":
                 return "👨‍⚕️ Médecin";
             case "patient":
-                return "👤 Patient";
+                return "🩺 Patient";
             default:
-                return "👤 Utilisateur";
+                return "";
         }
     }
 
@@ -194,7 +181,7 @@ public class MenuPrincipalController {
         if (role == null) return;
 
         boolean isAdmin = "admin".equals(role);
-        boolean isDoctor = "doctor".equals(role);
+        boolean isMedecin = "medecin".equals(role);
         boolean isPatient = "patient".equals(role);
 
         // Pour les patients : mode consultation uniquement
@@ -214,7 +201,7 @@ public class MenuPrincipalController {
         }
 
         // Pour les médecins : accès complet sauf certaines fonctions admin
-        else if (isDoctor) {
+        else if (isMedecin) {
             // Les médecins voient tout
             System.out.println("🔄 Interface médecin: accès complet");
         }
@@ -222,23 +209,6 @@ public class MenuPrincipalController {
         // Pour les admins : accès complet
         else if (isAdmin) {
             System.out.println("🔄 Interface admin: accès complet");
-        }
-
-        // Pour les invités (utilisateurs non connectés)
-        else {
-            if (btnCabinet != null) btnCabinet.setVisible(false);
-            if (btnPsychologue != null) btnPsychologue.setVisible(false);
-            if (btnRendezVous != null) btnRendezVous.setVisible(false);
-            if (btnSuiviRappels != null) btnSuiviRappels.setVisible(false);
-            if (btnStatistiques != null) btnStatistiques.setVisible(false);
-            if (btnExport != null) btnExport.setVisible(false);
-
-            if (btnQuickCabinet != null) btnQuickCabinet.setVisible(false);
-            if (btnQuickPsychologue != null) btnQuickPsychologue.setVisible(false);
-            if (btnQuickRendezVous != null) btnQuickRendezVous.setVisible(false);
-            if (btnQuickSuiviRappels != null) btnQuickSuiviRappels.setVisible(false);
-
-            System.out.println("🔄 Interface invité: accès limité");
         }
     }
 

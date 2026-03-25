@@ -1,6 +1,7 @@
 package Controllers;
 
 import entities.ForumPost;
+import Models.users;
 import Services.*;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -30,6 +31,7 @@ public class PostDetailsController {
 
     private ForumPost post;
     private ServiceForumPost servicefp;
+    private users currentUser; // Ajout de l'utilisateur courant
     private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
     @FXML
@@ -48,9 +50,18 @@ public class PostDetailsController {
         this.servicefp = service;
     }
 
+    /**
+     * Définit l'utilisateur courant
+     */
+    public void setCurrentUser(users user) {
+        this.currentUser = user;
+        System.out.println("✅ Utilisateur défini dans PostDetailsController: " +
+                (user != null ? user.getEmail() : "null"));
+    }
+
     private void afficherDetails() {
         lblNom.setText(post.getNom());
-        lblRole.setText(post.getRole());
+        lblRole.setText(getRoleDisplay(post.getRole()));
 
         String icone = getIconeCategorie(post.getCategorie());
         String couleur = getCouleurCategorie(post.getCategorie());
@@ -80,6 +91,19 @@ public class PostDetailsController {
         }
         if (btnDislike != null) {
             btnDislike.setText("👎 " + post.getDislikes());
+        }
+    }
+
+    /**
+     * Convertit le rôle en texte affichable
+     */
+    private String getRoleDisplay(String role) {
+        if (role == null) return "";
+        switch(role.toLowerCase()) {
+            case "patient": return "🩺 Patient";
+            case "medecin": return "👨‍⚕️ Médecin";
+            case "admin": return "👑 Administrateur";
+            default: return "";
         }
     }
 
@@ -150,21 +174,29 @@ public class PostDetailsController {
 
     @FXML
     private void handleRepondre() {
+        // Vérifier si l'utilisateur est connecté
+        if (currentUser == null) {
+            showAlert("Accès refusé", "Vous devez être connecté pour répondre à une discussion.");
+            return;
+        }
+
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/reponse_form.fxml"));
             VBox page = loader.load();
 
             ReponseFormController controller = loader.getController();
 
-            // CORRECTION ICI : utiliser ServiceReponse directement sans Services.
-            ServiceReponse serviceReponse = new ServiceReponse();
-            //controller.setService(serviceReponse); // Note: c'est setService (minuscule) et non setservice
-            controller.setPost(post);
+            // Passer l'utilisateur courant au formulaire de réponse
+            if (controller != null) {
+                controller.setCurrentUser(currentUser);
+                controller.setPost(post);
+            }
 
             Stage stage = new Stage();
             stage.setTitle("Répondre à " + post.getNom());
             stage.setScene(new Scene(page));
             stage.showAndWait();
+
         } catch (IOException e) {
             e.printStackTrace();
             showAlert("Erreur", "Impossible d'ouvrir le formulaire de réponse");

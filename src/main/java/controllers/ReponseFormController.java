@@ -1,5 +1,6 @@
 package Controllers;
 
+import Models.users;
 import entities.ForumPost;
 import entities.Reponse;
 import Services.*;
@@ -19,13 +20,18 @@ public class ReponseFormController {
     private ForumPost postCourant;
     private ReponseListController reponseListController;
     private boolean isFrench = true;
+    private users currentUser;
 
     @FXML
     public void initialize() {
         txtContenu.setPromptText("Écrivez votre réponse ici...");
     }
 
-
+    public void setCurrentUser(users user) {
+        this.currentUser = user;
+        System.out.println("✅ Utilisateur défini dans PostDetailsController: " +
+                (user != null ? user.getEmail() : "null"));
+    }
     public void setPost(ForumPost post) {
         this.postCourant = post;
     }
