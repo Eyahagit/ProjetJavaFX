@@ -1,0 +1,270 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <div class="row mb-4">
+            <div class="col">
+                <h1 class="display-6 fw-bold mb-2">Dashboard</h1>
+                <p class="text-muted mb-0">Overview of the main health, sleep, and user activity indicators.</p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <span class="badge text-bg-primary mb-3">Users</span>
+                        <h2 class="display-5 fw-semibold mb-1">{{ total_users }}</h2>
+                        <p class="text-muted mb-0">Total number of registered users.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <span class="badge text-bg-info mb-3">Health records</span>
+                        <h2 class="display-5 fw-semibold mb-1">{{ total_sante_bien_etre_records }}</h2>
+                        <p class="text-muted mb-0">Total number of SanteBienEtre records.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <span class="badge text-bg-warning mb-3">Avg stress</span>
+                        <h2 class="display-5 fw-semibold mb-1">
+                            {% if average_stress_level is not null %}
+                                {{ average_stress_level|number_format(2, '.', ' ') }}
+                            {% else %}
+                                --
+                            {% endif %}
+                        </h2>
+                        <p class="text-muted mb-0">Average stress level from health tracking records.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <span class="badge text-bg-success mb-3">Avg sleep</span>
+                        <h2 class="display-5 fw-semibold mb-1">
+                            {% if average_sleep_duration is not null %}
+                                {{ average_sleep_duration|number_format(2, '.', ' ') }} min
+                            {% else %}
+                                --
+                            {% endif %}
+                        </h2>
+                        <p class="text-muted mb-0">Average sleep duration from sleep tracking records.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mt-1">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h2 class="h4 mb-1">Stress evolution</h2>
+                        <p class="text-muted mb-3">Average stress level over time based on SanteBienEtre follow-up dates.</p>
+
+                        {% if stress_evolution_labels is not empty %}
+                            <div style="height: 380px;">
+                                <canvas id="stressEvolutionChart"></canvas>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-light border mb-0" role="alert">
+                                No stress evolution data is available yet.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-7">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <h2 class="h4 mb-1">Sleep tracking</h2>
+                        <p class="text-muted mb-3">Average sleep duration and sleep quality over time from SleepTracking.</p>
+
+                        {% if sleep_tracking_labels is not empty %}
+                            <div style="height: 360px;">
+                                <canvas id="sleepTrackingChart"></canvas>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-light border mb-0" role="alert">
+                                No sleep tracking data is available yet.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <h2 class="h4 mb-1">Records per user</h2>
+                        <p class="text-muted mb-3">Number of SanteBienEtre records linked to each user.</p>
+
+                        {% if records_per_user_labels is not empty %}
+                            <div style="height: 360px;">
+                                <canvas id="recordsPerUserChart"></canvas>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-light border mb-0" role="alert">
+                                No user record counts are available yet.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (typeof Chart === 'undefined') {
+                return;
+            }
+
+            const stressEvolutionElement = document.getElementById('stressEvolutionChart');
+            const sleepTrackingElement = document.getElementById('sleepTrackingChart');
+            const recordsPerUserElement = document.getElementById('recordsPerUserChart');
+
+            if (stressEvolutionElement) {
+                new Chart(stressEvolutionElement, {
+                    type: 'line',
+                    data: {
+                        labels: {{ stress_evolution_labels|json_encode|raw }},
+                        datasets: [{
+                            label: 'Average stress level',
+                            data: {{ stress_evolution_values|json_encode|raw }},
+                            borderColor: 'rgba(220, 53, 69, 1)',
+                            backgroundColor: 'rgba(220, 53, 69, 0.15)',
+                            fill: true,
+                            tension: 0.35,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                suggestedMax: 10,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            if (sleepTrackingElement) {
+                new Chart(sleepTrackingElement, {
+                    type: 'line',
+                    data: {
+                        labels: {{ sleep_tracking_labels|json_encode|raw }},
+                        datasets: [{
+                            label: 'Average duration (min)',
+                            data: {{ sleep_duration_values|json_encode|raw }},
+                            borderColor: 'rgba(25, 135, 84, 1)',
+                            backgroundColor: 'rgba(25, 135, 84, 0.12)',
+                            yAxisID: 'yDuration',
+                            tension: 0.35,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }, {
+                            label: 'Average sleep quality',
+                            data: {{ sleep_quality_values|json_encode|raw }},
+                            borderColor: 'rgba(13, 110, 253, 1)',
+                            backgroundColor: 'rgba(13, 110, 253, 0.12)',
+                            yAxisID: 'yQuality',
+                            tension: 0.35,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false
+                        },
+                        scales: {
+                            yDuration: {
+                                type: 'linear',
+                                position: 'left',
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Minutes'
+                                }
+                            },
+                            yQuality: {
+                                type: 'linear',
+                                position: 'right',
+                                beginAtZero: true,
+                                suggestedMax: 10,
+                                grid: {
+                                    drawOnChartArea: false
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Quality'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            if (recordsPerUserElement) {
+                new Chart(recordsPerUserElement, {
+                    type: 'bar',
+                    data: {
+                        labels: {{ records_per_user_labels|json_encode|raw }},
+                        datasets: [{
+                            label: 'SanteBienEtre records',
+                            data: {{ records_per_user_values|json_encode|raw }},
+                            backgroundColor: 'rgba(255, 193, 7, 0.65)',
+                            borderColor: 'rgba(255, 193, 7, 1)',
+                            borderWidth: 1,
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    precision: 0,
+                                    stepSize: 1
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+{% endblock %}

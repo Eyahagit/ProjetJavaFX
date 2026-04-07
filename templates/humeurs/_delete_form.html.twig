@@ -1,0 +1,11 @@
+<form
+    class="{{ form_class|default('d-inline-block') }}"
+    method="post"
+    action="{{ path('app_humeurs_delete', {'id': humeur.id}) }}"
+    onsubmit="return confirm('{{ confirm_message|default('Delete this humeur entry?')|e('js') }}');"
+>
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ humeur.id) }}">
+    <button class="{{ button_class|default('btn btn-outline-danger') }}">
+        <i class="bi bi-{{ button_icon|default('trash') }} me-1"></i>{{ button_label|default('Delete') }}
+    </button>
+</form>

@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New sleep tracking{% endblock %}
+
+{% block body %}
+    <div class="container py-4">
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+            <div>
+                <div class="page-kicker mb-2">Sleep tracking</div>
+                <h1 class="h2 mb-1">Create a sleep record</h1>
+                <p class="text-muted mb-0">Capture a new sleep session with duration, quality, and notes.</p>
+            </div>
+
+            <a class="btn btn-outline-secondary" href="{{ path('app_sleep_tracking_index') }}">
+                <i class="bi bi-arrow-left me-1"></i>Back to list
+            </a>
+        </div>
+
+        <div class="card content-card">
+            <div class="card-body p-4">
+                {{ include('sleep_tracking/_form.html.twig', {
+                    button_label: 'Create record',
+                    button_icon: 'plus-lg',
+                    button_class: 'btn btn-primary'
+                }) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

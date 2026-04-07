@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Home{% endblock %}
+
+{% block body %}
+    <div class="container py-4 py-lg-5">
+        <div class="row g-4 align-items-stretch">
+            <div class="col-lg-7">
+                <div class="card content-card h-100">
+                    <div class="card-body p-4 p-lg-5">
+                        <div class="page-kicker mb-2">Health Platform</div>
+                        <h1 class="display-6 fw-bold mb-3">Track well-being data with a cleaner Symfony interface.</h1>
+                        <p class="lead text-muted mb-4">
+                            This workspace is connected to the <code>grownmind1</code> database and now includes dashboards,
+                            statistics, CRUD screens, and Bootstrap-based navigation.
+                        </p>
+
+                        <div class="d-flex flex-wrap gap-3">
+                            <a class="btn btn-primary btn-lg" href="{{ path('app_dashboard') }}">
+                                <i class="bi bi-speedometer2 me-2"></i>Open dashboard
+                            </a>
+                            <a class="btn btn-outline-secondary btn-lg" href="{{ path('app_sante_bien_etre_index') }}">
+                                <i class="bi bi-heart-pulse me-2"></i>Browse sante
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <a class="card content-card text-decoration-none h-100" href="{{ path('app_dashboard') }}">
+                            <div class="card-body p-4">
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <span class="badge text-bg-primary">Dashboard</span>
+                                    <i class="bi bi-arrow-right fs-5 text-primary"></i>
+                                </div>
+                                <h2 class="h4 mb-2 text-dark">Visual overview</h2>
+                                <p class="text-muted mb-0">Monitor stress, sleep, and user activity from a single entry point.</p>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="col-md-6 col-lg-12">
+                        <a class="card content-card text-decoration-none h-100" href="{{ path('app_sante_bien_etre_index') }}">
+                            <div class="card-body p-4">
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <span class="badge text-bg-success">Sante</span>
+                                    <i class="bi bi-arrow-right fs-5 text-success"></i>
+                                </div>
+                                <h2 class="h4 mb-2 text-dark">Manage records</h2>
+                                <p class="text-muted mb-0">Filter, sort, create, and update well-being follow-up data.</p>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="col-md-6 col-lg-12">
+                        <a class="card content-card text-decoration-none h-100" href="{{ path('app_stats') }}">
+                            <div class="card-body p-4">
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <span class="badge text-bg-warning">Stats</span>
+                                    <i class="bi bi-arrow-right fs-5 text-warning"></i>
+                                </div>
+                                <h2 class="h4 mb-2 text-dark">Trend analysis</h2>
+                                <p class="text-muted mb-0">Explore stress evolution and sleep quality charts over time.</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

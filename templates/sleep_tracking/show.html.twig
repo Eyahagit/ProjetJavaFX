@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Sleep tracking details{% endblock %}
+
+{% block body %}
+    <div class="container py-4">
+        <div class="d-flex flex-column flex-xl-row justify-content-between align-items-xl-center gap-3 mb-4">
+            <div>
+                <div class="page-kicker mb-2">Sleep tracking</div>
+                <h1 class="h2 mb-1">Sleep record #{{ sleep_tracking.id }}</h1>
+                <p class="text-muted mb-0">Detailed view for this sleep tracking entry.</p>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2">
+                <a class="btn btn-outline-secondary" href="{{ path('app_sleep_tracking_index') }}">
+                    <i class="bi bi-arrow-left me-1"></i>Back to list
+                </a>
+                <a class="btn btn-primary" href="{{ path('app_sleep_tracking_edit', {'id': sleep_tracking.id}) }}">
+                    <i class="bi bi-pencil-square me-1"></i>Edit
+                </a>
+                {{ include('sleep_tracking/_delete_form.html.twig', {
+                    sleep_tracking: sleep_tracking,
+                    button_class: 'btn btn-outline-danger',
+                    button_label: 'Delete',
+                    form_class: 'd-inline-block',
+                    confirm_message: 'Delete this sleep tracking entry?'
+                }) }}
+            </div>
+        </div>
+
+        <div class="card content-card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table detail-table align-middle mb-0">
+                        <tbody>
+                            <tr>
+                                <th>Id</th>
+                                <td>{{ sleep_tracking.id }}</td>
+                            </tr>
+                            <tr>
+                                <th>Sleep date</th>
+                                <td>{{ sleep_tracking.dateSommeil ? sleep_tracking.dateSommeil|date('Y-m-d') : '--' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Bed time</th>
+                                <td>{{ sleep_tracking.heureCoucher ? sleep_tracking.heureCoucher|date('H:i:s') : '--' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Wake time</th>
+                                <td>{{ sleep_tracking.heureReveil ? sleep_tracking.heureReveil|date('H:i:s') : '--' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Duration</th>
+                                <td>{{ sleep_tracking.dureeMinutes }} min</td>
+                            </tr>
+                            <tr>
+                                <th>Sleep quality</th>
+                                <td>{{ sleep_tracking.qualiteSommeil }}</td>
+                            </tr>
+                            <tr>
+                                <th>Comment</th>
+                                <td class="text-break">{{ sleep_tracking.commentaire ?: '--' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Created at</th>
+                                <td>{{ sleep_tracking.dateCreation ? sleep_tracking.dateCreation|date('Y-m-d H:i:s') : '--' }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

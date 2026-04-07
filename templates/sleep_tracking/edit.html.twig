@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit sleep tracking{% endblock %}
+
+{% block body %}
+    <div class="container py-4">
+        <div class="d-flex flex-column flex-xl-row justify-content-between align-items-xl-center gap-3 mb-4">
+            <div>
+                <div class="page-kicker mb-2">Sleep tracking</div>
+                <h1 class="h2 mb-1">Edit sleep record #{{ sleep_tracking.id }}</h1>
+                <p class="text-muted mb-0">Adjust timing, duration, quality, or comments for this sleep entry.</p>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2">
+                <a class="btn btn-outline-secondary" href="{{ path('app_sleep_tracking_index') }}">
+                    <i class="bi bi-arrow-left me-1"></i>Back to list
+                </a>
+                <a class="btn btn-outline-primary" href="{{ path('app_sleep_tracking_show', {'id': sleep_tracking.id}) }}">
+                    <i class="bi bi-eye me-1"></i>View details
+                </a>
+                {{ include('sleep_tracking/_delete_form.html.twig', {
+                    sleep_tracking: sleep_tracking,
+                    button_class: 'btn btn-outline-danger',
+                    button_label: 'Delete',
+                    form_class: 'd-inline-block',
+                    confirm_message: 'Delete this sleep tracking entry?'
+                }) }}
+            </div>
+        </div>
+
+        <div class="card content-card">
+            <div class="card-body p-4">
+                {{ include('sleep_tracking/_form.html.twig', {
+                    button_label: 'Save changes',
+                    button_icon: 'save',
+                    button_class: 'btn btn-primary'
+                }) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
