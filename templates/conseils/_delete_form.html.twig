@@ -1,11 +1,24 @@
 <form
-    class="{{ form_class|default('d-inline-block') }}"
-    method="post"
-    action="{{ path('app_conseils_delete', {'id': conseil.id}) }}"
-    onsubmit="return confirm('{{ confirm_message|default('Delete this conseil?')|e('js') }}');"
+        class="{{ form_class|default('d-inline-block') }}"
+        method="post"
+        action="{{ path('app_conseils_delete', {'id': conseil.id}) }}"
+        onsubmit="return confirm('{{ confirm_message|default('Supprimer ce conseil ?')|e('js') }}');"
 >
     <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ conseil.id) }}">
-    <button class="{{ button_class|default('btn btn-outline-danger') }}">
-        <i class="bi bi-{{ button_icon|default('trash') }} me-1"></i>{{ button_label|default('Delete') }}
+
+    <button
+            class="{{ button_class|default('btn') }}"
+            style="
+            border:1px solid #EF4444;
+            color:#EF4444;
+            border-radius:10px;
+            padding:6px 12px;
+            background:transparent;
+        "
+            onmouseover="this.style.background='#EF4444'; this.style.color='white';"
+            onmouseout="this.style.background='transparent'; this.style.color='#EF4444';"
+    >
+        <i class="bi bi-{{ button_icon|default('trash') }} me-1"></i>
+        {{ button_label|default('Supprimer') }}
     </button>
 </form>

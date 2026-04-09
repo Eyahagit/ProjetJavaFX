@@ -1,0 +1,64 @@
+{{ form_start(form) }}
+
+<div class="mb-3">
+    {{ form_label(form.typeTest) }}
+    {{ form_widget(form.typeTest, {
+        'attr': {
+            'class': 'form-control',
+            'style': 'border-radius:10px; border:1px solid #D1D5DB; padding:10px;'
+        }
+    }) }}
+    {{ form_errors(form.typeTest) }}
+</div>
+
+<div class="mb-3">
+    {{ form_label(form.score) }}
+    {{ form_widget(form.score, {
+        'attr': {
+            'class': 'form-control',
+            'style': 'border-radius:10px; border:1px solid #D1D5DB; padding:10px;'
+        }
+    }) }}
+    {{ form_errors(form.score) }}
+</div>
+
+<div class="mb-3">
+    {{ form_label(form.dateTest) }}
+    {{ form_widget(form.dateTest, {
+        'attr': {
+            'class': 'form-control',
+            'style': 'border-radius:10px; border:1px solid #D1D5DB; padding:10px;'
+        }
+    }) }}
+    {{ form_errors(form.dateTest) }}
+</div>
+
+<div class="mb-3">
+    {{ form_label(form.utilisateur) }}
+    {{ form_widget(form.utilisateur, {
+        'attr': {
+            'class': 'form-select',
+            'style': 'border-radius:10px; border:1px solid #D1D5DB; padding:10px;'
+        }
+    }) }}
+    {{ form_errors(form.utilisateur) }}
+</div>
+
+<!-- BUTTON -->
+<button
+        class="btn"
+        style="
+        background:#4CAF8E;
+        color:white;
+        border-radius:10px;
+        padding:8px 16px;
+        border:none;
+    "
+        onmouseover="this.style.background='#2F7D6D';"
+        onmouseout="this.style.background='#4CAF8E';"
+>
+    <i class="bi bi-check2-circle me-1"></i>
+    {{ button_label|default('Enregistrer') }}
+</button>
+
+{{ form_end(form) }}

@@ -1,0 +1,26 @@
+<form
+        method="post"
+        action="{{ path('app_tests_delete', {'id': test.id}) }}"
+        onsubmit="return confirm('Supprimer ce test ?');"
+>
+
+    <input type="hidden" name="_token"
+           value="{{ csrf_token('delete' ~ test.id) }}">
+
+    <button
+            class="btn"
+            style="
+            border:1px solid #EF4444;
+            color:#EF4444;
+            border-radius:10px;
+            padding:6px 12px;
+            background:transparent;
+        "
+            onmouseover="this.style.background='#EF4444'; this.style.color='white';"
+            onmouseout="this.style.background='transparent'; this.style.color='#EF4444';"
+    >
+        <i class="bi bi-trash me-1"></i>
+        Supprimer
+    </button>
+
+</form>

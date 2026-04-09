@@ -1,40 +1,69 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Edit health record{% endblock %}
+{% block title %}Modifier enregistrement de santé{% endblock %}
 
 {% block body %}
     <div class="container py-4">
+
+        <!-- HEADER -->
         <div class="d-flex flex-column flex-xl-row justify-content-between align-items-xl-center gap-3 mb-4">
             <div>
-                <div class="page-kicker mb-2">Sante</div>
-                <h1 class="h2 mb-1">Edit health record #{{ sante_bien_etre.id }}</h1>
-                <p class="text-muted mb-0">Update well-being metrics and refresh the generated recommendations.</p>
+                <div class="page-kicker mb-2">Santé</div>
+                <h1 class="h2 mb-1">Modifier enregistrement de santé #{{ sante_bien_etre.id }}</h1>
+                <p class="text-muted mb-0">Mettre à jour les indicateurs de bien-être et actualiser les recommandations.</p>
             </div>
 
+            <!-- ACTIONS -->
             <div class="d-flex flex-wrap gap-2">
-                <a class="btn btn-outline-secondary" href="{{ path('app_sante_bien_etre_index') }}">
-                    <i class="bi bi-arrow-left me-1"></i>Back to list
+
+                <!-- BACK -->
+                <a class="btn"
+                   style="
+                       border:1px solid #6B7280;
+                       color:#6B7280;
+                       border-radius:10px;
+                   "
+                   onmouseover="this.style.background='#6B7280'; this.style.color='white';"
+                   onmouseout="this.style.background='transparent'; this.style.color='#6B7280';"
+                   href="{{ path('app_sante_bien_etre_index') }}">
+                    <i class="bi bi-arrow-left me-1"></i>Retour à la liste
                 </a>
-                <a class="btn btn-outline-primary" href="{{ path('app_sante_bien_etre_show', {'id': sante_bien_etre.id}) }}">
-                    <i class="bi bi-eye me-1"></i>View details
+
+                <!-- VIEW -->
+                <a class="btn"
+                   style="
+                       border:1px solid #4CAF8E;
+                       color:#4CAF8E;
+                       border-radius:10px;
+                   "
+                   onmouseover="this.style.background='#4CAF8E'; this.style.color='white';"
+                   onmouseout="this.style.background='transparent'; this.style.color='#4CAF8E';"
+                   href="{{ path('app_sante_bien_etre_show', {'id': sante_bien_etre.id}) }}">
+                    <i class="bi bi-eye me-1"></i>Voir détails
                 </a>
+
+                <!-- DELETE -->
                 {{ include('sante_bien_etre/_delete_form.html.twig', {
                     sante_bien_etre: sante_bien_etre,
-                    button_class: 'btn btn-outline-danger',
-                    button_label: 'Delete',
+                    button_class: 'btn',
+                    button_label: 'Supprimer',
                     form_class: 'd-inline-block',
-                    confirm_message: 'Delete this health record?'
+                    confirm_message: 'Supprimer cet enregistrement de santé ?'
                 }) }}
+
             </div>
         </div>
 
+        <!-- FORM CARD -->
         <div class="card content-card">
             <div class="card-body p-4">
+
                 {{ include('sante_bien_etre/_form.html.twig', {
-                    button_label: 'Save changes',
+                    button_label: 'Enregistrer les modifications',
                     button_icon: 'save',
-                    button_class: 'btn btn-primary'
+                    button_class: 'btn'
                 }) }}
+
             </div>
         </div>
     </div>

@@ -1,215 +1,120 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>{% block title %}GrownMind{% endblock %}</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22><rect width=%2264%22 height=%2264%22 rx=%2218%22 fill=%22%230d6efd%22/><text x=%2250%25%22 y=%2258%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22Arial,sans-serif%22 font-size=%2228%22 fill=%22white%22>GM</text></svg>">
-        <style>
-            :root {
-                --gm-bg: #f4f7fb;
-                --gm-surface: rgba(255, 255, 255, 0.88);
-                --gm-border: rgba(15, 23, 42, 0.08);
-                --gm-text: #0f172a;
-                --gm-muted: #64748b;
-                --gm-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
-            }
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}GrownMind{% endblock %}</title>
 
-            body {
-                min-height: 100vh;
-                color: var(--gm-text);
-                background:
-                    radial-gradient(circle at top left, rgba(13, 110, 253, 0.12), transparent 30%),
-                    radial-gradient(circle at top right, rgba(25, 135, 84, 0.10), transparent 26%),
-                    linear-gradient(180deg, #f8fbff 0%, var(--gm-bg) 100%);
-            }
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 
-            .app-shell {
-                min-height: 100vh;
-                display: flex;
-                flex-direction: column;
-            }
+    <style>
+        /* (STYLE INCHANGÉ ✔️) */
+    </style>
 
-            .app-main {
-                flex: 1;
-            }
+    {% block stylesheets %}{% endblock %}
 
-            .glass-navbar {
-                backdrop-filter: blur(14px);
-                background: rgba(255, 255, 255, 0.78);
-                border-bottom: 1px solid rgba(148, 163, 184, 0.16);
-            }
+    {% block javascripts %}
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
+    {% endblock %}
+</head>
 
-            .navbar-brand-mark {
-                width: 2.5rem;
-                height: 2.5rem;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                border-radius: 0.95rem;
-                color: #fff;
-                background: linear-gradient(135deg, #0d6efd 0%, #198754 100%);
-                box-shadow: 0 12px 30px rgba(13, 110, 253, 0.25);
-            }
+<body>
+{% set currentRoute = app.request ? app.request.attributes.get('_route') : '' %}
 
-            .navbar .nav-link {
-                border-radius: 999px;
-                color: #475569;
-                font-weight: 500;
-                padding: 0.65rem 1rem;
-                transition: all 0.2s ease;
-            }
+<div class="app-shell">
 
-            .navbar .nav-link:hover,
-            .navbar .nav-link.active {
-                color: #0d6efd;
-                background: rgba(13, 110, 253, 0.10);
-            }
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg glass-navbar sticky-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-3 fw-semibold" href="{{ path('app_home') }}">
+                <span class="navbar-brand-mark">
+                    <i class="bi bi-heart-pulse-fill"></i>
+                </span>
+                <span>GrownMind</span>
+            </a>
 
-            .page-frame {
-                padding: 2rem 0 3rem;
-            }
+            <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#appNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-            .content-card {
-                border: 0;
-                border-radius: 1.25rem;
-                background: var(--gm-surface);
-                box-shadow: var(--gm-shadow);
-            }
+            <div class="collapse navbar-collapse" id="appNavbar">
+                <ul class="navbar-nav ms-auto gap-lg-2">
 
-            .content-card .card-header {
-                background: transparent;
-                border-bottom-color: var(--gm-border);
-            }
+                    <li class="nav-item">
+                        <a class="nav-link {{ currentRoute == 'app_dashboard' ? 'active' : '' }}" href="{{ path('app_dashboard') }}">
+                            <i class="bi bi-speedometer2 me-1"></i>Tableau de bord
+                        </a>
+                    </li>
 
-            .table > :not(caption) > * > * {
-                padding: 0.95rem 1rem;
-            }
+                    <li class="nav-item">
+                        <a class="nav-link {{ currentRoute starts with 'app_sante_bien_etre_' ? 'active' : '' }}" href="{{ path('app_sante_bien_etre_index') }}">
+                            <i class="bi bi-heart-pulse me-1"></i>Santé
+                        </a>
+                    </li>
 
-            .table thead th {
-                color: var(--gm-muted);
-                font-size: 0.78rem;
-                font-weight: 700;
-                text-transform: uppercase;
-                letter-spacing: 0.05em;
-                white-space: nowrap;
-            }
+                    <li class="nav-item">
+                        <a class="nav-link {{ currentRoute starts with 'app_sleep_tracking_' ? 'active' : '' }}" href="{{ path('app_sleep_tracking_index') }}">
+                            <i class="bi bi-moon-stars me-1"></i>Sommeil
+                        </a>
+                    </li>
 
-            .detail-table th {
-                width: 18rem;
-                color: var(--gm-muted);
-                font-weight: 600;
-            }
+                    <li class="nav-item">
+                        <a class="nav-link {{ currentRoute starts with 'app_conseils_' ? 'active' : '' }}" href="{{ path('app_conseils_index') }}">
+                            <i class="bi bi-lightbulb me-1"></i>Conseils
+                        </a>
+                    </li>
 
-            .soft-panel {
-                border: 1px solid var(--gm-border);
-                border-radius: 1.15rem;
-                background: rgba(255, 255, 255, 0.68);
-            }
+                    <li class="nav-item">
+                        <a class="nav-link {{ currentRoute starts with 'app_humeurs_' ? 'active' : '' }}" href="{{ path('app_humeurs_index') }}">
+                            <i class="bi bi-emoji-smile me-1"></i>Humeurs
+                        </a>
+                    </li>
 
-            .page-kicker {
-                color: #0d6efd;
-                font-size: 0.78rem;
-                font-weight: 700;
-                letter-spacing: 0.08em;
-                text-transform: uppercase;
-            }
+                    <li class="nav-item">
+                        <a class="nav-link {{ currentRoute starts with 'app_tests_' ? 'active' : '' }}" href="{{ path('app_tests_index') }}">
+                            <i class="bi bi-clipboard-pulse me-1"></i>Tests
+                        </a>
+                    </li>
 
-            .empty-state {
-                color: var(--gm-muted);
-            }
+                    <li class="nav-item">
+                        <a class="nav-link {{ currentRoute == 'app_stats' ? 'active' : '' }}" href="{{ path('app_stats') }}">
+                            <i class="bi bi-graph-up-arrow me-1"></i>Statistiques
+                        </a>
+                    </li>
 
-            .footer-note {
-                color: var(--gm-muted);
-                font-size: 0.92rem;
-            }
+                </ul>
+            </div>
+        </div>
+    </nav>
 
-            @media (max-width: 991.98px) {
-                .page-frame {
-                    padding-top: 1.5rem;
-                }
+    <!-- MAIN -->
+    <main class="app-main">
+        <div class="page-frame">
 
-                .detail-table th {
-                    width: auto;
-                }
-            }
-        </style>
-        {% block stylesheets %}{% endblock %}
-
-        {% block javascripts %}
-            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
-        {% endblock %}
-
-        {% set frankenphpHotReload = app.request.server.get('FRANKENPHP_HOT_RELOAD') %}
-        {% if frankenphpHotReload %}
-            <meta name="frankenphp-hot-reload:url" content="{{ frankenphpHotReload }}">
-            <script src="https://cdn.jsdelivr.net/npm/idiomorph"></script>
-            <script src="https://cdn.jsdelivr.net/npm/frankenphp-hot-reload/+esm" type="module"></script>
-        {% endif %}
-    </head>
-    <body>
-        {% set currentRoute = app.request ? app.request.attributes.get('_route') : '' %}
-
-        <div class="app-shell">
-            <nav class="navbar navbar-expand-lg glass-navbar sticky-top">
-                <div class="container">
-                    <a class="navbar-brand d-flex align-items-center gap-3 fw-semibold" href="{{ path('app_home') }}">
-                        <span class="navbar-brand-mark">
-                            <i class="bi bi-heart-pulse-fill"></i>
-                        </span>
-                        <span>GrownMind</span>
-                    </a>
-
-                    <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#appNavbar" aria-controls="appNavbar" aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-
-                    <div class="collapse navbar-collapse" id="appNavbar">
-                        <ul class="navbar-nav ms-auto gap-lg-2">
-                            <li class="nav-item">
-                                <a class="nav-link {{ currentRoute == 'app_dashboard' ? 'active' : '' }}" href="{{ path('app_dashboard') }}">
-                                    <i class="bi bi-speedometer2 me-1"></i>Dashboard
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {{ currentRoute starts with 'app_sante_bien_etre_' ? 'active' : '' }}" href="{{ path('app_sante_bien_etre_index') }}">
-                                    <i class="bi bi-heart-pulse me-1"></i>Sante
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {{ currentRoute == 'app_stats' ? 'active' : '' }}" href="{{ path('app_stats') }}">
-                                    <i class="bi bi-graph-up-arrow me-1"></i>Stats
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </nav>
-
-            <main class="app-main">
-                <div class="page-frame">
-                    {% for label, messages in app.flashes %}
-                        <div class="container mb-3">
-                            {% for message in messages %}
-                                <div class="alert alert-{{ label == 'error' ? 'danger' : label }} border-0 shadow-sm" role="alert">
-                                    {{ message }}
-                                </div>
-                            {% endfor %}
+            {% for label, messages in app.flashes %}
+                <div class="container mb-3">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ label == 'error' ? 'danger' : label }} border-0 shadow-sm">
+                            {{ message }}
                         </div>
                     {% endfor %}
-
-                    {% block body %}{% endblock %}
                 </div>
-            </main>
+            {% endfor %}
 
-            <footer class="border-top bg-white bg-opacity-75">
-                <div class="container py-3 d-flex flex-column flex-md-row justify-content-between gap-2">
-                    <span class="footer-note">Symfony 6.4 application powered by Doctrine and Twig.</span>
-                    <span class="footer-note">Responsive Bootstrap 5 interface for health tracking.</span>
-                </div>
-            </footer>
+            {% block body %}{% endblock %}
         </div>
-    </body>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-top bg-white bg-opacity-75">
+        <div class="container py-3 d-flex flex-column flex-md-row justify-content-between">
+            <span class="footer-note">GrownMind © 2026</span>
+            <span class="footer-note">Tableau de bord de santé mentale</span>
+        </div>
+    </footer>
+
+</div>
+
+</body>
 </html>

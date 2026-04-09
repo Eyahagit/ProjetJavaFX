@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Sante records{% endblock %}
+{% block title %}Enregistrements de santé{% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
@@ -46,65 +46,47 @@
 
                 currentRequestController = new AbortController();
                 resultsContainer.classList.add('opacity-50');
-                setStatus('Updating results...');
+                setStatus('Mise à jour des résultats...');
 
                 fetch(url, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
                     signal: currentRequestController.signal
                 })
-                    .then(function (response) {
-                        if (!response.ok) {
-                            throw new Error('Unable to load results.');
-                        }
-
-                        return response.text();
+                    .then(r => {
+                        if (!r.ok) throw new Error();
+                        return r.text();
                     })
-                    .then(function (html) {
+                    .then(html => {
                         resultsContainer.innerHTML = html;
-                        const nextUrl = url.search ? url.pathname + url.search : url.pathname;
-                        window.history.replaceState({}, '', nextUrl);
-                        setStatus('Results updated.');
+                        window.history.replaceState({}, '', url.pathname + url.search);
+                        setStatus('Résultats mis à jour.');
                     })
-                    .catch(function (error) {
-                        if (error.name === 'AbortError') {
-                            return;
-                        }
-
-                        setStatus('Live search is unavailable. Loading full page...');
+                    .catch(() => {
+                        setStatus('Recherche en direct indisponible...');
                         window.location.assign(url.toString());
                     })
-                    .finally(function () {
+                    .finally(() => {
                         resultsContainer.classList.remove('opacity-50');
                     });
             };
 
-            const scheduleFetch = function () {
-                window.clearTimeout(debounceTimer);
-                debounceTimer = window.setTimeout(fetchResults, 250);
+            const scheduleFetch = () => {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(fetchResults, 250);
             };
 
-            form.addEventListener('submit', function (event) {
-                event.preventDefault();
+            form.addEventListener('submit', e => {
+                e.preventDefault();
                 fetchResults();
             });
 
-            form.querySelectorAll('input[type="text"], input[type="number"]').forEach(function (element) {
-                element.addEventListener('input', scheduleFetch);
-            });
-
-            form.querySelectorAll('input[type="date"], select').forEach(function (element) {
-                element.addEventListener('change', fetchResults);
+            form.querySelectorAll('input, select').forEach(el => {
+                el.addEventListener(el.type === 'text' || el.type === 'number' ? 'input' : 'change', scheduleFetch);
             });
 
             if (resetButton) {
-                resetButton.addEventListener('click', function () {
-                    form.querySelector('[name="humeur"]').value = '';
-                    form.querySelector('[name="niveau_stress"]').value = '';
-                    form.querySelector('[name="date_suivi"]').value = '';
-                    form.querySelector('[name="sort_by"]').value = 'date_suivi';
-                    form.querySelector('[name="sort_direction"]').value = 'desc';
+                resetButton.addEventListener('click', () => {
+                    form.reset();
                     fetchResults();
                 });
             }
@@ -114,109 +96,104 @@
 
 {% block body %}
     <div class="container py-4">
+
+        <!-- HEADER -->
         <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
             <div>
-                <div class="page-kicker mb-2">Sante</div>
-                <h1 class="h2 mb-1">Health tracking records</h1>
-                <p class="text-muted mb-0">Filter, sort, and manage stress and well-being follow-up entries.</p>
+                <div class="page-kicker mb-2">Santé</div>
+                <h1 class="h2 mb-1">Suivi des enregistrements de santé</h1>
+                <p class="text-muted mb-0">Filtrer, trier et gérer les données de stress et de bien-être.</p>
             </div>
 
-            <a class="btn btn-primary" href="{{ path('app_sante_bien_etre_new') }}">
-                <i class="bi bi-plus-lg me-1"></i>Add record
+            <!-- ADD BUTTON -->
+            <a class="btn"
+               style="background:#4CAF8E;color:white;border-radius:10px;"
+               onmouseover="this.style.background='#2F7D6D';"
+               onmouseout="this.style.background='#4CAF8E';"
+               href="{{ path('app_sante_bien_etre_new') }}">
+                <i class="bi bi-plus-lg me-1"></i>Ajouter un enregistrement
             </a>
         </div>
 
+        <!-- FILTER CARD -->
         <div class="card content-card mb-4">
             <div class="card-body p-4">
+
                 <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-3">
                     <div>
-                        <h2 class="h5 mb-1">Search filters</h2>
-                        <p class="text-muted mb-0">Use text, numeric, date, and sorting filters. Results refresh automatically.</p>
+                        <h2 class="h5 mb-1">Filtres de recherche</h2>
+                        <p class="text-muted mb-0">Filtrage en temps réel activé.</p>
                     </div>
-                    <span class="badge rounded-pill text-bg-light">Live search enabled</span>
+
+                    <span class="badge rounded-pill"
+                          style="background: rgba(76,175,142,0.15); color:#2F7D6D;">
+                    Recherche en direct
+                </span>
                 </div>
 
+                <!-- FORM -->
                 <form id="sante-filters-form" method="get" action="{{ path('app_sante_bien_etre_index') }}">
                     <div class="row g-3 align-items-end">
+
                         <div class="col-md-6 col-xl-3">
-                            <label class="form-label" for="filter_humeur">Humeur</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-search"></i></span>
-                                <input
-                                    class="form-control"
-                                    id="filter_humeur"
-                                    name="humeur"
-                                    type="text"
-                                    value="{{ filters.humeur }}"
-                                    placeholder="Search by mood"
-                                >
-                            </div>
+                            <label class="form-label">Humeur</label>
+                            <input class="form-control" name="humeur" value="{{ filters.humeur }}">
                         </div>
 
                         <div class="col-md-6 col-xl-2">
-                            <label class="form-label" for="filter_niveau_stress">Niveau stress</label>
-                            <input
-                                class="form-control"
-                                id="filter_niveau_stress"
-                                name="niveau_stress"
-                                type="number"
-                                min="0"
-                                value="{{ filters.niveau_stress }}"
-                                placeholder="Exact value"
-                            >
+                            <label class="form-label">Stress</label>
+                            <input class="form-control" type="number" name="niveau_stress" value="{{ filters.niveau_stress }}">
                         </div>
 
                         <div class="col-md-6 col-xl-2">
-                            <label class="form-label" for="filter_date_suivi">Date suivi</label>
-                            <input
-                                class="form-control"
-                                id="filter_date_suivi"
-                                name="date_suivi"
-                                type="date"
-                                value="{{ filters.date_suivi }}"
-                            >
+                            <label class="form-label">Date</label>
+                            <input class="form-control" type="date" name="date_suivi" value="{{ filters.date_suivi }}">
                         </div>
 
                         <div class="col-md-6 col-xl-2">
-                            <label class="form-label" for="filter_sort_by">Sort by</label>
-                            <select class="form-select" id="filter_sort_by" name="sort_by">
-                                <option value="date_suivi" {% if filters.sort_by == 'date_suivi' %}selected{% endif %}>Date suivi</option>
-                                <option value="niveau_stress" {% if filters.sort_by == 'niveau_stress' %}selected{% endif %}>Niveau stress</option>
+                            <label class="form-label">Tri</label>
+                            <select class="form-select" name="sort_by">
+                                <option value="date_suivi">Date</option>
+                                <option value="niveau_stress">Stress</option>
                             </select>
                         </div>
 
                         <div class="col-md-6 col-xl-2">
-                            <label class="form-label" for="filter_sort_direction">Order</label>
-                            <select class="form-select" id="filter_sort_direction" name="sort_direction">
-                                <option value="desc" {% if filters.sort_direction == 'desc' %}selected{% endif %}>Descending</option>
-                                <option value="asc" {% if filters.sort_direction == 'asc' %}selected{% endif %}>Ascending</option>
+                            <label class="form-label">Ordre</label>
+                            <select class="form-select" name="sort_direction">
+                                <option value="desc">Desc</option>
+                                <option value="asc">Asc</option>
                             </select>
                         </div>
 
                         <div class="col-md-12 col-xl-1 d-grid">
-                            <button class="btn btn-dark" type="submit">
-                                <i class="bi bi-funnel me-1"></i>Apply
+                            <button class="btn"
+                                    style="background:#4CAF8E;color:white;border-radius:10px;">
+                                Appliquer
                             </button>
                         </div>
                     </div>
                 </form>
 
-                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mt-3">
-                    <div class="form-text mb-0" id="sante-live-status" aria-live="polite">
-                        Filters update the table without reloading the page.
-                    </div>
+                <div class="d-flex justify-content-between mt-3">
+                    <small id="sante-live-status">Mise à jour automatique activée</small>
 
-                    <button class="btn btn-outline-secondary btn-sm" id="sante-filters-reset" type="button">
-                        <i class="bi bi-arrow-counterclockwise me-1"></i>Reset filters
+                    <button class="btn btn-sm"
+                            style="border:1px solid #6B7280;color:#6B7280;border-radius:8px;"
+                            id="sante-filters-reset">
+                        Réinitialiser
                     </button>
                 </div>
+
             </div>
         </div>
 
+        <!-- RESULTS -->
         <div id="sante-results-container">
             {% include 'sante_bien_etre/_results.html.twig' with {
                 sante_bien_etres: sante_bien_etres
             } only %}
         </div>
+
     </div>
 {% endblock %}

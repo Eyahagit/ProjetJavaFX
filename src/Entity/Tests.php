@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Tests
@@ -24,8 +25,10 @@ class Tests
     /**
      * @var string
      *
-     * @ORM\Column(name="type_test", type="string", length=50, nullable=false, options={"comment"="stress, anxiété, etc."})
+     * @ORM\Column(name="type_test", type="string", length=50, nullable=false)
      */
+    #[Assert\NotBlank(message: "Le type de test est obligatoire")]
+    #[Assert\Length(max: 50, maxMessage: "Maximum 50 caractères")]
     private $typeTest;
 
     /**
@@ -33,24 +36,36 @@ class Tests
      *
      * @ORM\Column(name="score", type="integer", nullable=false)
      */
+    #[Assert\NotBlank(message: "Le score est obligatoire")]
+    #[Assert\Range(
+        min: 0,
+        max: 10,
+        notInRangeMessage: "Le score doit être entre {{ min }} et {{ max }}"
+    )]
     private $score;
 
     /**
      * @var \DateTime|null
      *
-     * @ORM\Column(name="date_test", type="datetime", nullable=true, options={"default"="CURRENT_TIMESTAMP"})
+     * @ORM\Column(name="date_test", type="datetime", nullable=true)
      */
-    private $dateTest = 'CURRENT_TIMESTAMP';
+    #[Assert\NotNull(message: "La date est obligatoire")]
+    #[Assert\LessThanOrEqual("now", message: "La date ne peut pas être dans le futur")]
+    private $dateTest;
 
     /**
      * @var \Utilisateur
      *
      * @ORM\ManyToOne(targetEntity="Utilisateur", inversedBy="tests")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="utilisateur_id", referencedColumnName="id")
-     * })
+     * @ORM\JoinColumn(name="utilisateur_id", referencedColumnName="id", nullable=false)
      */
+    #[Assert\NotNull(message: "L'utilisateur est obligatoire")]
     private $utilisateur;
+
+    public function __construct()
+    {
+        $this->dateTest = new \DateTime();
+    }
 
     public function getId(): ?int
     {
@@ -65,7 +80,6 @@ class Tests
     public function setTypeTest(string $typeTest): static
     {
         $this->typeTest = $typeTest;
-
         return $this;
     }
 
@@ -77,7 +91,6 @@ class Tests
     public function setScore(int $score): static
     {
         $this->score = $score;
-
         return $this;
     }
 
@@ -89,7 +102,6 @@ class Tests
     public function setDateTest(?\DateTime $dateTest): static
     {
         $this->dateTest = $dateTest;
-
         return $this;
     }
 
@@ -101,9 +113,6 @@ class Tests
     public function setUtilisateur(?Utilisateur $utilisateur): static
     {
         $this->utilisateur = $utilisateur;
-
         return $this;
     }
-
-
 }

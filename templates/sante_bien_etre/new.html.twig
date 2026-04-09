@@ -1,28 +1,44 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}New health record{% endblock %}
+{% block title %}Nouvel enregistrement de santé{% endblock %}
 
 {% block body %}
     <div class="container py-4">
+
+        <!-- HEADER -->
         <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
             <div>
-                <div class="page-kicker mb-2">Sante</div>
-                <h1 class="h2 mb-1">Create a health record</h1>
-                <p class="text-muted mb-0">Add a new follow-up entry for stress, sleep quality, and recommendations.</p>
+                <div class="page-kicker mb-2">Santé</div>
+                <h1 class="h2 mb-1">Créer un enregistrement de santé</h1>
+                <p class="text-muted mb-0">
+                    Ajouter un nouvel suivi pour le stress, la qualité du sommeil et les recommandations.
+                </p>
             </div>
 
-            <a class="btn btn-outline-secondary" href="{{ path('app_sante_bien_etre_index') }}">
-                <i class="bi bi-arrow-left me-1"></i>Back to list
+            <!-- BACK BUTTON -->
+            <a class="btn"
+               style="
+                   border:1px solid #6B7280;
+                   color:#6B7280;
+                   border-radius:10px;
+               "
+               onmouseover="this.style.background='#6B7280'; this.style.color='white';"
+               onmouseout="this.style.background='transparent'; this.style.color='#6B7280';"
+               href="{{ path('app_sante_bien_etre_index') }}">
+                <i class="bi bi-arrow-left me-1"></i>Retour à la liste
             </a>
         </div>
 
+        <!-- FORM CARD -->
         <div class="card content-card">
             <div class="card-body p-4">
+
                 {{ include('sante_bien_etre/_form.html.twig', {
-                    button_label: 'Create record',
+                    button_label: 'Créer un enregistrement',
                     button_icon: 'plus-lg',
-                    button_class: 'btn btn-primary'
+                    button_class: 'btn'
                 }) }}
+
             </div>
         </div>
     </div>
