@@ -12,8 +12,8 @@ public class patient extends users {
 
     public patient(int id, String name, String second_name, int age, String gender,
                    int phone_number, String birth_date, String email, String password,
-                   String role,  String blood_type, double weight, double height) {
-        super(id, name, second_name, age, gender, phone_number, birth_date, email, password, role);
+                   String role,String dtype , String googleAuthenticatorSecret,  String blood_type, double weight, double height) {
+        super(id, name, second_name, age, gender, phone_number, birth_date, email, password, role,dtype,googleAuthenticatorSecret);
         this.blood_type = blood_type;
         this.weight = weight;
         this.height = height;

@@ -14,16 +14,17 @@ public class ServiceDoctor implements Iservices<doctor> {
     }
     @Override
     public void ajouter(doctor d) throws SQLDataException {
-        String sqlDoctor = "INSERT INTO `doctors` (id_user,specialty,experience,diplome,disponible,tarifConsultation,actif) VALUES (?, ?, ?, ? , ? , ? , ? )";
+        String sqlDoctor = "INSERT INTO `doctors` (specialty,experience,diplome,disponible,actif,tarifConsultation,id_user) VALUES (?, ?, ?, ? , ? , ? , ? )";
 
         try (PreparedStatement stmt = connection.prepareStatement(sqlDoctor)) {
-            stmt.setInt(1, d.getId());
-            stmt.setString(2, d.getSpecialty());
-            stmt.setInt(3, d.getExperience());
-            stmt.setString(4,d.getDiplome());
-            stmt.setBoolean(5, d.isDisponible());
+
+            stmt.setString(1, d.getSpecialty());
+            stmt.setInt(2, d.getExperience());
+            stmt.setString(3,d.getDiplome());
+            stmt.setBoolean(4, d.isDisponible());
+            stmt.setBoolean(5, d.isActif());
             stmt.setDouble(6, d.getTarifConsultation());
-            stmt.setBoolean(7, d.isActif());
+            stmt.setInt(7, d.getId());
 
             stmt.executeUpdate();
 

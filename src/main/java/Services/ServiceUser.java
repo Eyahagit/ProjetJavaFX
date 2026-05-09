@@ -17,7 +17,7 @@ public class ServiceUser implements Iservices<users> {
 
     @Override
     public void ajouter(users users) throws SQLException {
-        String sql = "INSERT INTO `users` (name, second_name, age, gender, phone_number, birth_date, email, password, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO `users` (name, second_name, age, gender, phone_number, birth_date, email, password, role,dtype,googleAuthenticatorSecret) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, users.getName());
@@ -29,6 +29,8 @@ public class ServiceUser implements Iservices<users> {
             stmt.setString(7, users.getEmail());
             stmt.setString(8, users.getPassword()); // ← Le mot de passe est déjà haché par le contrôleur
             stmt.setString(9, users.getRole());
+            stmt.setString(10, users.getDtype());
+            stmt.setString(11, users.getGoogleAuthenticatorSecret());
 
             stmt.executeUpdate();
 
@@ -104,6 +106,8 @@ public class ServiceUser implements Iservices<users> {
                 user.setEmail(rs.getString("email"));
                 user.setPassword(rs.getString("password")); // ← C'EST LE HASH
                 user.setRole(rs.getString("role"));
+                user.setDtype(rs.getString("dtype"));
+                user.setGoogleAuthenticatorSecret(rs.getString("googleAuthenticatorSecret"));
                 userslist.add(user);
             }
             System.out.println("✅ Users found: " + userslist.size());
@@ -168,6 +172,16 @@ public class ServiceUser implements Iservices<users> {
     }
 
     public users getByEmail(String email) throws SQLException {
+        // Vérifier si la connexion est toujours valide
+        if (connection == null) {
+            // Tentative de reconnexion
+            Database db = Database.getInstance();
+            connection = db.getConnection();
+            if (connection == null) {
+                throw new SQLException("No database connection available");
+            }
+        }
+
         String sql = "SELECT * FROM users WHERE email = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, email);
@@ -183,7 +197,7 @@ public class ServiceUser implements Iservices<users> {
                 user.setPhone_number(rs.getInt("phone_number"));
                 user.setBirth_date(rs.getString("birth_date"));
                 user.setEmail(rs.getString("email"));
-                user.setPassword(rs.getString("password")); // ← C'EST LE HASH
+                user.setPassword(rs.getString("password"));
                 user.setRole(rs.getString("role"));
                 user.setBlocked(rs.getBoolean("is_blocked"));
                 return user;
@@ -278,6 +292,7 @@ public class ServiceUser implements Iservices<users> {
                 user.setEmail(rs.getString("email"));
                 user.setPassword(rs.getString("password")); // ← C'EST LE HASH
                 user.setRole(rs.getString("role"));
+                user.setBlocked(rs.getBoolean("is_blocked"));
                 return user;
             }
         }

@@ -404,8 +404,116 @@ public class usersController {
     }
 
     @FXML
+
     private void updateUser() {
-        showAlert("Info", "Fonctionnalité de modification à implémenter");
+
+        try {
+
+            String plainPassword = passwordField.getText();
+
+            // Hash password
+            String hashedPassword = PasswordUtils.hashPassword(plainPassword);
+
+            int age = Integer.parseInt(ageField.getText().trim());
+            int phone = Integer.parseInt(phoneField.getText().trim());
+
+            String role = roleBox.getValue();
+
+            switch (role) {
+
+                case "patient":
+
+                    patient p = new patient();
+
+
+                    p.setName(nameField.getText().trim());
+                    p.setSecond_name(secondNameField.getText().trim());
+                    p.setAge(age);
+                    p.setGender(genderField.getText().trim());
+                    p.setPhone_number(phone);
+                    p.setBirth_date(dateBirth.getValue().toString());
+                    p.setEmail(emailField.getText().trim());
+                    p.setPassword(hashedPassword);
+                    p.setRole(role);
+
+                    // doctrine
+                    p.setDtype(role);
+
+                    p.setBlood_type(txtBloodType.getText().trim());
+                    p.setWeight(Double.parseDouble(txtWeight.getText().trim()));
+                    p.setHeight(Double.parseDouble(txtHeight.getText().trim()));
+
+                    serviceUser.modifier(p);
+                    servicePatient.modifier(p);
+
+                    break;
+
+                case "doctor":
+
+                    doctor d = new doctor();
+
+                    d.setName(nameField.getText().trim());
+                    d.setSecond_name(secondNameField.getText().trim());
+                    d.setAge(age);
+                    d.setGender(genderField.getText().trim());
+                    d.setPhone_number(phone);
+                    d.setBirth_date(dateBirth.getValue().toString());
+                    d.setEmail(emailField.getText().trim());
+                    d.setPassword(hashedPassword);
+                    d.setRole(role);
+
+                    // doctrine
+                    d.setDtype(role);
+
+                    d.setSpecialty(txtSpecialty.getText().trim());
+                    d.setExperience(Integer.parseInt(txtExperience.getText().trim()));
+                    d.setDiplome(txtDiplome.getText().trim());
+                    d.setDisponible(chkDisponible.isSelected());
+                    d.setTarifConsultation(Double.parseDouble(txtTarif.getText().trim()));
+                    d.setActif(chkActif.isSelected());
+
+                    serviceUser.modifier(d);
+                    serviceDoctor.modifier(d);
+
+                    break;
+
+                case "admin":
+
+                    admin a = new admin();
+
+                    a.setName(nameField.getText().trim());
+                    a.setSecond_name(secondNameField.getText().trim());
+                    a.setAge(age);
+                    a.setGender(genderField.getText().trim());
+                    a.setPhone_number(phone);
+                    a.setBirth_date(dateBirth.getValue().toString());
+                    a.setEmail(emailField.getText().trim());
+                    a.setPassword(hashedPassword);
+                    a.setRole(role);
+
+                    // doctrine
+                    a.setDtype(role);
+
+                    a.setActif(chkActifA.isSelected());
+
+                    serviceUser.modifier(a);
+                    serviceAdmin.modifier(a);
+
+                    break;
+
+                default:
+                    showAlert("Erreur", "Rôle invalide");
+                    return;
+            }
+
+            clearFields();
+
+            showAlert("Succès", "Utilisateur modifié avec succès");
+
+        } catch (Exception e) {
+
+            showAlert("Erreur", e.getMessage());
+        }
     }
 
     @FXML

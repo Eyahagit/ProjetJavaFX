@@ -168,9 +168,13 @@ public class GoogleAuthService {
      */
     private int createUser(Connection conn, users user) {
         try {
+            // Définir dtype à partir du role
+            if (user.getRole() != null && (user.getDtype() == null || user.getDtype().isEmpty())) {
+                user.setDtype(user.getRole().toLowerCase()); // "patient" ou "doctor"
+            }
             // 1. Insérer d'abord dans users
-            String userQuery = "INSERT INTO users (name, second_name, age, gender, phone_number, birth_date, email, password, role) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            String userQuery = "INSERT INTO users (name, second_name, age, gender, phone_number, birth_date, email, password, role, dtype) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
             PreparedStatement userStmt = conn.prepareStatement(userQuery, Statement.RETURN_GENERATED_KEYS);
             userStmt.setString(1, user.getName());
@@ -182,6 +186,7 @@ public class GoogleAuthService {
             userStmt.setString(7, user.getEmail());
             userStmt.setString(8, user.getPassword());
             userStmt.setString(9, user.getRole());
+            userStmt.setString(10, user.getDtype());
 
             int affected = userStmt.executeUpdate();
             System.out.println("✅ Utilisateur inséré dans users: " + affected);
@@ -193,14 +198,15 @@ public class GoogleAuthService {
                     System.out.println("✅ ID utilisateur généré: " + userId);
 
                     // 2. Insérer dans patient avec l'id_user
-                    String patientQuery = "INSERT INTO patients (id_user, blood_type, weight, height) " +
+                    String patientQuery = "INSERT INTO patients ( blood_type, weight, height,id_user) " +
                             "VALUES (?, ?, ?, ?)";
 
                     PreparedStatement patientStmt = conn.prepareStatement(patientQuery);
-                    patientStmt.setInt(1, userId);      // id_user = l'ID de l'utilisateur
-                    patientStmt.setString(2, "");       // blood_type vide par défaut
-                    patientStmt.setInt(3, 0);            // weight 0 par défaut
-                    patientStmt.setInt(4, 0);            // height 0 par défaut
+                          // id_user = l'ID de l'utilisateur
+                    patientStmt.setString(1, "");       // blood_type vide par défaut
+                    patientStmt.setInt(2, 0);            // weight 0 par défaut
+                    patientStmt.setInt(3, 0);
+                    patientStmt.setInt(4, userId);// height 0 par défaut
 
                     int patientAffected = patientStmt.executeUpdate();
                     System.out.println("✅ Patient inséré dans table patient: " + patientAffected);

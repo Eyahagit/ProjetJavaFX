@@ -12,10 +12,12 @@ public class users {
     private String password;
     private String role;
     private boolean isBlocked;
+    private String dtype;
+    private String googleAuthenticatorSecret;
 
     public users() {}
 
-    public users(int id, String name, String second_name, int age, String gender, int phone_number, String birth_date, String email, String password, String role) {
+    public users(int id, String name, String second_name, int age, String gender, int phone_number, String birth_date, String email, String password, String role,String dtype,String googleAuthenticatorSecret) {
         this.id = id;
         this.name = name;
         this.second_name = second_name;
@@ -27,6 +29,8 @@ public class users {
         this.password = password;
         this.role = role;
         this.isBlocked = false;
+        this.dtype = role.toLowerCase();;
+        this.googleAuthenticatorSecret = googleAuthenticatorSecret;
     }
 
     // Getters et Setters
@@ -63,6 +67,13 @@ public class users {
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
 
+    public String getDtype() { return dtype; }
+    public void setDtype(String dtype) { this.dtype = dtype; }
+
+    public String getGoogleAuthenticatorSecret() { return googleAuthenticatorSecret; }
+    public void setGoogleAuthenticatorSecret(String googleAuthenticatorSecret) { this.googleAuthenticatorSecret = googleAuthenticatorSecret; }
+
+
     @Override
     public String toString() {
         return "users{" +
@@ -76,6 +87,8 @@ public class users {
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 ", role='" + role + '\'' +
+                ", dtype='" + dtype + '\'' +
+                ", googleAuthenticatorSecret='" + googleAuthenticatorSecret + '\'' +
                 '}';
     }
 }

@@ -349,7 +349,6 @@ public class MainForumController {
         }
     }
 
-// SUPPRIMÉ: handleSwitchRole() - plus nécessaire
 
     @FXML
     public void handleRessources() {

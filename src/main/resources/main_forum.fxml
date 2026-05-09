@@ -99,10 +99,7 @@
                                -fx-background-radius: 30; -fx-padding: 12 25; -fx-cursor: hand;
                                -fx-effect: dropshadow(gaussian, rgba(229,62,62,0.4), 10, 0, 0, 2);"/>
 
-                <Button fx:id="btnSwitchRole" text="🔄 Changer rôle" onAction="#handleSwitchRole"
-                        style="-fx-background-color: #9F7AEA; -fx-text-fill: white; -fx-font-weight: 700;
-                               -fx-background-radius: 30; -fx-padding: 12 25; -fx-cursor: hand;
-                               -fx-effect: dropshadow(gaussian, rgba(159,122,234,0.4), 8, 0, 0, 2);"/>
+
 
                 <!-- 🏠 NOUVEAU BOUTON RETOUR À L'ACCUEIL -->
                 <!-- Dans la section des boutons de navigation -->
