@@ -122,11 +122,9 @@ public class ServiceRendezVous implements Iservices<RendezVous> {
     public List<RendezVous> recupererAvecDetails() {
         List<RendezVous> list = new ArrayList<>();
         String sql = "SELECT r.*, " +
-                "p.nom as nomPsycho, p.prenom as prenomPsycho, p.specialite, " +
-                "c.nomCabinet, c.ville " +
+                "u.name as nomPsycho, u.second_name as prenomPsycho " +
                 "FROM rendezvous r " +
-                "INNER JOIN psychologue p ON r.idPsychologue = p.idPsychologue " +
-                "INNER JOIN cabinet c ON p.idCabinet = c.idCabinet " +
+                "INNER JOIN users u ON r.idPsychologue = u.id " +
                 "ORDER BY r.dateRdv DESC, r.heure";
 
         try (Statement st = connection.createStatement();
@@ -142,14 +140,14 @@ public class ServiceRendezVous implements Iservices<RendezVous> {
                 r.setTelephonePatient(rs.getString("telephone_patient"));
                 r.setNomPatient(rs.getString("nom_patient"));
                 r.setPrenomPatient(rs.getString("prenom_patient"));
-                r.setEmailPatient(rs.getString("email_patient"));  // ← EMAIL AJOUTÉ
+                r.setEmailPatient(rs.getString("email_patient"));
                 r.setRappelEnvoye(rs.getBoolean("rappel_envoye"));
                 r.setDateRappel(rs.getTimestamp("date_rappel"));
                 r.setNomPsychologue(rs.getString("nomPsycho"));
                 r.setPrenomPsychologue(rs.getString("prenomPsycho"));
-                r.setSpecialitePsychologue(rs.getString("specialite"));
-                r.setNomCabinet(rs.getString("nomCabinet"));
-                r.setVilleCabinet(rs.getString("ville"));
+                r.setSpecialitePsychologue("");  // plus dans users
+                r.setNomCabinet("");             // plus de table cabinet
+                r.setVilleCabinet("");           // plus de table cabinet
                 list.add(r);
             }
             System.out.println("✅ " + list.size() + " rendez-vous chargés avec détails");

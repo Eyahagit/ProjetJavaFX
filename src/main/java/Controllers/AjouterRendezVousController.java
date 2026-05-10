@@ -2,11 +2,8 @@ package Controllers;
 
 import Models.Psychologue;
 import Models.RendezVous;
-import Services.ServicePsychologue;
-import Services.ServiceRendezVous;
-import Services.StripePaymentService;
-import Services.EmailRappelService;
-import Services.EmailConfirmationPaiementService;
+import Models.users;
+import Services.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -156,8 +153,19 @@ public class AjouterRendezVousController {
 
     private void chargerPsychologues() {
         try {
-            ServicePsychologue servicePsychologue = new ServicePsychologue();
-            List<Psychologue> psychologues = servicePsychologue.recupererAvecCabinet();
+            ServiceUser serviceUser = new ServiceUser();
+            List<users> doctors = serviceUser.recuperer().stream()
+                    .filter(u -> "doctor".equalsIgnoreCase(u.getRole()))
+                    .collect(java.util.stream.Collectors.toList());
+
+            List<Psychologue> psychologues = doctors.stream().map(u -> {
+                Psychologue p = new Psychologue();
+                p.setNom(u.getName());
+                p.setPrenom(u.getSecond_name());
+                // p.setSpecialite(""); // si tu n'as pas ce champ dans users
+                return p;
+            }).collect(java.util.stream.Collectors.toList());
+
             ObservableList<Psychologue> items = FXCollections.observableArrayList(psychologues);
             comboPsychologue.setItems(items);
 
