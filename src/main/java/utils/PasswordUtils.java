@@ -14,13 +14,14 @@ public class PasswordUtils {
     }
 
     public static boolean checkPassword(String plainPassword, String hashedPassword) {
-        if (plainPassword == null || hashedPassword == null) {
-            return false;
-        }
         try {
+            // Compatibilité PHP BCrypt ($2y$ → $2a$)
+            if (hashedPassword.startsWith("$2y$")) {
+                hashedPassword = "$2a$" + hashedPassword.substring(4);
+            }
             return BCrypt.checkpw(plainPassword, hashedPassword);
         } catch (Exception e) {
-            System.err.println("❌ Erreur vérification mot de passe: " + e.getMessage());
+            System.err.println("Erreur vérification mot de passe: " + e.getMessage());
             return false;
         }
     }

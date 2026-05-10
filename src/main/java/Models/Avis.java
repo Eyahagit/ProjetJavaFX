@@ -14,6 +14,8 @@ public class Avis {
     private String review_category;
     private int is_verified;
 
+    public Avis(){}
+
     public Avis(int idAvis, int idReservation, int utilisateur_id, int note, String commentaire, LocalDateTime dateAvis, float sentiment_score, float authenticity_score, String review_category, int is_verified) {
 
         this.idAvis = idAvis;

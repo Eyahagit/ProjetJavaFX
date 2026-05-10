@@ -17,8 +17,7 @@ public class ServiceUser implements Iservices<users> {
 
     @Override
     public void ajouter(users users) throws SQLException {
-        String sql = "INSERT INTO `users` (name, second_name, age, gender, phone_number, birth_date, email, password, role,dtype,googleAuthenticatorSecret) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)";
-
+        String sql = "INSERT INTO `users` (name, second_name, age, gender, phone_number, birth_date, email, password, role, googleAuthenticatorSecret) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, users.getName());
             stmt.setString(2, users.getSecond_name());
@@ -27,17 +26,15 @@ public class ServiceUser implements Iservices<users> {
             stmt.setInt(5, users.getPhone_number());
             stmt.setString(6, users.getBirth_date());
             stmt.setString(7, users.getEmail());
-            stmt.setString(8, users.getPassword()); // ← Le mot de passe est déjà haché par le contrôleur
+            stmt.setString(8, users.getPassword());
             stmt.setString(9, users.getRole());
-            stmt.setString(10, users.getDtype());
-            stmt.setString(11, users.getGoogleAuthenticatorSecret());
+            stmt.setString(10, null);
 
             stmt.executeUpdate();
 
             ResultSet rs = stmt.getGeneratedKeys();
             if (rs.next()) {
-                int generatedId = rs.getInt(1);
-                users.setId(generatedId);
+                users.setId(rs.getInt(1));
             }
         }
     }
@@ -106,7 +103,6 @@ public class ServiceUser implements Iservices<users> {
                 user.setEmail(rs.getString("email"));
                 user.setPassword(rs.getString("password")); // ← C'EST LE HASH
                 user.setRole(rs.getString("role"));
-                user.setDtype(rs.getString("dtype"));
                 user.setGoogleAuthenticatorSecret(rs.getString("googleAuthenticatorSecret"));
                 userslist.add(user);
             }

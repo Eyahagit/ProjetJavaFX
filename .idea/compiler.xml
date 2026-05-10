@@ -6,6 +6,7 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="GrowMind" />
         <module name="pi_dev_psych_and_dev_perso" />
       </profile>
     </annotationProcessing>

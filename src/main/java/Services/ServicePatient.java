@@ -171,10 +171,7 @@ public class ServicePatient implements Iservices <patient> {
         return list;
     }
     public patient getById(int id) throws SQLException {
-        String sql = "SELECT p.*, u.name, u.second_name, u.email, u.age, u.gender, u.phone_number, u.birth_date " +
-                "FROM patients p " +
-                "JOIN users u ON p.id_user = u.id " +
-                "WHERE p.id_user = ?";
+        String sql = "SELECT * FROM users WHERE id = ? AND role = 'patient'";
 
         System.out.println("🔍 Getting patient with ID: " + id);
 

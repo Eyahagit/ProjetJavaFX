@@ -93,7 +93,7 @@ public class AvisAI {
         score -= Math.min(0.3, ratingDifference * 0.1);
         
         // Factor 4: User review history
-        int userReviewCount = getUserReviewCount(avis.getUtilisateurId());
+        int userReviewCount = getUserReviewCount(avis.getUtilisateur_id());
         if (userReviewCount == 1) {
             score -= 0.1; // First-time reviewer, slightly lower trust
         } else if (userReviewCount > 50) {
@@ -346,10 +346,14 @@ public class AvisAI {
                     Avis avis = new Avis();
                     avis.setIdAvis(rs.getInt("idAvis"));
                     avis.setIdReservation(rs.getInt("idReservation"));
-                    avis.setUtilisateurId(rs.getInt("utilisateur_id"));
+                    avis.setUtilisateur_id(rs.getInt("utilisateur_id"));
                     avis.setNote(rs.getInt("note"));
                     avis.setCommentaire(rs.getString("commentaire"));
                     avis.setDateAvis(rs.getTimestamp("date_avis").toLocalDateTime());
+                    avis.setSentiment_score(rs.getInt("sentiment_score"));
+                    avis.setAuthenticity_score(rs.getInt("authenticity_score"));
+                    avis.setReview_category(rs.getString("review_category"));
+                    avis.setIs_verified(rs.getInt("is_verified"));
                     reviews.add(avis);
                 }
             }
@@ -372,7 +376,7 @@ public class AvisAI {
                     Avis avis = new Avis();
                     avis.setIdAvis(avisId);
                     avis.setIdReservation(rs.getInt("idReservation"));
-                    avis.setUtilisateurId(rs.getInt("utilisateur_id"));
+                    avis.setUtilisateur_id(rs.getInt("utilisateur_id"));
                     avis.setNote(rs.getInt("note"));
                     avis.setCommentaire(rs.getString("commentaire"));
                     avis.setDateAvis(rs.getTimestamp("date_avis").toLocalDateTime());
